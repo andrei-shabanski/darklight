@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="css/normalize.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="stylesheet" type="text/css" href="css/modal.css">
+  <script type="text/javascript" src="js/utils.js"></script>
+  <script type="text/javascript" src="js/logging.js"></script>
+  <script type="text/javascript" src="js/events.js"></script>
+  <script type="text/javascript" src="js/app.js"></script>
+</head>
+<body>
+  <div class="drop-area hide">
+    <div class="drop-content">
+      <h1>Drop the file here</h1>
+    </div>
+  </div>
+
+  <div id="welcome" class="modal" data-open="true">
+    <div class="modal-content">
+      <div class="modal-body">
+        <section class="getting-started">
+          <h1 class="center">Welcome</h1>
+          <p class="center">Click <kbd>Ctrl+V</kbd> to paste an image from the clipboard</p>
+          <p class="center">or drag an image to the browser</p>
+          <p class="center">or choose an image from your computer</p>
+          <div class="center">
+            <input id="imageInput" class="center" type="file" accept="image/*">
+          </div>
+        </section>
+        <section class="guide">
+          <article>
+            <h3>You can... </h3>
+            <p>* load an image from the clipboard and your computer</p>
+            <p>* draw lines, rectangles, ellipses, arrows, text</p>
+            <p>* use a <code>Pen</code> to draw anything else</p>
+            <p>* download a PNG image</p>
+          </article>
+          <article>
+            <h3>Controls</h3>
+            <p><kbd>Ctrl+V</kbd> to paste an image from the clipboard</p>
+            <p><kbd>Ctrl+C</kbd> to copy an image to the clipboard</p>
+            <p><kbd>Ctrl+S</kbd> to download an image</p>
+            <p><kbd>Ctrl+Z</kbd> to undo an action</p>
+            <p><kbd>Ctrl+Scroll</kbd> to zoom</p>
+          </article>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawing-area">
+    <div class="toolbar">
+      <div class="toolbar-rigth">
+        <input id="scaleOption" class="option" type="range" min="1" max="3" step="0.2" value="1">
+        <button id="saveBtn" class="button">Save</button>
+      </div>
+
+      <button id="textBtn" class="tool">T</button>
+      <button id="penBtn" class="tool">перо</button>
+      <button id="rectangleBtn" class="tool">квад</button>
+      <button id="ellipseBtn" class="tool">круг</button>
+      <button id="lineBtn" class="tool">линия</button>
+      <button id="arrowBtn" class="tool">стрелка</button>
+      <button id="cropBtn" class="tool">crop</button>
+
+      <input id="sizeOption" class="option hidden" type="number" min="1" max="64" value="5">
+      <input id="textSizeOption" class="option hidden" type="number" min="8" max="64" value="24">
+      <input id="colorOption" class="option hidden" type="color" value="#ff0000">
+    </div>
+
+    <div class="canvases">
+      <canvas id="imageArea"></canvas>
+      <canvas id="drawingArea"></canvas>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    window.addEventListener('load', function() {
+
+      function getDrawingAreaSize() {
+        var areasElement = document.getElementsByClassName('canvases')[0];
+
+        return {
+          height: areasElement.scrollHeight,
+          width: areasElement.scrollWidth
+        };
+
+        var styles = getComputedStyle(areasElement);
+
+        return {
+          height: +styles.height.slice(0, styles.height.length - 2),
+          width: +styles.width.slice(0, styles.width.length - 2)
+        }
+      }
+
+      function showSpinner() {
+        console.log('SPINNER');
+      }
+
+      function hideSpinner() {
+        console.log('DONE');
+      }
+
+      var app = new App(
+        getDrawingAreaSize,
+        document.getElementById('imageArea'),
+        document.getElementById('drawingArea'),
+        document.getElementById('textBtn'),
+        document.getElementById('penBtn'),
+        document.getElementById('rectangleBtn'),
+        document.getElementById('ellipseBtn'),
+        document.getElementById('lineBtn'),
+        document.getElementById('arrowBtn'),
+        document.getElementById('scaleOption'),
+        document.getElementById('colorOption'),
+        document.getElementById('sizeOption'),
+        document.getElementById('textSizeOption')
+      );
+
+      app.on('image-loading', showSpinner);
+      app.on('image-loaded', hideSpinner);
+      app.on('image-not-loaded', hideSpinner);
+      app.on('image-saving', showSpinner);
+      app.on('image-saved', hideSpinner);
+
+      app.on('image-loaded', function hideWelcomeScreen() {
+        var drawingAreaElement = document.getElementsByClassName('drawing-area')[0];
+        var welcomeElement = document.getElementById('welcome');
+
+        showElement(drawingAreaElement);
+        welcomeElement.dataset.open = 'false';
+
+        app.off('image-loaded', hideWelcomeScreen);
+      });
+
+      var saveBtn = document.getElementById('saveBtn');
+      saveBtn.addEventListener('click', app.download.bind(app));
+
+      var fileBtn = document.getElementById('imageInput');
+      fileBtn.addEventListener('change', function(e) {
+        if (e.target.files.length) {
+          app.loadImageFromFileObj(e.target.files[0]);
+        }
+      });
+
+      window.addEventListener('resize', function(event) {
+        app.zoom();
+        app.resizeCanvas();
+        app.draw();
+      });
+
+      var dropareaHiddingTimerID = null;
+      var dragoverLastTimeFired = null;
+      document.body.addEventListener('dragover', function(event) {
+        dragoverLastTimeFired = new Date();
+
+        if (!dropareaHiddingTimerID) {
+          var droparea = document.getElementsByClassName('drop-area')[0];
+          showElement(droparea, 'hide');
+
+          dropareaHiddingTimerID = setInterval(function() {
+            console.log('check');
+            var nowTime = new Date();
+            if ((nowTime - dragoverLastTimeFired) < 150) {
+              return
+            }
+
+            var droparea = document.getElementsByClassName('drop-area')[0];
+            hideElement(droparea, 'hide');
+
+            clearInterval(dropareaHiddingTimerID);
+          }, 50);
+        }
+
+        event.preventDefault();
+      });
+
+      document.body.addEventListener('drop', function(event) {
+        for (var index in event.dataTransfer.types) {
+          if (event.dataTransfer.types[index] != 'Files') {
+            continue
+          }
+
+          var dataItem = event.dataTransfer.items[index];
+          var file = dataItem.getAsFile();
+
+          if (!file.type.startsWith('image/')) {
+            continue
+          }
+
+          var fileReader = new FileReader();
+          fileReader.onload = function(event) {
+            app.loadImageFromUrl(event.target.result);
+          }
+          fileReader.readAsDataURL(file);
+          break
+        }
+
+        event.preventDefault();
+      });
+
+      window.app = app;
+    });
+  </script>
+</body>
+</html>

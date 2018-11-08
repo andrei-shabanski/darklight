@@ -1,0 +1,138 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #ECEFF1;
+  font-family: sans-serif;
+}
+
+kbd {
+  padding: 2px 4px;
+  margin: 0;
+  border-radius: 3px;
+  background-color: #333333;
+  color: #ffffff;
+  text-transform: lowercase;
+  font-size: 0.9em;
+}
+
+h1, h2, h3 {
+  margin: 20px 0 10px 0;
+}
+
+h4, h5, h6 {
+  margin: 10px 0 10px 0;
+}
+
+p {
+  margin: 0 0 10px;
+}
+
+
+/* COMMON */
+.hidden {
+  display: none !important;
+}
+
+.center {
+  text-align: center;
+}
+
+.no-scrollable {
+  overflow: hidden;
+}
+
+
+/* MAIN */
+.welcome {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.guide {
+  width: 100%;
+  margin-top: 40px;
+  display: flex;
+  justify-content: space-around;
+}
+
+
+
+
+.drop-area {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 200;
+  background-color: rgba(255,255,255,0.9);
+  color: #969696;
+}
+
+.drop-area.hide {
+  display: none;
+}
+
+.drop-content {
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+  border: 5px dashed #e0e0e0;
+}
+
+
+
+
+
+
+
+/* CANVAS */
+.drawing-area {
+  background-image: url('../img/bg.png');
+}
+
+.toolbar {
+  background-color: #34495E;
+  padding: 6px 12px;
+  position: fixed;
+  width: 100%;
+  z-index: 90;
+}
+
+.toolbar-rigth {
+  float: right;
+}
+
+input.option[type="color"] {
+  width: 20px;
+}
+
+.tool.active {
+  color: red;
+}
+
+.canvases {
+  /*background-color: #ECEFF1;*/
+  /*padding-top: 40px;*/
+  height: calc(100vh - 40px);
+  width: 100vw;
+  position: relative;;
+  top: 40px;
+}
+
+.canvases canvas {
+  position: absolute;
+}
