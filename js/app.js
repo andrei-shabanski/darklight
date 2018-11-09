@@ -65,17 +65,17 @@ var App = (function() {
             cursor: 'text',
             optionNames: ['textSize', 'color']
         }, {
-            button: penBtn, 
+            button: penBtn,
             shape: Pen,
             cursor: 'crosshair',
             optionNames: ['size', 'color']
         }, {
-            button: rectangleBtn,  
+            button: rectangleBtn,
             shape: Rectangle,
             cursor: 'crosshair',
             optionNames: ['size', 'color']
         }, {
-            button: ellipseBtn,  
+            button: ellipseBtn,
             shape: Ellipse,
             cursor: 'crosshair',
             optionNames: ['size', 'color']
@@ -104,7 +104,7 @@ var App = (function() {
                     );
                     this.crop(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y);
                 }
-            } 
+            }
         }];
 
         this.activatedButtonConfig = null;
@@ -129,7 +129,7 @@ var App = (function() {
         this.shapes = [];
         this.currentShapeClass = null;
         this.currentShape = null;
-    
+
         this.initializeTools();
 
         this.drawingCanvas.addEventListener('mousedown', this.onDrawingCanvasMouseDown.bind(this), false);
@@ -196,7 +196,7 @@ var App = (function() {
 
     Application.prototype.onCopy = function(event) {
         logger.debug('Application is handling "copy"\\"cut" event');
-        
+
         var data = this.toDataURL();
         event.clipboardData.setData('image/png', data);
         event.preventDefault();
@@ -208,7 +208,7 @@ var App = (function() {
         if (event.ctrlKey) {
             if (event.deltaY < 0) {
                 this.globalOptionConfigs.scale.stepUp();
-            } else {                
+            } else {
                 this.globalOptionConfigs.scale.stepDown();
             }
 
@@ -231,7 +231,7 @@ var App = (function() {
         this.state = APP_EVENT_STATE_MAPPING[eventType].call(this);
         Application.super.emit.apply(this, arguments);
     }
- 
+
     Application.prototype.initializeTools = function() {
         var self = this;
 
@@ -242,7 +242,7 @@ var App = (function() {
                 self.currentShape.draw();
             }
         }
-        
+
         this.buttonConfigs.forEach(function(btnConfig) {
             btnConfig.button.addEventListener('click', function(event) {
                 self.selectShape(btnConfig.shape);
@@ -275,7 +275,7 @@ var App = (function() {
 
             changeOption('textSize', event.target.valueAsNumber);
         }.bind(this));
-        
+
         this.optionConfigs.size.addEventListener('change', function(event) {
             if (!event.target.valueAsNumber) {
                 event.target.value = this.options.size;
@@ -284,7 +284,7 @@ var App = (function() {
 
             changeOption('size', event.target.valueAsNumber);
         }.bind(this));
-        
+
         this.optionConfigs.color.addEventListener('change', function(event) {
             if (!event.target.value) {
                 event.target.value = this.options.color;
@@ -421,7 +421,7 @@ var App = (function() {
         this.currentShape = new this.currentShapeClass(
             this.drawingCanvasCtx,
             event.offsetX,
-            event.offsetY, 
+            event.offsetY,
             this.options,
             this.commitShape.bind(this)
         );
@@ -441,7 +441,7 @@ var App = (function() {
         if (this.activatedButtonConfig.beforeCommit) {
             this.activatedButtonConfig.beforeCommit.call(this, this.currentShape);
         }
-        
+
         if (!this.currentShape.isEmpty()) {
             this.currentShape.canvasCtx = this.imageCanvasCtx;
             this.shapes.push(this.currentShape);
@@ -478,9 +478,9 @@ var App = (function() {
 
         if (this.image) {
             width = this.image.width / this.options.scale;
-            height = this.image.height / this.options.scale;        
+            height = this.image.height / this.options.scale;
         }
-    
+
         this.imageCanvas.width = width;
         this.imageCanvas.height = height;
 
@@ -536,7 +536,7 @@ var App = (function() {
                 this.imageCanvasCtx.drawImage(this.image, 0, 0, this.image.width / this.options.scale, this.image.height / this.options.scale);
             }
         }
-        
+
         this.shapes.forEach(function(shape) {
             shape.draw(this.options.scale);
         }.bind(this));
@@ -580,7 +580,7 @@ var App = (function() {
         var now = new Date();
         var aTag = document.createElement('a');
         aTag.href = base64Data;
-        aTag.download = 'Image-' + now.toLocaleDateString() + '-' + now.toLocaleTimeString() + '.png';
+        aTag.download = 'Image-' + dateToString(now, 'dd-mm-yyyy_H-M-S') + '.png';
         aTag.click();
 
         this.emit(Application.IMAGE_SAVED_EVENT);
@@ -673,7 +673,7 @@ var App = (function() {
     MouseDrawableShape.prototype.update = function(data) {
         this.x1 = data.x1 || this.x1;
         this.y1 = data.y1 || this.y1;
-        
+
         MouseDrawableShape.super.update.apply(this, arguments);
     }
 
@@ -686,7 +686,7 @@ var App = (function() {
 
     MouseDrawableShape.prototype.onMouseMove = function(event) {
         logger.debug('"', this.constructor.name, '" is handling "mousemove"');
-        
+
         this.update({
             x1: event.offsetX,
             y1: event.offsetY
@@ -737,7 +737,7 @@ var App = (function() {
         this.canvasCtx.lineCap = 'round';
         this.canvasCtx.strokeStyle = this.options.color;
         this.canvasCtx.lineWidth = this.zo(this.options.size, scale);
-        
+
         this.canvasCtx.beginPath();
         this.canvasCtx.moveTo(this.zp(this.x0, scale), this.zp(this.y0, scale));
         this.points.forEach(function(point) {
@@ -761,7 +761,7 @@ var App = (function() {
         this.canvasCtx.lineCap = 'round';
         this.canvasCtx.strokeStyle = this.options.color;
         this.canvasCtx.lineWidth = this.zo(this.options.size, scale);
-        
+
         this.canvasCtx.beginPath();
         this.canvasCtx.moveTo(this.zp(this.x0, scale), this.zp(this.y0, scale));
         this.canvasCtx.lineTo(this.zp(this.x1, scale), this.zp(this.y1, scale));
@@ -783,11 +783,11 @@ var App = (function() {
         this.canvasCtx.strokeStyle = this.options.color;
         this.canvasCtx.lineJoin = 'round';
         this.canvasCtx.lineWidth = this.zo(this.options.size, scale);
-        
+
         this.canvasCtx.strokeRect(
-            this.zp(this.x0, scale), 
-            this.zp(this.y0, scale), 
-            this.zp(this.x1 - this.x0, scale), 
+            this.zp(this.x0, scale),
+            this.zp(this.y0, scale),
+            this.zp(this.x1 - this.x0, scale),
             this.zp(this.y1 - this.y0, scale)
         );
     }
@@ -805,7 +805,7 @@ var App = (function() {
         Ellipse.super.draw.apply(this, arguments);
 
         var points = getRectPoints(
-            this.zp(this.x0, scale), 
+            this.zp(this.x0, scale),
             this.zp(this.y0, scale),
             this.zp(this.x1, scale),
             this.zp(this.y1, scale)
@@ -815,11 +815,11 @@ var App = (function() {
 
         this.canvasCtx.strokeStyle = this.options.color;
         this.canvasCtx.lineWidth = this.zo(this.options.size, scale);
-        
+
         this.canvasCtx.beginPath();
         this.canvasCtx.ellipse(
-            pointTopLeft.x + (pointBottomRight.x - pointTopLeft.x) / 2, pointTopLeft.y + (pointBottomRight.y - pointTopLeft.y) / 2, 
-            (pointBottomRight.x - pointTopLeft.x) / 2, (pointBottomRight.y - pointTopLeft.y) / 2, 
+            pointTopLeft.x + (pointBottomRight.x - pointTopLeft.x) / 2, pointTopLeft.y + (pointBottomRight.y - pointTopLeft.y) / 2,
+            (pointBottomRight.x - pointTopLeft.x) / 2, (pointBottomRight.y - pointTopLeft.y) / 2,
             0, 0, 2 * Math.PI
         );
         this.canvasCtx.stroke();
@@ -840,7 +840,7 @@ var App = (function() {
         this.canvasCtx.strokeStyle = this.options.color;
         this.canvasCtx.lineJoin = 'round';
         this.canvasCtx.lineWidth = this.zo(this.options.size, scale);
-        
+
         this.canvasCtx.strokeRect(
             this.zp(this.x0, scale),
             this.zp(this.y0, scale),
@@ -893,7 +893,7 @@ var App = (function() {
 
 
 
-    
+
     function Text(canvasContext, x0, y0, options, commitCallback) {
         Text.super.constructor.apply(this, arguments);
 
@@ -997,7 +997,7 @@ var App = (function() {
         this.canvasCtx.textBaseline = 'top';
         this.canvasCtx.fillStyle = this.options.color;
         this.canvasCtx.font = Math.round(this.zo(this.options.textSize, scale)) + 'px arial';
-        
+
         lines.forEach(function(line, index) {
             this.canvasCtx.fillText(line, this.zp(this.x0, scale), this.zp(this.y0 + textHeight * index, scale));
         }.bind(this));
@@ -1011,7 +1011,7 @@ var App = (function() {
             this.canvasCtx.lineWidth = 1;
             this.canvasCtx.strokeStyle = this.options.color;
             this.canvasCtx.strokeRect(
-                this.zp(this.x0 - 4), 
+                this.zp(this.x0 - 4),
                 this.zp(this.y0 - 4),
                 textWith + 8,
                 this.zo(this.options.textSize * lines.length + 8, scale)
@@ -1125,10 +1125,10 @@ var App = (function() {
             this.canvasCtx.font = textHeight + 'px arial';
             var textWidth = this.canvasCtx.measureText(text).width;
         }
-        
+
         this.canvasCtx.fillText(
             text,
-            points[0].x + (points[1].x - points[0].x - textWidth) / 2, 
+            points[0].x + (points[1].x - points[0].x - textWidth) / 2,
             points[0].y + (points[1].y - points[0].y - textHeight) / 2
         );
     }
