@@ -10,105 +10,131 @@
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <link rel="stylesheet" type="text/css" href="css/modal.css">
   <script type="text/javascript" src="js/utils.js"></script>
+  <script type="text/javascript" src="js/ui.js"></script>
   <script type="text/javascript" src="js/logging.js"></script>
   <script type="text/javascript" src="js/events.js"></script>
   <script type="text/javascript" src="js/app.js"></script>
 </head>
 <body>
-  <div class="drop-area hide">
-    <div class="drop-content">
-      <h1>Drop the file here</h1>
+    <div class="drop-area hide">
+        <div class="drop-content">
+            <h1>Drop the file here</h1>
+        </div>
     </div>
-  </div>
 
-  <div id="welcome" class="modal" data-open="true">
-    <div class="modal-content">
-      <div class="modal-body">
-        <section class="getting-started">
-          <h1 class="center">Welcome</h1>
-          <p class="center">Click <kbd>Ctrl+V</kbd> to paste an image from the clipboard</p>
-          <p class="center">or drag an image to the browser</p>
-          <p class="center">or choose an image from your computer</p>
-          <div class="center">
-            <input id="imageInput" class="center" type="file" accept="image/*">
-          </div>
-        </section>
-        <section class="guide">
-          <article>
-            <h3>You can... </h3>
-            <p>* load an image from the clipboard and your computer</p>
-            <p>* draw lines, rectangles, ellipses, arrows, text</p>
-            <p>* use a <code>Pen</code> to draw anything else</p>
-            <p>* download a PNG image</p>
-          </article>
-          <article>
-            <h3>Controls</h3>
-            <p><kbd>Ctrl+V</kbd> to paste an image from the clipboard</p>
-            <p><kbd>Ctrl+C</kbd> to copy an image to the clipboard</p>
-            <p><kbd>Ctrl+S</kbd> to download an image</p>
-            <p><kbd>Ctrl+Z</kbd> to undo an action</p>
-            <p><kbd>Ctrl+Scroll</kbd> to zoom</p>
-          </article>
-        </section>
-      </div>
+    <div id="welcome" class="modal" data-open="true">
+        <div class="modal-content">
+            <div class="modal-body">
+            <section class="getting-started">
+                <h1 class="center">Welcome</h1>
+                <p class="center">Click <kbd>Ctrl+V</kbd> to paste an image from the clipboard</p>
+                <p class="center">or drag an image to the browser</p>
+                <p class="center">or choose an image from your computer</p>
+                <div class="center">
+                    <input id="imageInput" class="center" type="file" accept="image/*">
+                </div>
+            </section>
+            <section class="guide">
+                <article>
+                    <h3>You can... </h3>
+                    <p>* load an image from the clipboard and your computer</p>
+                    <p>* draw lines, rectangles, ellipses, arrows, text</p>
+                    <p>* use a <code>Pen</code> to draw anything else</p>
+                    <p>* download a PNG image</p>
+                </article>
+                <article>
+                    <h3>Controls</h3>
+                    <p><kbd>Ctrl+V</kbd> to paste an image from the clipboard</p>
+                    <p><kbd>Ctrl+C</kbd> to copy an image to the clipboard</p>
+                    <p><kbd>Ctrl+S</kbd> to download an image</p>
+                    <p><kbd>Ctrl+Z</kbd> to undo an action</p>
+                    <p><kbd>Ctrl+Scroll</kbd> to zoom</p>
+                    </article>
+            </section>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="drawing-area">
     <div class="toolbar">
         <div class="tools">
-            <button id="textBtn" class="tool">
-                <span class="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
-                </span>
+            <button id="textBtn" class="btn btn-flat btn-dark flex-stretch">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
             </button>
-            <button id="penBtn" class="tool">
-                <span class="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"2"><polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon></svg>
-                </span>
+            <button id="penBtn" class="btn btn-flat btn-dark flex-stretch">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"2"><polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon></svg>
             </button>
-            <button id="lineBtn" class="tool">
-                <span class="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="4" x2="4" y2="20"></line></svg>
-                </span>
+            <button id="lineBtn" class="btn btn-flat btn-dark flex-stretch">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="4" x2="4" y2="20"></line></svg>
             </button>
-            <button id="rectangleBtn" class="tool">
-                <span class="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-                </span>
+            <button id="rectangleBtn" class="btn btn-flat btn-dark flex-stretch">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
             </button>
-            <button id="ellipseBtn" class="tool">
-                <span class="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
-                </span>
+            <button id="ellipseBtn" class="btn btn-flat btn-dark flex-stretch">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
             </button>
-            <button id="arrowBtn" class="tool">
-                <span class="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="4" x2="4" y2="20"></line><polyline points="14 20 4 20 4 10"></polyline></svg>
-                </span>
+            <button id="arrowBtn" class="btn btn-flat btn-dark flex-stretch">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="4" x2="4" y2="20"></line><polyline points="14 20 4 20 4 10"></polyline></svg>
             </button>
-            <button id="cropBtn" class="tool">
-                <span class="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="feather feather-crop"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"></path><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"></path></svg>
-                </span>
+            <button id="cropBtn" class="btn btn-flat btn-dark flex-stretch">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"></path><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"></path></svg>
             </button>
         </div>
+
         <div class="options">
             <input id="sizeOption" class="option hidden" type="number" min="1" max="64" value="5">
             <input id="textSizeOption" class="option hidden" type="number" min="8" max="64" value="24">
             <input id="colorOption" class="option hidden" type="color" value="#ff0000">
+
+
+            <div class="dropdown" data-dropdown>
+                <button data-dropdown-button class="btn btn-flat btn-dark flex-stretch">
+                    <svg class="icon small" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-group">
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                    </div>
+                    <div class="dropdown-group">
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                    </div>
+                    <div class="dropdown-group">
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                    </div>
+                    <div class="dropdown-group">
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                        <button class="dropdown-item btn btn-flat btn-dark">R</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
+
         <div class="menu">
-            <input id="scaleOption" class="option" type="range" min="1" max="3" step="0.2" value="1">
+            <div class="dropdown zoom-dropdown" data-dropdown>
+                <input type="text" value="100%">
+                <button data-dropdown-button class="btn btn-dark flex-stretch">
+                    <svg class="icon small" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="dropdown-menu">
+                    <input id="zoomOption" class="dropdown-item" type="range" min="1" max="3" step="0.1" value="1">
+                </div>
+            </div>
+
             <button id="saveBtn" class="btn">Download</button>
         </div>
     </div>
 
     <div class="canvases">
-      <canvas id="imageArea"></canvas>
-      <canvas id="drawingArea"></canvas>
+        <canvas id="imageArea"></canvas>
+        <canvas id="drawingArea"></canvas>
     </div>
-  </div>
 
   <script type="text/javascript">
     window.addEventListener('load', function() {
@@ -120,13 +146,6 @@
           height: areasElement.scrollHeight,
           width: areasElement.scrollWidth
         };
-
-        var styles = getComputedStyle(areasElement);
-
-        return {
-          height: +styles.height.slice(0, styles.height.length - 2),
-          width: +styles.width.slice(0, styles.width.length - 2)
-        }
       }
 
       function showSpinner() {
@@ -147,7 +166,7 @@
         document.getElementById('ellipseBtn'),
         document.getElementById('lineBtn'),
         document.getElementById('arrowBtn'),
-        document.getElementById('scaleOption'),
+        document.getElementById('zoomOption'),
         document.getElementById('colorOption'),
         document.getElementById('sizeOption'),
         document.getElementById('textSizeOption')
@@ -160,10 +179,8 @@
       app.on('image-saved', hideSpinner);
 
       app.on('image-loaded', function hideWelcomeScreen() {
-        var drawingAreaElement = document.getElementsByClassName('drawing-area')[0];
         var welcomeElement = document.getElementById('welcome');
 
-        showElement(drawingAreaElement);
         welcomeElement.dataset.open = 'false';
 
         app.off('image-loaded', hideWelcomeScreen);
@@ -234,6 +251,8 @@
 
         event.preventDefault();
       });
+
+      app.loadImageFromUrl('img/exp1.jpg');
 
       window.app = app;
     });

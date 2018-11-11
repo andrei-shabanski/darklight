@@ -221,7 +221,7 @@ var App = (function() {
         logger.debug('Application is handling "mousedown" event');
 
         if (event.button === 0) {
-            this.createShape();
+            this.createShape(event.offsetX, event.offsetY);
         }
     }
 
@@ -413,15 +413,15 @@ var App = (function() {
         this.currentShapeClass = shape;
     }
 
-    Application.prototype.createShape = function() {
+    Application.prototype.createShape = function(x, y) {
         if (!this.currentShapeClass || this.currentShape) {
             return
         }
 
         this.currentShape = new this.currentShapeClass(
             this.drawingCanvasCtx,
-            event.offsetX,
-            event.offsetY,
+            x,
+            y,
             this.options,
             this.commitShape.bind(this)
         );
