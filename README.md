@@ -12,19 +12,16 @@
 
 ```html
     <div class="dropdown" data-dropdown>
-        <button data-dropdown-button class="btn">Zoom</button>
+        <button class="dropdown-toggle btn">Click</button>
         <div class="dropdown-menu">
             <div class="dropdown-group">
-                <button class="dropdown-item btn">+</button>
+                <button class="btn">+</button>
                 <span>90%</span>
-                <button class="dropdown-item btn">-</button>
+                <button class="btn">-</button>
             </div>
-            <button class="dropdown-item btn">Zoom in</button>
-            <button class="dropdown-item btn">Zoom out</button>
-            <button class="dropdown-item btn">100%</button>
-            <button class="dropdown-item btn">75%</button>
-            <button class="dropdown-item btn">50</button>
-            <button class="dropdown-item btn">25%</button>
+            <button class="btn">Zoom in</button>
+            <button class="btn">Zoom out</button>
+            <button class="btn">100%</button>
         </div>
     </div>
 ```

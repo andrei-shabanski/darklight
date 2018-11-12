@@ -44,11 +44,7 @@ var App = (function() {
 
 
 
-    function Application(
-                getWindowSizeCallback,
-                imageCanvas, drawingCanvas,
-                textBtn, penBtn, rectangleBtn, ellipseBtn, lineBtn, arrowBtn,
-                scaleOption, colorOption, sizeOption, textSizeOption) {
+    function Application(getWindowSizeCallback, imageCanvas, drawingCanvas) {
         Application.super.constructor.apply(this, arguments);
 
         this.state = Application.NOT_INITIALIZED;
@@ -59,68 +55,64 @@ var App = (function() {
         this.drawingCanvas = drawingCanvas;
         this.drawingCanvasCtx = drawingCanvas.getContext('2d');
 
-        this.buttonConfigs = [{
-            button: textBtn,
-            shape: Text,
-            cursor: 'text',
-            optionNames: ['textSize', 'color']
-        }, {
-            button: penBtn,
-            shape: Pen,
-            cursor: 'crosshair',
-            optionNames: ['size', 'color']
-        }, {
-            button: rectangleBtn,
-            shape: Rectangle,
-            cursor: 'crosshair',
-            optionNames: ['size', 'color']
-        }, {
-            button: ellipseBtn,
-            shape: Ellipse,
-            cursor: 'crosshair',
-            optionNames: ['size', 'color']
-        }, {
-            button: lineBtn,
-            shape: Line,
-            cursor: 'crosshair',
-            optionNames: ['size', 'color']
-        }, {
-            button: arrowBtn,
-            shape: Arrow,
-            cursor: 'crosshair',
-            optionNames: ['size', 'color']
-        }, {
-            button: cropBtn,
-            shape: Crop,
-            cursor: 'crosshair',
-            optionNames: [],
-            afterCommit: function(shape) {
-                if (shape.needCrop) {
-                    var points = getRectPoints(
-                        shape.zp(shape.x0, 1),
-                        shape.zp(shape.y0, 1),
-                        shape.zp(shape.x1, 1),
-                        shape.zp(shape.y1, 1)
-                    );
-                    this.crop(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y);
+        this.tools = {
+            text: {
+                shape: Text,
+                cursor: 'text',
+                beforeCommit: null,
+                afterCommit: null,
+            },
+            pen: {
+                shape: Pen,
+                cursor: 'crosshair',
+                beforeCommit: null,
+                afterCommit: null,
+            },
+            rectangle: {
+                shape: Rectangle,
+                cursor: 'crosshair',
+                beforeCommit: null,
+                afterCommit: null,
+            },
+            ellipse: {
+                shape: Ellipse,
+                cursor: 'crosshair',
+                beforeCommit: null,
+                afterCommit: null,
+            },
+            line: {
+                shape: Line,
+                cursor: 'crosshair',
+                beforeCommit: null,
+                afterCommit: null,
+            },
+            arrow: {
+                shape: Arrow,
+                cursor: 'crosshair',
+                beforeCommit: null,
+                afterCommit: null,
+            },
+            crop: {
+                shape: Crop,
+                cursor: 'crosshair',
+                beforeCommit: null,
+                afterCommit: function(shape) {
+                    if (shape.needCrop) {
+                        var points = getRectPoints(
+                            shape.zp(shape.x0, 1),
+                            shape.zp(shape.y0, 1),
+                            shape.zp(shape.x1, 1),
+                            shape.zp(shape.y1, 1)
+                        );
+                        this.crop(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y);
+                    }
                 }
             }
-        }];
-
-        this.activatedButtonConfig = null;
-
-        this.optionConfigs = {
-            color: colorOption,
-            size: sizeOption,
-            textSize: textSizeOption
         };
 
-        this.globalOptionConfigs = {
-            scale: scaleOption
-        }
+        this.activeTool = null;
 
         this.options = new Options({
-            color: colorOption.value,
             size: +sizeOption.value,
             textSize: +textSizeOption.value
         });
@@ -130,14 +122,12 @@ var App = (function() {
         this.currentShapeClass = null;
         this.currentShape = null;
 
-        this.initializeTools();
-
         this.drawingCanvas.addEventListener('mousedown', this.onDrawingCanvasMouseDown.bind(this), false);
         window.addEventListener('keydown', this.onKeyDown.bind(this), false);
         window.addEventListener('paste', this.onPaste.bind(this), false);
         window.addEventListener('copy', this.onCopy.bind(this), false);
         window.addEventListener('cut', this.onCopy.bind(this), false);
-        window.addEventListener('wheel', this.onWheel.bind(this), false);
+        // window.addEventListener('wheel', this.onWheel.bind(this), false);
 
         this.emit(Application.INITIALIZED_EVENT);
     }
@@ -150,6 +140,7 @@ var App = (function() {
     Application.IMAGE_NOT_LOADED_EVENT = 'image-not-loaded';
     Application.IMAGE_SAVING_EVENT = 'image-saving';
     Application.IMAGE_SAVED_EVENT = 'image-saved';
+    Application.OPTION_CHANGED_EVENT = 'option-changed';
 
     Application.NOT_INITIALIZED_STATE = 0;
     Application.INITIALIZED_STATE = 1;
@@ -228,85 +219,12 @@ var App = (function() {
     Application.prototype.emit = function(eventType, details) {
         logger.debug('Application is emitting "', eventType, '" event');
 
-        this.state = APP_EVENT_STATE_MAPPING[eventType].call(this);
-        Application.super.emit.apply(this, arguments);
-    }
-
-    Application.prototype.initializeTools = function() {
-        var self = this;
-
-        function changeOption(optionName, value) {
-            self.options[optionName] = value;
-            if (self.currentShape) {
-                self.currentShape.options = self.options;
-                self.currentShape.draw();
-            }
+        var changeState = APP_EVENT_STATE_MAPPING[eventType];
+        if (changeState) {
+            this.state = APP_EVENT_STATE_MAPPING[eventType].call(this);
         }
 
-        this.buttonConfigs.forEach(function(btnConfig) {
-            btnConfig.button.addEventListener('click', function(event) {
-                self.selectShape(btnConfig.shape);
-
-                // deactivate a previous button and options
-                if (self.activatedButtonConfig) {
-                    self.activatedButtonConfig.button.classList.remove('active');
-                    self.activatedButtonConfig.optionNames.forEach(function(optionName) {
-                        hideElement(self.optionConfigs[optionName]);
-                    }.bind(self));
-                }
-
-                // activate a new button and options
-                btnConfig.button.classList.add('active');
-                btnConfig.optionNames.forEach(function(optionName) {
-                    showElement(self.optionConfigs[optionName]);
-                }.bind(self));
-
-                self.drawingCanvas.style.cursor = btnConfig.cursor;
-
-                self.activatedButtonConfig = btnConfig;
-            });
-        });
-
-        this.optionConfigs.textSize.addEventListener('change', function(event) {
-            if (!event.target.valueAsNumber) {
-                event.target.value = this.options.textSize;
-                return
-            }
-
-            changeOption('textSize', event.target.valueAsNumber);
-        }.bind(this));
-
-        this.optionConfigs.size.addEventListener('change', function(event) {
-            if (!event.target.valueAsNumber) {
-                event.target.value = this.options.size;
-                return
-            }
-
-            changeOption('size', event.target.valueAsNumber);
-        }.bind(this));
-
-        this.optionConfigs.color.addEventListener('change', function(event) {
-            if (!event.target.value) {
-                event.target.value = this.options.color;
-                return
-            }
-
-            changeOption('color', event.target.value);
-        }.bind(this));
-
-        this.globalOptionConfigs.scale.addEventListener('change', function(event) {
-            var scalePersent = event.target.valueAsNumber;
-
-            if (this.options.originalScale) {
-                var scale = this.options.originalScale / scalePersent;
-            } else {
-                scale = 1;
-            }
-
-            this.zoom(scale);
-            this.resizeCanvas();
-            this.draw();
-        }.bind(this));
+        Application.super.emit.apply(this, arguments);
     }
 
     Application.prototype.loadImageFromClipboard = function(clipboard) {
@@ -403,14 +321,33 @@ var App = (function() {
         this.emit(Application.IMAGE_LOADED_EVENT);
     }
 
-    Application.prototype.selectShape = function(shape) {
-        logger.info('Application is selecting "', shape.name, '"');
+    Application.prototype.setOption = function(name, value) {
+        this.options[name] = value;
+
+        if (this.currentShape) {
+            this.currentShape.options = this.options;
+            this.currentShape.draw();
+        }
+
+        this.emit(Application.OPTION_CHANGED_EVENT, {optionName: name, value: value});
+    }
+
+    Application.prototype.selectTool = function(toolName) {
+        logger.info('Application is selecting "', toolName, '"');
+
+        var tool = this.tools[toolName];
+        if (!tool) {
+            logger.warn("Unknown tool '", toolName, "'");
+            return;
+        }
+
+        this.activeTool = tool;
 
         if (this.currentShape) {
             this.currentShape.commit();
         }
 
-        this.currentShapeClass = shape;
+        this.currentShapeClass = tool.shape;
     }
 
     Application.prototype.createShape = function(x, y) {
@@ -438,8 +375,8 @@ var App = (function() {
 
         this.drawingCanvasCtx.clearRect(0, 0, this.drawingCanvas.width, this.drawingCanvas.height);
 
-        if (this.activatedButtonConfig.beforeCommit) {
-            this.activatedButtonConfig.beforeCommit.call(this, this.currentShape);
+        if (this.activeTool.beforeCommit) {
+            this.activeTool.beforeCommit.call(this, this.currentShape);
         }
 
         if (!this.currentShape.isEmpty()) {
@@ -453,8 +390,8 @@ var App = (function() {
         var currentShape = this.currentShape;
         this.currentShape = null;
 
-        if (this.activatedButtonConfig.afterCommit) {
-            this.activatedButtonConfig.afterCommit.call(this, currentShape);
+        if (this.activeTool.afterCommit) {
+            this.activeTool.afterCommit.call(this, currentShape);
         }
     }
 
@@ -735,6 +672,7 @@ var App = (function() {
         Pen.super.draw.apply(this, arguments);
 
         this.canvasCtx.lineCap = 'round';
+        this.canvasCtx.lineJoin = 'round';
         this.canvasCtx.strokeStyle = this.options.color;
         this.canvasCtx.lineWidth = this.zo(this.options.size, scale);
 
