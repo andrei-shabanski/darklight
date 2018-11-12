@@ -515,10 +515,13 @@ var App = (function() {
         var base64Data = app.toDataURL();
 
         var now = new Date();
-        var aTag = document.createElement('a');
-        aTag.href = base64Data;
-        aTag.download = 'Image-' + dateToString(now, 'dd-mm-yyyy_H-M-S') + '.png';
-        aTag.click();
+
+        // var aTag = document.createElement('a');
+        // aTag.href = base64Data;
+        // aTag.download = 'Image-' + dateToString(now, 'dd-mm-yyyy_H-M-S') + '.png';
+        // aTag.click();
+
+        saveAs(base64Data, 'Image-' + dateToString(now, 'dd-mm-yyyy_H-M-S') + '.png');
 
         this.emit(Application.IMAGE_SAVED_EVENT);
     }
