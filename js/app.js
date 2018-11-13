@@ -127,7 +127,6 @@ var App = (function() {
         window.addEventListener('paste', this.onPaste.bind(this), false);
         window.addEventListener('copy', this.onCopy.bind(this), false);
         window.addEventListener('cut', this.onCopy.bind(this), false);
-        // window.addEventListener('wheel', this.onWheel.bind(this), false);
 
         this.emit(Application.INITIALIZED_EVENT);
     }
@@ -191,21 +190,6 @@ var App = (function() {
         var data = this.toDataURL();
         event.clipboardData.setData('image/png', data);
         event.preventDefault();
-    }
-
-    Application.prototype.onWheel = function(event) {
-        logger.debug('Application is handling "wheel" event');
-
-        if (event.ctrlKey) {
-            if (event.deltaY < 0) {
-                this.globalOptionConfigs.scale.stepUp();
-            } else {
-                this.globalOptionConfigs.scale.stepDown();
-            }
-
-            this.globalOptionConfigs.scale.dispatchEvent(new Event('change'));
-            event.preventDefault();
-        }
     }
 
     Application.prototype.onDrawingCanvasMouseDown = function(event) {

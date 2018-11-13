@@ -18,7 +18,7 @@
     <script type="text/javascript" src="js/ui.js"></script>
 </head>
 <body>
-    <div class="drop-area hide">
+    <div id="dropArea" class="hide">
         <div class="drop-content">
             <h1>Drop the file here</h1>
         </div>
@@ -33,7 +33,7 @@
                 <p class="center">or drag an image to the browser</p>
                 <p class="center">or choose an image from your computer</p>
                 <div class="center">
-                    <input id="imageInput" class="center" type="file" accept="image/*">
+                    <input id="fileBtn" class="center" type="file" accept="image/*">
                 </div>
             </section>
             <section class="guide">
@@ -171,7 +171,7 @@
         <div class="menu">
             <div id="zoomOption" class="dropdown dropdown-dark dropdown-flat flex-stretch" data-dropdown>
                 <button class="dropdown-toggle btn btn-flat btn-dark">
-                    <input type="text" value="100%">
+                    <input id="zoomInput" type="text" value="100%">
                     <svg class="icon small roundable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </button>
                 <div class="dropdown-menu">
@@ -179,52 +179,39 @@
                 </div>
             </div>
 
-            <button id="saveBtn" class="btn">Download</button>
+            <button id="downloadBtn" class="btn">Download</button>
         </div>
     </div>
 
     <div class="canvases">
-        <div></div>
-        <canvas id="imageArea"></canvas>
-        <canvas id="drawingArea"></canvas>
+        <canvas id="imageCanvas">Your browser is not supported</canvas>
+        <canvas id="drawingCanvas"></canvas>
         <div></div>
     </div>
 
     <script type="text/javascript">
+        function getDrawingAreaSize() {
+            var areasElement = document.getElementsByClassName('canvases')[0];
+
+            return {
+                height: areasElement.scrollHeight,
+                width: areasElement.scrollWidth
+            };
+        }
+
+        function showSpinner() {
+            console.log('SPINNER');
+        }
+
+        function hideSpinner() {
+            console.log('DONE');
+        }
+
         window.addEventListener('load', function() {
-
-            function getDrawingAreaSize() {
-                var areasElement = document.getElementsByClassName('canvases')[0];
-
-                return {
-                    height: areasElement.scrollHeight,
-                    width: areasElement.scrollWidth
-                };
-            }
-
-            function showSpinner() {
-                console.log('SPINNER');
-            }
-
-            function hideSpinner() {
-                console.log('DONE');
-            }
-
-
-
             var app = new App(
                 getDrawingAreaSize,
-                document.getElementById('imageArea'),
-                document.getElementById('drawingArea'),
-                document.getElementById('textBtn'),
-                document.getElementById('penBtn'),
-                document.getElementById('rectangleBtn'),
-                document.getElementById('ellipseBtn'),
-                document.getElementById('lineBtn'),
-                document.getElementById('arrowBtn'),
-                document.getElementById('zoomOption'),
-                document.getElementById('sizeOption'),
-                document.getElementById('textSizeOption')
+                document.getElementById('imageCanvas'),
+                document.getElementById('drawingCanvas')
             );
 
             app.on('image-loading', showSpinner);
@@ -239,73 +226,6 @@
                 welcomeElement.dataset.open = 'false';
 
                 app.off('image-loaded', hideWelcomeScreen);
-            });
-
-
-            var saveBtn = document.getElementById('saveBtn');
-            saveBtn.addEventListener('click', app.download.bind(app));
-
-            var fileBtn = document.getElementById('imageInput');
-            fileBtn.addEventListener('change', function(e) {
-                if (e.target.files.length) {
-                    app.loadImageFromFileObj(e.target.files[0]);
-                }
-            });
-
-            window.addEventListener('resize', function(event) {
-                app.zoom();
-                app.resizeCanvas();
-                app.draw();
-            });
-
-            var dropareaHiddingTimerID = null;
-            var dragoverLastTimeFired = null;
-            document.body.addEventListener('dragover', function(event) {
-                dragoverLastTimeFired = new Date();
-
-                if (!dropareaHiddingTimerID) {
-                    var droparea = document.getElementsByClassName('drop-area')[0];
-                    showElement(droparea, 'hide');
-
-                    dropareaHiddingTimerID = setInterval(function() {
-                        console.log('check');
-                        var nowTime = new Date();
-                        if ((nowTime - dragoverLastTimeFired) < 150) {
-                            return
-                        }
-
-                        var droparea = document.getElementsByClassName('drop-area')[0];
-                        hideElement(droparea, 'hide');
-
-                        clearInterval(dropareaHiddingTimerID);
-                    }, 50);
-                }
-
-                event.preventDefault();
-            });
-
-            document.body.addEventListener('drop', function(event) {
-                for (var index in event.dataTransfer.types) {
-                    if (event.dataTransfer.types[index] != 'Files') {
-                        continue
-                    }
-
-                    var dataItem = event.dataTransfer.items[index];
-                    var file = dataItem.getAsFile();
-
-                    if (!file.type.startsWith('image/')) {
-                        continue
-                    }
-
-                    var fileReader = new FileReader();
-                    fileReader.onload = function(event) {
-                        app.loadImageFromUrl(event.target.result);
-                    }
-                    fileReader.readAsDataURL(file);
-                    break
-                }
-
-                event.preventDefault();
             });
 
             initializeUI(app);

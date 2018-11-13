@@ -112,7 +112,7 @@ svg.icon.small {
 
 
 /* DROP AREA */
-.drop-area {
+#dropArea {
   display: flex;
   position: fixed;
   top: 0;
@@ -124,7 +124,7 @@ svg.icon.small {
   color: #969696;
 }
 
-.drop-area.hide {
+#dropArea.hide {
   display: none;
 }
 
@@ -278,5 +278,4 @@ svg.icon.small {
 
 .canvases canvas {
     position: absolute;
-    top: 0;
 }
