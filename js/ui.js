@@ -47,16 +47,18 @@ var initializeUI = function(app) {
         }],
 
         init: function() {
+            var self = this;
+
             this.configs.forEach(function(toolConfig) {
                 toolConfig.button.addEventListener('click', function(event) {
-                    if (toolConfig == this.activeToolConfig) {
+                    if (toolConfig == self.activeToolConfig) {
                         event.preventDefault();
                     }
 
                     // deactivate a previous button and options
-                    if (this.activeToolConfig) {
-                        this.activeToolConfig.button.classList.toggle('active');
-                        this.activeToolConfig.options.forEach(function(option) {
+                    if (self.activeToolConfig) {
+                        self.activeToolConfig.button.classList.toggle('active');
+                        self.activeToolConfig.options.forEach(function(option) {
                             option.classList.add('hidden');
                         });
                     }
@@ -67,7 +69,7 @@ var initializeUI = function(app) {
                         option.classList.remove('hidden');
                     });
 
-                    this.activeToolConfig = toolConfig;
+                    self.activeToolConfig = toolConfig;
                     app.selectTool(toolConfig.tool);
 
                     event.preventDefault();
