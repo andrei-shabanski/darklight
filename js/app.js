@@ -131,7 +131,7 @@ var App = (function() {
         this.emit(Application.INITIALIZED_EVENT);
     }
 
-    inherit(Application, EventListener);
+    inherit(Application, Eventable);
 
     Application.INITIALIZED_EVENT = 'initialized';
     Application.IMAGE_LOADING_EVENT = 'image-loading';
@@ -499,13 +499,9 @@ var App = (function() {
         var base64Data = app.toDataURL();
 
         var now = new Date();
+        var fileName = 'Image-' + dateToString(now, 'dd-mm-yyyy_H-M-S') + '.png';
 
-        // var aTag = document.createElement('a');
-        // aTag.href = base64Data;
-        // aTag.download = 'Image-' + dateToString(now, 'dd-mm-yyyy_H-M-S') + '.png';
-        // aTag.click();
-
-        saveAs(base64Data, 'Image-' + dateToString(now, 'dd-mm-yyyy_H-M-S') + '.png');
+        saveAs(base64Data, fileName);
 
         this.emit(Application.IMAGE_SAVED_EVENT);
     }
@@ -791,7 +787,7 @@ var App = (function() {
         var x1 = this.zp(this.x1, scale);
         var y1 = this.zp(this.y1, scale);
 
-        var arrowLineLength = this.zo(this.options.size, scale) * 5;
+        var arrowLineLength = this.zo(Math.max(this.options.size, 5), scale) * 5;
 
         var alpha = Math.atan((y1 - y0) / (x1 - x0)) - Math.PI / 4;
         var dX0 = arrowLineLength * Math.cos(alpha);

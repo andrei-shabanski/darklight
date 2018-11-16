@@ -1,11 +1,11 @@
 'use strict';
 
-var EventListener = (function() {
-    function EventListener() {
+var Eventable = (function() {
+    function Eventable() {
         this._events = {};
     }
 
-    EventListener.prototype.on = function(eventType, callback) {
+    Eventable.prototype.on = function(eventType, callback) {
         if (!this._events.hasOwnProperty(eventType)) {
             this._events[eventType] = [];
         }
@@ -13,7 +13,7 @@ var EventListener = (function() {
         this._events[eventType].push(callback);
     };
 
-    EventListener.prototype.off = function(eventType, callback) {
+    Eventable.prototype.off = function(eventType, callback) {
         var events = this._events[eventType];
         if (!events) {
             return
@@ -23,7 +23,7 @@ var EventListener = (function() {
         events.splice(callbackIndex, 1);
     }
 
-    EventListener.prototype.emit = function(eventType, details) {
+    Eventable.prototype.emit = function(eventType, details) {
         var events = this._events[eventType];
         if (!events) {
             return
@@ -36,5 +36,5 @@ var EventListener = (function() {
         });
     }
 
-    return EventListener;
+    return Eventable;
 })();
