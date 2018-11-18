@@ -9,8 +9,8 @@
     <link rel="shortcut icon" type="image/png" href="favicon-16x16.png" sizes="16x16"/>
     <link rel="shortcut icon" type="image/png" href="favicon-32x32.png" sizes="32x32"/>
     <link rel="stylesheet" type="text/css" href="css/normalize.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="css/controls.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <script type="text/javascript" src="vendor/FileSaver/FileSaver.js"></script>
     <script type="text/javascript" src="js/utils.js"></script>
     <script type="text/javascript" src="js/controls.js"></script>
@@ -20,9 +20,10 @@
     <script type="text/javascript" src="js/ui.js"></script>
 </head>
 <body>
-    <div id="dropArea" class="hide">
-        <div class="drop-content">
-            <h1>Drop the file here</h1>
+    <div id="spinner" class="screen-block">
+        <div class="screen-content">
+            <h1 class="screen-message"></h1>
+            <span class="screen-image icon icon-extra-large"></span>
         </div>
     </div>
 
@@ -59,137 +60,141 @@
         </div>
     </div>
 
-    <div class="toolbar">
-        <div class="tools">
-            <button id="textBtn" class="btn btn-flat btn-dark flex-stretch">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
-            </button>
-            <button id="penBtn" class="btn btn-flat btn-dark flex-stretch">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"2"><polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon></svg>
-            </button>
-            <button id="lineBtn" class="btn btn-flat btn-dark flex-stretch">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="4" x2="4" y2="20"></line></svg>
-            </button>
-            <button id="rectangleBtn" class="btn btn-flat btn-dark flex-stretch">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-            </button>
-            <button id="ellipseBtn" class="btn btn-flat btn-dark flex-stretch">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
-            </button>
-            <button id="arrowBtn" class="btn btn-flat btn-dark flex-stretch">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="4" x2="4" y2="20"></line><polyline points="14 20 4 20 4 10"></polyline></svg>
-            </button>
-            <button id="cropBtn" class="btn btn-flat btn-dark flex-stretch">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"></path><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"></path></svg>
-            </button>
-        </div>
-
-        <div class="options">
-            <div id="sizeOption" class="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
-                <button class="dropdown-toggle btn btn-flat btn-dark">
-                    <input id="sizeOptionInput" type="text" value="10px">
-                    <svg class="icon small roundable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    <main class="drawing-area">
+        <nav class="toolbar">
+            <div class="tools">
+                <button class="btn btn-flat btn-dark flex-stretch" data-tool="text" data-options="color textSize">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
                 </button>
-                <div class="dropdown-menu">
-                    <div class="dropdown-group">
-                        <button class="btn btn-flat btn-dark" data-dropdown-noclose onclick="sizeOption.decreaseSize()">
-                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        </button>
-                        <button class="btn btn-flat btn-dark" data-dropdown-noclose onclick="sizeOption.increaseSize()">
-                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"  stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        </button>
-                    </div>
-                    <button class="btn btn-flat btn-dark" onclick="sizeOption.setSize(6)">6px</button>
-                    <button class="btn btn-flat btn-dark" onclick="sizeOption.setSize(10)">10px</button>
-                    <button class="btn btn-flat btn-dark" onclick="sizeOption.setSize(14)">14px</button>
-                    <button class="btn btn-flat btn-dark" onclick="sizeOption.setSize(18)">18px</button>
-                    <button class="btn btn-flat btn-dark" onclick="sizeOption.setSize(24)">24px</button>
-                    <button class="btn btn-flat btn-dark" onclick="sizeOption.setSize(36)">36px</button>
-                    <button class="btn btn-flat btn-dark" onclick="sizeOption.setSize(72)">72px</button>
-                </div>
+                <button class="btn btn-flat btn-dark flex-stretch" data-tool="pen" data-options="color size">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"2"><polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon></svg>
+                </button>
+                <button class="btn btn-flat btn-dark flex-stretch" data-tool="line" data-options="color size">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="4" x2="4" y2="20"></line></svg>
+                </button>
+                <button class="btn btn-flat btn-dark flex-stretch" data-tool="rectangle" data-options="color size">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                </button>
+                <button class="btn btn-flat btn-dark flex-stretch" data-tool="ellipse" data-options="color size">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
+                </button>
+                <button class="btn btn-flat btn-dark flex-stretch" data-tool="arrow" data-options="color size">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="4" x2="4" y2="20"></line><polyline points="14 20 4 20 4 10"></polyline></svg>
+                </button>
+                <button id="cropBtn" class="btn btn-flat btn-dark flex-stretch" data-tool="crop">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"></path><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"></path></svg>
+                </button>
             </div>
 
-            <div id="textSizeOption" class="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
-                <button class="dropdown-toggle btn btn-flat btn-dark">
-                    <input id="textSizeOptionInput" type="text" value="10px">
-                    <svg class="icon small roundable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </button>
-                <div class="dropdown-menu">
-                    <div class="dropdown-group">
-                        <button class="btn btn-flat btn-dark" onclick="textSizeOption.decreaseSize()">
-                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        </button>
-                        <button class="btn btn-flat btn-dark" onclick="textSizeOption.increaseSize()">
-                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"  stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        </button>
-                    </div>
-                    <button class="btn btn-flat btn-dark" onclick="textSizeOption.setSize(6)">6px</button>
-                    <button class="btn btn-flat btn-dark" onclick="textSizeOption.setSize(10)">10px</button>
-                    <button class="btn btn-flat btn-dark" onclick="textSizeOption.setSize(14)">10px</button>
-                    <button class="btn btn-flat btn-dark" onclick="textSizeOption.setSize(18)">18px</button>
-                    <button class="btn btn-flat btn-dark" onclick="textSizeOption.setSize(24)">24px</button>
-                    <button class="btn btn-flat btn-dark" onclick="textSizeOption.setSize(36)">36px</button>
-                    <button class="btn btn-flat btn-dark" onclick="textSizeOption.setSize(72)">72px</button>
-                </div>
-            </div>
-
-            <div id="colorOption" class="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
-                <button class="dropdown-toggle btn btn-flat btn-dark">
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-                </button>
-                <div class="dropdown-menu">
-                    <div class="dropdown-group">
-                        <button class="btn btn-flat btn-dark red active" onclick="colorOption.setColor(this, '#ff0000')">
-                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-                        </button>
-                        <button class="btn btn-flat btn-dark green" onclick="colorOption.setColor(this, '#00ff00')">
-                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-                        </button>
-                        <button class="btn btn-flat btn-dark blue" onclick="colorOption.setColor(this, '#0000ff')">
-                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-                        </button>
-                    </div>
-                    <div class="dropdown-group">
-                        <button class="btn btn-flat btn-dark white" onclick="colorOption.setColor(this, '#ffffff')">
-                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-                        </button>
-                        <button class="btn btn-flat btn-dark yellow" onclick="colorOption.setColor(this, '#ffff00')">
-                            <svg class="icon yellow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-                        </button>
-                        <button class="btn btn-flat btn-dark black" onclick="colorOption.setColor(this, '#000000')">
-                            <svg class="icon black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-                        </button>
-                    </div>
-                    <button id="colorPickerButton" class="btn btn-flat btn-dark">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-                        Other
+            <div class="options">
+                <div id="sizeOption" class="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
+                    <button class="dropdown-toggle btn btn-flat btn-dark">
+                        <input id="sizeOptionInput" type="text" value="5px">
+                        <svg class="icon small roundable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-group">
+                            <button class="btn btn-flat btn-dark" data-dropdown-noclose data-size-change="decrease">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            </button>
+                            <button class="btn btn-flat btn-dark" data-dropdown-noclose data-size-change="increase">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"  stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            </button>
+                        </div>
+                        <button class="btn btn-flat btn-dark" data-size-set="2">2px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="5">5px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="8">8px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="14">14px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="24">24px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="36">36px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="72">72px</button>
+                    </div>
                 </div>
-            </div>
-            <input id="colorPicker" class="hidden" type="color">
 
-        </div>
+                <div id="textSizeOption" class="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
+                    <button class="dropdown-toggle btn btn-flat btn-dark">
+                        <input id="textSizeOptionInput" type="text" value="18px">
+                        <svg class="icon icon-small roundable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-group">
+                            <button class="btn btn-flat btn-dark" data-size-change="decrease">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            </button>
+                            <button class="btn btn-flat btn-dark" data-size-change="increase">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"  stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            </button>
+                        </div>
+                        <button class="btn btn-flat btn-dark" data-size-set="6">6px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="10">10px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="14">14px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="18">18px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="24">24px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="36">36px</button>
+                        <button class="btn btn-flat btn-dark" data-size-set="72">72px</button>
+                    </div>
+                </div>
 
-        <div class="menu">
-            <div id="zoomOption" class="dropdown dropdown-dark dropdown-flat flex-stretch">
-                <button class="dropdown-toggle btn btn-flat btn-dark">
-                    <input id="zoomInput" type="text" value="100%">
-                    <svg class="icon small roundable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <div id="colorOption" class="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
+                    <button class="dropdown-toggle btn btn-flat btn-dark" style="fill: #ff0000">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-group">
+                            <button class="btn btn-flat btn-dark active" data-color-set="#ff0000">
+                                <svg class="icon icon-red" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                            </button>
+                            <button class="btn btn-flat btn-dark" data-color-set="#00ff00">
+                                <svg class="icon icon-green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                            </button>
+                            <button class="btn btn-flat btn-dark" data-color-set="#0000ff">
+                                <svg class="icon icon-blue" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                            </button>
+                        </div>
+                        <div class="dropdown-group">
+                            <button class="btn btn-flat btn-dark" data-color-set="#ffffff">
+                                <svg class="icon icon-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                            </button>
+                            <button class="btn btn-flat btn-dark" data-color-set="#ffff00">
+                                <svg class="icon icon-yellow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                            </button>
+                            <button class="btn btn-flat btn-dark" data-color-set="#000000">
+                                <svg class="icon icon-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                            </button>
+                        </div>
+                        <button class="btn btn-flat btn-dark picker-button" data-color-picker>
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                            Other
+                        </button>
+                    </div>
+                </div>
+                <input id="colorPicker" class="hidden" type="color">
+
+                <div id="zoomOption" class="dropdown dropdown-dark dropdown-flat flex-stretch">
+                    <button class="dropdown-toggle btn btn-flat btn-dark">
+                        <input id="zoomInput" type="text" value="100%">
+                        <svg class="icon icon-small roundable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="dropdown-menu">
+                        <input id="zoomSlider" data-dropdown-noclose type="range" min="1" max="3" step="0.1" value="1">
+                    </div>
+                </div>
+
+                <button id="menu-toggle" class="btn btn-dark btn-flat flex-stretch">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
-                <div class="dropdown-menu">
-                    <input id="zoomSlider" data-dropdown-noclose type="range" min="1" max="3" step="0.1" value="1">
-                </div>
             </div>
 
-            <button id="downloadBtn" class="btn">Download</button>
-        </div>
-    </div>
+            <div class="menu">
+                <button id="downloadBtn" class="btn">Download</button>
+            </div>
+        </nav>
 
-    <div class="canvases">
-        <canvas id="imageCanvas">Your browser is not supported</canvas>
-        <canvas id="drawingCanvas"></canvas>
-        <div></div>
-    </div>
+        <div class="canvases">
+            <canvas id="imageCanvas">Your browser is not supported</canvas>
+            <canvas id="drawingCanvas"></canvas>
+        </div>
+    </main>
 
     <script type="text/javascript">
         function getDrawingAreaSize() {
@@ -201,33 +206,33 @@
             };
         }
 
-        function showSpinner() {
-            console.log('SPINNER in console lol');
-        }
-
-        function hideSpinner() {
-            console.log('DONE');
-        }
-
         window.addEventListener('load', function() {
             initializeControls();
 
             var app = new App(
                 getDrawingAreaSize,
-                document.getElementById('imageCanvas'),
-                document.getElementById('drawingCanvas')
+                imageCanvas,
+                drawingCanvas
             );
 
-            app.on('image-loading', showSpinner);
-            app.on('image-loaded', hideSpinner);
-            app.on('image-not-loaded', hideSpinner);
-            app.on('image-saving', showSpinner);
-            app.on('image-saved', hideSpinner);
+            app.on('image-loading', function() {
+                window.spinner.showLoadingMessage();
+            });
+            app.on('image-loaded', function() {
+                window.spinner.close();
+            });
+            app.on('image-not-loaded', function() {
+                window.spinner.close();
+            });
+            app.on('image-saving', function() {
+                window.spinner.showSavingMessage();
+            });
+            app.on('image-saved', function() {
+                window.spinner.close();
+            });
 
             app.on('image-loaded', function hideWelcomeScreen() {
-                var welcomeElement = document.getElementById('welcome');
-
-                welcomeElement.modal.close();
+                welcome.modal.close();
 
                 app.off('image-loaded', hideWelcomeScreen);
             });

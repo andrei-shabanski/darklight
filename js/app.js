@@ -28,8 +28,8 @@ var App = (function() {
     function Options(options) {
         var defaultOptions = {
             size: 5,
-            textSize: 32,
-            color: '#ff00ff',
+            textSize: 18,
+            color: '#ff0000',
             originalScale: 1,
             scale: 1
         };
@@ -112,10 +112,7 @@ var App = (function() {
 
         this.activeTool = null;
 
-        this.options = new Options({
-            size: +sizeOption.value,
-            textSize: +textSizeOption.value
-        });
+        this.options = new Options();
 
         this.image = null;
         this.shapes = [];
@@ -188,6 +185,8 @@ var App = (function() {
         logger.debug('Application is handling "copy"\\"cut" event');
 
         var data = this.toDataURL();
+
+        event.clipboardData.setData('text/plain', 'Hello, world!');
         event.clipboardData.setData('image/png', data);
         event.preventDefault();
     }
@@ -224,7 +223,7 @@ var App = (function() {
             var clipboardDataItem = clipboard.items[index];
             var file = clipboardDataItem.getAsFile();
 
-            if (!file.type.startsWith('image/')) {
+            if (!file || !file.type.startsWith('image/')) {
                 continue
             }
 
@@ -273,6 +272,7 @@ var App = (function() {
         }
 
         var image = new Image();
+        // image.crossOrigin = "";
         image.onload = function() {
             self.loadImage(this);
         }

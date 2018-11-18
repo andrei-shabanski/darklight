@@ -89,54 +89,63 @@ p {
   text-align: center;
 }
 
-/* ? */
 .flex-stretch {
     align-self: stretch;
 }
 
-.no-scrollable {
-  overflow: hidden;
-}
-
-svg.icon {
+.icon {
     width: 20px;
-    height: auto;
+    height: 20px;
     stroke-width: 1;
 }
-svg.icon.small {
+.icon-small {
     width: 16px;
+    height: 16px;
+}
+.icon-large {
+    width: 32px;
+    height: 32px;
+}
+.icon-extra-large {
+    width: 64px;
+    height: 64px;
 }
 
-
-
-
-
-/* DROP AREA */
-#dropArea {
-  display: flex;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 200;
-  background-color: rgba(255,255,255,0.9);
-  color: #969696;
+.icon-black {
+    fill: #000000;
+    stroke-width: 0;
+}
+.icon-white {
+    fill: #ffffff;
+    stroke-width: 0;
+}
+.icon-red {
+    fill: #ff0000;
+    stroke-width: 0;
+}
+.icon-green {
+    fill: #00ff00;
+    stroke-width: 0;
+}
+.icon-blue {
+    fill: #0000ff;
+    stroke-width: 0;
+}
+.icon-yellow {
+    fill: #ffff00;
+    stroke-width: 0;
 }
 
-#dropArea.hide {
-  display: none;
+.icon-coffee {
+    background-size: contain;
+    background-image: url('../img/coffee.svg');
 }
 
-.drop-content {
-  width: calc(100% - 40px);
-  height: calc(100% - 40px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px;
-  border: 5px dashed #e0e0e0;
+.icon-image {
+    background-size: contain;
+    background-image: url('../img/image.svg');
 }
+
 
 
 
@@ -158,16 +167,24 @@ svg.icon.small {
 
 
 
-/* CANVAS */
+/* DRAWING AREA */
+.drawing-area {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
+
+
+/* TOOLBAR */
 .toolbar {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    height: 40px;
-    z-index: 90;
     display: flex;
     align-items: stretch;
     justify-content: space-between;
+    flex-wrap: wrap;
     background-color: #34495E;
     box-shadow: 0 1px 2px rgba(52, 73, 94, 0.5);
     padding: 0 12px;
@@ -178,73 +195,58 @@ svg.icon.small {
     user-select: none;
 }
 
-.toolbar .dropdown > input {
-    background: none;
-    color: #ffffff;
-    border: none;
-    font-size: 0.8em;
-    outline: 0;
-}
-
 .tools {
-    display: inline-flex;
+    height: 40px;
+    flex: 1;
+    display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .options {
-    display: inline-flex;
+    height: 40px;
+    flex: 1;
+    display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .menu {
-    display: inline-flex;
+    height: 40px;
+    flex: 1;
+    display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
+    transition: all 0.3s;
 }
 
 .menu > * {
-    margin-right: 4px;
+    margin-left: 4px;
 }
 
 
-
-
-.black > svg {
-    fill: #000000;
-    stroke-width: 0;
-}
-.white > svg {
-    fill: #ffffff;
-    stroke-width: 0;
-}
-.red > svg {
-    fill: #ff0000;
-    stroke-width: 0;
-}
-.green > svg {
-    fill: #00ff00;
-    stroke-width: 0;
-}
-.blue > svg {
-    fill: #0000ff;
-    stroke-width: 0;
-}
-.yellow > svg {
-    fill: #ffff00;
-    stroke-width: 0;
-}
-
-
-#colorPickerButton .icon {
+#menu-toggle {
     display: none;
 }
-#colorPickerButton.active .icon {
+
+#menu-toggle .icon {
+    transform: rotate(0deg);
+    transition: all 0.3s;
+}
+
+#menu-toggle.active .icon,
+#menu-toggle:active .icon {
+    transform: rotate(90deg);
+}
+
+
+.picker-button .icon {
+    display: none;
+}
+.picker-button.active .icon {
     display: inline;
     margin-right: 5px;
 }
-
 
 
 #textSizeOption .dropdown-toggle input,
@@ -263,17 +265,40 @@ svg.icon.small {
 }
 
 
+@media (max-width: 768px) {
+    .options {
+        justify-content: flex-end;
+    }
 
+    .menu {
+        flex: 1 1 100%;
+    }
+
+    .menu:not([data-open]) {
+        height: 0px;
+    }
+    .menu:not([data-open]) > * {
+        display: none;
+    }
+
+    #menu-toggle {
+        display: flex;
+    }
+}
+
+
+
+/* CANVASES */
 .canvases {
-      width: 100%;
-      height: calc(100vh - 40px);
-      position: relative;
-      top: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow-y: auto;
-      background-image: url('../img/bg.png');
+    flex: 1;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    background-image: url('../img/bg.png');
 }
 
 .canvases canvas {

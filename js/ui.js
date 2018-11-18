@@ -1,92 +1,70 @@
 'use strict';
 
 var initializeUI = function(app) {
-    var textButton = document.getElementById('textBtn');
-    var penButton = document.getElementById('penBtn');
-    var rectangleButton = document.getElementById('rectangleBtn');
-    var ellipseButton = document.getElementById('ellipseBtn');
-    var lineButton = document.getElementById('lineBtn');
-    var arrowButton = document.getElementById('arrowBtn');
-    var cropButton = document.getElementById('cropBtn');
-
-    var sizeDropdown = document.getElementById('sizeOption');
-    var textSizeDropdown = document.getElementById('textSizeOption');
-    var colorDropdown = document.getElementById('colorOption');
-    var zoomDropdown = document.getElementById('zoomOption');
-
     var toolConfigs = {
-        activeToolConfig: null,
-        configs: [{
-            tool: 'text',
-            button: textButton,
-            options: [textSizeDropdown, colorDropdown]
-        }, {
-            tool: 'pen',
-            button: penButton,
-            options: [sizeDropdown, colorDropdown]
-        }, {
-            tool: 'rectangle',
-            button: rectangleButton,
-            options: [sizeDropdown, colorDropdown]
-        }, {
-            tool: 'ellipse',
-            button: ellipseButton,
-            options: [sizeDropdown, colorDropdown]
-        }, {
-            tool: 'line',
-            button: lineButton,
-            options: [sizeDropdown, colorDropdown]
-        }, {
-            tool: 'arrow',
-            button: arrowButton,
-            options: [sizeDropdown, colorDropdown]
-        }, {
-            tool: 'crop',
-            button: cropButton,
-            options: [],
-        }],
+        enabledToolButton: null,
+        enabledOptions: [],
+
+        options: {
+            size: document.getElementById('sizeOption'),
+            textSize: document.getElementById('textSizeOption'),
+            color: document.getElementById('colorOption'),
+        },
 
         init: function() {
-            var self = this;
+            document.querySelector('.tools').addEventListener('click', this._handleToolChoose.bind(this), false);
+        },
+        _handleToolChoose: function(event) {
+            var button = event.target.closest('button');
+            if (!button || this.enabledToolButton == button) {
+                return;
+            }
 
-            this.configs.forEach(function(toolConfig) {
-                toolConfig.button.addEventListener('click', function(event) {
-                    if (toolConfig == self.activeToolConfig) {
-                        event.preventDefault();
-                    }
+            var tool = button.dataset.tool;
+            var options = [];
+            if (button.dataset.options) {
+                options = button.dataset.options.split(' ');
+            }
 
-                    // deactivate a previous button and options
-                    if (self.activeToolConfig) {
-                        self.activeToolConfig.button.classList.toggle('active');
-                        self.activeToolConfig.options.forEach(function(option) {
-                            option.classList.add('hidden');
-                        });
-                    }
+            if (!tool) {
+                return;
+            }
 
-                    // activate a new button and options
-                    toolConfig.button.classList.toggle('active');
-                    toolConfig.options.forEach(function(option) {
-                        option.classList.remove('hidden');
-                    });
+            if (this.enabledToolButton) {
+                this.enabledToolButton.classList.remove('active');
+            }
 
-                    self.activeToolConfig = toolConfig;
-                    app.selectTool(toolConfig.tool);
+            button.classList.add('active');
 
-                    event.preventDefault();
-                }, false);
-            });
+            this.enabledOptions.forEach(function(optionName) {
+                this.options[optionName].classList.add('hidden');
+            }.bind(this));
+
+            options.forEach(function(optionName) {
+                this.options[optionName].classList.remove('hidden');
+            }.bind(this));
+
+            app.selectTool(tool);
+
+            this.enabledToolButton = button;
+            this.enabledOptions = options;
+
+            event.preventDefault();
         }
     };
 
     var colorOption = {
-        colorDropdown: colorDropdown,
-        colorDropdownToggle: colorDropdown.querySelector('.dropdown-toggle'),
-        colorPickerButton: document.getElementById('colorPickerButton'),
+        colorDropdown: document.getElementById('colorOption'),
+        colorDropdownToggle: document.querySelector('#colorOption .dropdown-toggle'),
+        colorPickerButton: document.querySelector('#colorOption .picker-button'),
         colorPicker: document.getElementById('colorPicker'),
 
         init: function() {
-            this.colorPickerButton.addEventListener('click', this.openPicker.bind(this), false);
             this.colorPicker.addEventListener('change', this.changePicker.bind(this), false);
+
+            this.colorDropdown
+                .querySelector('.dropdown-menu')
+                .addEventListener('click', this._handleColorAction.bind(this), false);
         },
         setColor: function(button, color) {
             this.colorDropdown.querySelectorAll('.active').forEach(function(element) {
@@ -108,42 +86,65 @@ var initializeUI = function(app) {
             this.colorPickerButton.style.stroke = colorPicker.value;
 
             this.setColor(this.colorPickerButton, this.colorPicker.value);
+        },
+        _handleColorAction: function(event) {
+            var button = event.target.closest('button');
+            if (!button) {
+                return;
+            }
+
+            if (button.dataset.colorSet) {
+                var color = button.dataset.colorSet;
+                this.setColor(button, color);
+            } else if (button.dataset.colorPicker != undefined) {
+                this.openPicker();
+            }
+
+            event.preventDefault();
         }
     };
 
     var baseSizeOption = {
         input: null,
         inputValueUnit: 'px',
-        appOptionName: null,
+        optionName: null,
         _inputPreviousValue: null,
 
-        init: function() {
+        init: function(optionName, dropdownElement, inputElement) {
+            this.input = inputElement;
+            this.dropdown = dropdownElement;
+            this.optionName = optionName;
             this._inputPreviousValue = this.input.value;
 
             this.input.addEventListener('input', this._inputInput.bind(this), false);
             this.input.addEventListener('change', this._inputChange.bind(this), false);
-
-            this._inputChange({preventDefault: function(){}}); // really???
+            this.dropdown
+                .querySelector('.dropdown-menu')
+                .addEventListener('click', this._handleSizeAction.bind(this), false);
         },
         setSize: function(size) {
-            app.setOption(this.appOptionName, size);
+            app.setOption(this.optionName, size);
 
             this.input.value = size + this.inputValueUnit;
         },
-        increaseSize: function() {
-            if (app.options[this.appOptionName] >= 99) {
-                return
+        increaseSize: function(deltaSize) {
+            deltaSize = deltaSize || 2;
+
+            var newSize = app.options[this.optionName] + deltaSize;
+            if (newSize > 99) {
+                newSize = 99;
             }
 
-            var newSize = app.options[this.appOptionName] + 1;
             this.setSize(newSize);
         },
-        decreaseSize: function() {
-            if (app.options[this.appOptionName] <= 1) {
-                return
+        decreaseSize: function(deltaSize) {
+            deltaSize = deltaSize || 2;
+
+            var newSize = app.options[this.optionName] - deltaSize;
+            if (newSize < 1) {
+                newSize = 1;
             }
 
-            var newSize = app.options[this.appOptionName] - 1;
             this.setSize(newSize);
         },
         _inputInput: function(event) {
@@ -162,11 +163,25 @@ var initializeUI = function(app) {
 
             this.setSize(size);
             event.preventDefault();
+        },
+        _handleSizeAction: function(event) {
+            var button = event.target.closest('button');
+            if (!button) {
+                return;
+            }
+
+            if (button.dataset.sizeSet) {
+                var size = +button.dataset.sizeSet;
+                this.setSize(size);
+            } else if (button.dataset.sizeChange == 'increase') {
+                this.increaseSize();
+            } else if (button.dataset.sizeChange == 'decrease') {
+                this.decreaseSize();
+            }
         }
     };
 
     var dropImageOption = {
-        droparea: document.getElementById('dropArea'),
         dropareaHiddingTimerID: null,
         dragoverLastTimeFired: null,
 
@@ -175,14 +190,14 @@ var initializeUI = function(app) {
             // (https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop)
 
             // So we will set up a timer to hide droparea when dragover event will no longer fire
-            document.body.addEventListener('dragover', this._dragImage.bind(this), false);
-            document.body.addEventListener('drop', this._dropImage.bind(this), false);
+            window.addEventListener('dragover', this._dragImage.bind(this), false);
+            window.addEventListener('drop', this._dropImage.bind(this), false);
         },
         _dragImage: function(event) {
             this.dragoverLastTimeFired = new Date();
 
             if (!this.dropareaHiddingTimerID) {
-                showElement(this.droparea, 'hide');
+                spinner.showDropArea();
 
                 this.dropareaHiddingTimerID = setInterval(function() {
                     var nowTime = new Date();
@@ -190,7 +205,8 @@ var initializeUI = function(app) {
                         return
                     }
 
-                    hideElement(this.droparea, 'hide');
+                    spinner.close();
+
                     clearInterval(this.dropareaHiddingTimerID);
                     this.dropareaHiddingTimerID = null;
                 }.bind(this), 50);
@@ -224,7 +240,7 @@ var initializeUI = function(app) {
     };
 
     var zoomOption = {
-        zoomDropdown: zoomDropdown,
+        zoomDropdown: document.getElementById('zoomOption'),
         zoomInput: document.getElementById('zoomInput'),
         zoomSlider: document.getElementById('zoomSlider'),
         minScaleFactor: 1,
@@ -321,7 +337,7 @@ var initializeUI = function(app) {
                 event.preventDefault();
             }
         },
-        _hackCanvasCentering: function() {
+        _hackCanvasCentering: function(event) {
             var windowWidth = window.innerWidth;
             var windowHeight = window.innerHeight;
             var canvases = document.querySelectorAll('.canvases canvas');
@@ -350,37 +366,84 @@ var initializeUI = function(app) {
         }
     };
 
+
+    var spinner = {
+        blockScreenElement: null,
+
+        init: function(blockScreenElement) {
+            this.blockScreenElement = blockScreenElement;
+        },
+        showDropArea: function() {
+            this.blockScreenElement.screenBlock.open({
+                message: 'Drop a file here',
+                imageClass: 'icon-image',
+                withBorder: true
+            });
+        },
+        showLoadingMessage: function() {
+            this.blockScreenElement.screenBlock.open({
+                message: 'Loading a image',
+                imageClass: 'icon-coffee',
+                loading: true
+            });
+        },
+        showSavingMessage: function() {
+            this.blockScreenElement.screenBlock.open({
+                message: 'Saving the image',
+                imageClass: 'icon-coffee',
+                loading: true
+            });
+        },
+        close: function() {
+            this.blockScreenElement.screenBlock.close();
+        }
+    };
+
     /*
         LET"S GO
     */
-
     toolConfigs.init();
 
     colorOption.init();
     window.colorOption = colorOption;
-    document.querySelector('#colorOption .active').click();
 
-    var sizeOption = Object.create(baseSizeOption);
-    sizeOption.input = document.getElementById('sizeOptionInput');
-    sizeOption.appOptionName = 'size';
-    sizeOption.init();
-    window.sizeOption = sizeOption;
+    window.sizeOption = Object.create(baseSizeOption);
+    window.sizeOption.init(
+        'size',
+        document.getElementById('sizeOption'),
+        document.getElementById('sizeOptionInput')
+    );
 
-    var textSizeOption = Object.create(baseSizeOption);
-    textSizeOption.input = document.getElementById('textSizeOptionInput');
-    textSizeOption.appOptionName = 'textSize';
-    textSizeOption.init();
-    window.textSizeOption = textSizeOption;
+    window.textSizeOption = Object.create(baseSizeOption);
+    window.textSizeOption.init(
+        'textSize',
+        document.getElementById('textSizeOption'),
+        document.getElementById('textSizeOptionInput')
+    );
 
     zoomOption.init();
     window.zoomOption = zoomOption;
+
+    spinner.init(document.getElementById('spinner'));
+    window.spinner = spinner;
+
+    var menuToggleBtn = document.getElementById('menu-toggle');
+    var menuElement = document.getElementsByClassName('menu')[0];
+    menuToggleBtn.addEventListener('click', function(event) {
+        menuToggleBtn.classList.toggle('active');
+        if (menuElement.dataset.open == undefined) {
+            menuElement.dataset.open = '';
+        } else {
+            delete menuElement.dataset.open;
+        }
+    }, false);
 
     var fileBtn = document.getElementById('fileBtn');
     fileBtn.addEventListener('change', function(event) {
         if (fileBtn.files.length) {
             app.loadImageFromFileObj(fileBtn.files[0]);
         }
-        event.stopPropagation();
+        event.preventDefault();
     }, false);
 
     var downloadButton = document.getElementById('downloadBtn');

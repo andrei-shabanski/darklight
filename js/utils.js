@@ -6,16 +6,6 @@ function inherit(klass, parent) {
     klass.super = parent.prototype;
 }
 
-function hideElement(element, className) {
-    className = className || 'hidden';
-    element.classList.add(className);
-}
-
-function showElement(element, className) {
-    className = className || 'hidden';
-    element.classList.remove(className);
-}
-
 function dateToString(date, format) {
     format = format || 'dd-mm-yyyy_H:M:S';
     var result = format
