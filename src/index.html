@@ -6,8 +6,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="shortcut icon" type="image/png" href="favicon-16x16.png" sizes="16x16"/>
-    <link rel="shortcut icon" type="image/png" href="favicon-32x32.png" sizes="32x32"/>
+    <link rel="shortcut icon" type="image/png" href="img/favicon-16x16.png" sizes="16x16"/>
+    <link rel="shortcut icon" type="image/png" href="img/favicon-32x32.png" sizes="32x32"/>
     <link rel="stylesheet" type="text/css" href="css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/controls.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -240,6 +240,18 @@
             initializeUI(app);
 
             window.app = app;
+        });
+    </script>
+
+    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase.js"></script>
+    <script>
+        firebase.initializeApp({
+            apiKey: "AIzaSyCiqM8QiC3rZImR3kY7MPscYxxUqDB0gbQ",
+            authDomain: "darklight-image-editor.firebaseapp.com",
+            databaseURL: "https://darklight-image-editor.firebaseio.com",
+            projectId: "darklight-image-editor",
+            storageBucket: "darklight-image-editor.appspot.com",
+            messagingSenderId: "1080138239147"
         });
     </script>
 </body>

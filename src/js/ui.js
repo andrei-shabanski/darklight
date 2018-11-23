@@ -14,7 +14,7 @@ var initializeUI = function(app) {
         init: function() {
             document.querySelector('.tools').addEventListener('click', this._handleToolChoose.bind(this), false);
         },
-        chooseTool: function(button) {
+        selectTool: function(button) {
             var tool = button.dataset.tool;
             var options = button.dataset.options ? button.dataset.options.split(' ') : [];
 
