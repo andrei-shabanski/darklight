@@ -14,17 +14,9 @@ var initializeUI = function(app) {
         init: function() {
             document.querySelector('.tools').addEventListener('click', this._handleToolChoose.bind(this), false);
         },
-        _handleToolChoose: function(event) {
-            var button = event.target.closest('button');
-            if (!button || this.enabledToolButton == button) {
-                return;
-            }
-
+        chooseTool: function(button) {
             var tool = button.dataset.tool;
-            var options = [];
-            if (button.dataset.options) {
-                options = button.dataset.options.split(' ');
-            }
+            var options = button.dataset.options ? button.dataset.options.split(' ') : [];
 
             if (!tool) {
                 return;
@@ -34,20 +26,28 @@ var initializeUI = function(app) {
                 this.enabledToolButton.classList.remove('active');
             }
 
-            button.classList.add('active');
-
             this.enabledOptions.forEach(function(optionName) {
                 this.options[optionName].classList.add('hidden');
             }.bind(this));
+
+            button.classList.add('active');
 
             options.forEach(function(optionName) {
                 this.options[optionName].classList.remove('hidden');
             }.bind(this));
 
-            app.selectTool(tool);
-
             this.enabledToolButton = button;
             this.enabledOptions = options;
+
+            app.selectTool(tool);
+        },
+        _handleToolChoose: function(event) {
+            var button = event.target.closest('button');
+            if (!button || this.enabledToolButton == button) {
+                return;
+            }
+
+            this.selectTool(button);
 
             event.preventDefault();
         }
@@ -72,8 +72,10 @@ var initializeUI = function(app) {
             });
             button.classList.add('active');
 
-            this.colorDropdownToggle.style.fill = color;
-            this.colorDropdownToggle.style.stroke = color;
+            var svgRect = this.colorDropdownToggle.querySelector('svg');
+
+            svgRect.style.fill = color;
+            svgRect.style.stroke = color;
 
             app.setOption('color', color);
         },

@@ -96,7 +96,11 @@ p {
 .icon {
     width: 20px;
     height: 20px;
+    fill: none;
+    stroke: currentColor;
     stroke-width: 1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 .icon-small {
     width: 16px;
@@ -149,7 +153,7 @@ p {
 
 
 
-/* CONTENT */
+/* GETTING STARTED */
 .welcome {
   width: 100%;
   display: flex;
@@ -197,7 +201,8 @@ p {
 
 .tools {
     height: 40px;
-    flex: 1;
+    flex-grow: 1;
+    order: 1;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -205,28 +210,17 @@ p {
 
 .options {
     height: 40px;
-    flex: 1;
+    flex-grow: 1;
+    order: 2;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.menu {
-    height: 40px;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    transition: all 0.3s;
-}
-
-.menu > * {
-    margin-left: 4px;
-}
-
 
 #menu-toggle {
     display: none;
+    order: 3;
 }
 
 #menu-toggle .icon {
@@ -237,6 +231,20 @@ p {
 #menu-toggle.active .icon,
 #menu-toggle:active .icon {
     transform: rotate(90deg);
+}
+
+
+.menu {
+    height: 40px;
+    flex-grow: 1;
+    order: 4;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.menu > * {
+    margin-left: 4px;
 }
 
 
@@ -272,6 +280,7 @@ p {
 
     .menu {
         flex: 1 1 100%;
+        transition: height 0.3s;
     }
 
     .menu:not([data-open]) {
@@ -283,6 +292,18 @@ p {
 
     #menu-toggle {
         display: flex;
+    }
+}
+
+
+@media (max-width: 576px) {
+    .options {
+        flex-basis: 100%;
+        justify-content: center;
+    }
+
+    #menu-toggle {
+        order: 1;
     }
 }
 
