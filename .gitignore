@@ -1,4 +1,6 @@
+.firebase/
 .idea/
 test/
 .drop*
 desk*
+firebase-debug.log
