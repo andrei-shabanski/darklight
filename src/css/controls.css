@@ -89,11 +89,11 @@
     justify-content: center;
 }
 
-.dropdown-toggle .roundable {
+.dropdown-toggle .round-180 {
     transition: transform 0.3s;
 }
 
-.dropdown[data-open] .dropdown-toggle .roundable {
+.dropdown[data-open] .dropdown-toggle .round-180 {
     transform: rotate(180deg);
 }
 
@@ -183,7 +183,6 @@
 
 .btn-dark {
     background-color: #34495E;
-    color: #ffffff;
 }
 
 .btn-dark:focus,

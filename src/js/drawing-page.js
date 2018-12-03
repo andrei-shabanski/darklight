@@ -15,6 +15,7 @@ var initializePage = function(app) {
     }
 
     FirebaseImageStorage.prototype.save = function(blob) {
+        console.log('saving...');
         return this._refFile.put(blob);
     }
 
@@ -23,18 +24,24 @@ var initializePage = function(app) {
     }
 
 
+
     var imageManager = {
         imageStorage: null,
         loadingImageFromUrl: false,
+
+        isSaving: false,
+        hasUnsavedChanges: false,
 
         init: function() {
 
         },
 
-        loadedImage: function() {
+        onLoadSuccess: function() {
+            logger.debug('Image was loaded.');
+
             // omg
-            if (this.loadImageFromUrl) {
-                this.loadImageFromUrl = false;
+            if (this.loadingImageFromUrl) {
+                this.loadingImageFromUrl = false;
                 return
             }
 
@@ -46,13 +53,21 @@ var initializePage = function(app) {
             this.save();
         },
 
-        didNotLoadImage: function() {
-            if (this.loadImageFromUrl) {
-                this.loadImageFromUrl = false;
+        onLoadFailure: function(error) {
+            logger.error('Image was not loaded. ', error);
+
+            if (this.loadingImageFromUrl) {
+                this.loadingImageFromUrl = false;
                 return
             }
+        },
 
-            logger.error('Image was not loaded. ', error);
+        onSaveSuccess: function() {
+            logger.debug('Image was saved');
+        },
+
+        onSaveFailure: function(error) {
+            logger.error('Image wasn\'t saved. ', error);
         },
 
         loadImageFromStorage: function(imageId) {
@@ -64,7 +79,7 @@ var initializePage = function(app) {
                 .load()
                 .then(app.loadImageFromUrl.bind(app))
                 .catch(function(error) {
-                    self.didNotLoadImage();
+                    self.onLoadFailure(error);
                 });
         },
 
@@ -91,17 +106,27 @@ var initializePage = function(app) {
         },
 
         save: function() {
+            if (!this.hasUnsavedChanges || this.isSaving) {
+                return
+            }
+
             var self = this;
+
+            this.hasUnsavedChanges = false;
+            this.isSaving = true;
 
             app.toBlob(function(blob) {
                 self.imageStorage
                     .save(blob)
                     .then(function(snapshot) {
                         console.log('IMAGE WAS SAVED: ', snapshot);
+                        self.isSaving = false;
+                        self.onSaveSuccess();
                     })
                     .catch(function(error) {
                         console.log('IMAGE WASN\'T SAVED: ', error);
-                        self.didNotLoadImage();
+                        self.isSaving = false;
+                        self.onSaveFailure(error);
                     });
             });
         },
@@ -596,7 +621,7 @@ var initializePage = function(app) {
             if (event.keyCode === 90 && event.ctrlKey) {
                 // Ctrl + Z
                 app.removeShape();
-            } else if (event.keyCode === 90 && event.ctrlKey) {
+            } else if (event.keyCode === 83 && event.ctrlKey) {
                 // Ctrl + S
                 imageManager.save();
             } else {
@@ -611,6 +636,14 @@ var initializePage = function(app) {
             event.preventDefault();
         }, false);
 
+        window.addEventListener('beforeunload', function(event) {
+            if (imageManager.hasUnsavedChanges) {
+                imageManager.save();
+                event.preventDefault();
+                event.returnValue = '';
+            }
+        }, false);
+
         app.on('image-loading', function() {
             spinner.showLoadingMessage();
         });
@@ -620,14 +653,15 @@ var initializePage = function(app) {
             app.off('image-loaded', hideWelcomeScreen);
         });
         app.on('image-loaded', function() {
-            imageManager.loadedImage();
+            imageManager.onLoadSuccess();
             spinner.close();
         });
         app.on('image-not-loaded', function() {
-            imageManager.didNotLoadImage();
+            imageManager.onLoadFailure();
             spinner.close();
         });
         app.on('image-changed', function() {
+            imageManager.hasUnsavedChanges = true;
             imageManager.save();
         });
 

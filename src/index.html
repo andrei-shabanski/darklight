@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <div id="welcome" class="modal" data-open>
+    <div id="welcome" class="modal">
         <div class="modal-content">
             <div class="modal-body">
             <section class="getting-started">
@@ -43,7 +43,6 @@
                 <article>
                     <h3>Controls</h3>
                     <p><kbd>Ctrl+V</kbd> to paste an image from the clipboard</p>
-                    <p><kbd>Ctrl+C</kbd> to copy an image to the clipboard</p>
                     <p><kbd>Ctrl+S</kbd> to download an image</p>
                     <p><kbd>Ctrl+Z</kbd> to undo an action</p>
                     <p><kbd>Ctrl+Scroll</kbd> to zoom</p>
@@ -83,7 +82,7 @@
                 <div id="sizeOption" class="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
                     <button class="dropdown-toggle btn btn-flat btn-dark">
                         <input id="sizeOptionInput" type="text" value="5px">
-                        <svg class="icon small roundable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        <svg class="icon small round-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
                     <div class="dropdown-menu">
                         <div class="dropdown-group">
@@ -107,7 +106,7 @@
                 <div id="textSizeOption" class="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
                     <button class="dropdown-toggle btn btn-flat btn-dark">
                         <input id="textSizeOptionInput" type="text" value="18px">
-                        <svg class="icon icon-small roundable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        <svg class="icon icon-small round-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
                     <div class="dropdown-menu">
                         <div class="dropdown-group">
@@ -166,7 +165,7 @@
                 <div id="zoomOption" class="dropdown dropdown-dark dropdown-flat flex-stretch">
                     <button class="dropdown-toggle btn btn-flat btn-dark">
                         <input id="zoomInput" type="text" value="100%">
-                        <svg class="icon icon-small roundable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        <svg class="icon icon-small round-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
                     <div class="dropdown-menu">
                         <input id="zoomSlider" data-dropdown-noclose type="range" min="1" max="3" step="0.1" value="1">
@@ -179,6 +178,21 @@
             </button>
 
             <div class="menu">
+                <div class="dropdown flex-stretch">
+                    <button class="dropdown-toggle btn btn-dark btn-flat">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-group">
+                            <input type="text" disabled="" value="http://localhost:5000/adfasdfasdf.png">
+                            <button class="btn">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                        <button id="download-image" class="btn">Download .png</button>
+                    </div>
+                </div>
+
                 <button id="saveBtn" class="btn">Save</button>
             </div>
         </nav>
@@ -225,9 +239,6 @@
             initializePage(app);
 
             window.app = app;
-
-            // app.loadImageFromUrl('https://firebasestorage.googleapis.com/v0/b/darklight-image-editor.appspot.com/o/8725484.jpg?alt=media&token=21c7edc0-7c8a-4ed0-a1f3-1a02e3cb87fe');
-
         });
     </script>
 </body>
