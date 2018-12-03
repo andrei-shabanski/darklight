@@ -201,7 +201,7 @@ p {
 
 .tools {
     height: 40px;
-    flex-grow: 1;
+    flex: 1;
     order: 1;
     display: flex;
     align-items: center;
@@ -210,7 +210,7 @@ p {
 
 .options {
     height: 40px;
-    flex-grow: 1;
+    flex: 1;
     order: 2;
     display: flex;
     align-items: center;
@@ -236,7 +236,7 @@ p {
 
 .menu {
     height: 40px;
-    flex-grow: 1;
+    flex: 1;
     order: 4;
     display: flex;
     align-items: center;
@@ -297,6 +297,10 @@ p {
 
 
 @media (max-width: 576px) {
+    .tools {
+        justify-content: center;
+    }
+
     .options {
         flex-basis: 100%;
         justify-content: center;

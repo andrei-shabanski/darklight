@@ -2,34 +2,27 @@
 
 var initializeControls = (function() {
     function Modal(modalElement) {
-        modalElement.modal = this;
-
-        this.open = this.open.bind(this);
-        this.close = this.close.bind(this);
+        var self = this;
 
         this.modalElement = modalElement;
+        this.modalElement.modal = this;
 
-        modalElement
+        this.modalElement
             .querySelectorAll('[data-modal-close]')
             .forEach(function(closeButton) {
-                closeButton.addEventListener('click', this.close);
-            }.bind(this));
+                closeButton.addEventListener('click', function(event) {
+                    self.close();
+                    event.preventDefault();
+                });
+            });
     }
 
-    Modal.prototype.open = function(event) {
+    Modal.prototype.open = function() {
         this.modalElement.dataset.open = '';
-
-        if (event) {
-            event.preventDefault();
-        }
     }
 
-    Modal.prototype.close = function(event) {
+    Modal.prototype.close = function() {
         delete this.modalElement.dataset.open;
-
-        if (event) {
-            event.preventDefault();
-        }
     }
 
 
@@ -37,34 +30,39 @@ var initializeControls = (function() {
     function Dropdown(dropdownElement) {
         dropdownElement.dropdown = this;
 
-        this.open = this.open.bind(this);
-        this.close = this.close.bind(this);
+        this.openHandler = function(event) {
+            this.open();
+        }.bind(this);
+
+        this.closeHandler = function(event) {
+            if (event.target.closest('[data-dropdown-noclose]') != null) {
+                event.preventDefault();
+                return;
+            }
+
+            this.close();
+        }.bind(this);
 
         this.dropdownElement = dropdownElement;
         this.dropdownToggleElement = dropdownElement.querySelector('.dropdown-toggle');
 
-        this.dropdownToggleElement.addEventListener('click', this.open, false);
+        this.dropdownToggleElement.addEventListener('click', this.openHandler, false);
     }
 
-    Dropdown.prototype.open = function(event) {
+    Dropdown.prototype.open = function() {
         this.dropdownElement.dataset.open = 'open';
 
-        this.dropdownToggleElement.removeEventListener('click', this.open);
-        this.dropdownToggleElement.addEventListener('click', this.close, false);
-        window.addEventListener('click', this.close, true);
+        this.dropdownToggleElement.removeEventListener('click', this.openHandler);
+        this.dropdownToggleElement.addEventListener('click', this.closeHandler, false);
+        window.addEventListener('click', this.closeHandler, true);
     };
 
-    Dropdown.prototype.close = function(event) {
-        if (event && event.target.closest('[data-dropdown-noclose]') != null) {
-            event.preventDefault();
-            return;
-        }
-
+    Dropdown.prototype.close = function() {
         delete this.dropdownElement.dataset.open;
 
-        this.dropdownToggleElement.removeEventListener('click', this.close);
-        this.dropdownToggleElement.addEventListener('click', this.open, false);
-        window.removeEventListener('click', this.close);
+        this.dropdownToggleElement.removeEventListener('click', this.closeHandler);
+        this.dropdownToggleElement.addEventListener('click', this.openHandler, false);
+        window.removeEventListener('click', this.closeHandler);
     }
 
 
@@ -104,7 +102,7 @@ var initializeControls = (function() {
         this._options = options;
     }
 
-    ScreenBlock.prototype.close = function(event) {
+    ScreenBlock.prototype.close = function() {
         delete this.element.dataset.open;
     }
 

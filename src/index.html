@@ -179,7 +179,7 @@
             </button>
 
             <div class="menu">
-                <button id="downloadBtn" class="btn">Download</button>
+                <button id="saveBtn" class="btn">Save</button>
             </div>
         </nav>
 
@@ -189,69 +189,45 @@
         </div>
     </main>
 
-    <script type="text/javascript" src="vendor/FileSaver/FileSaver.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase-storage.js"></script>
+    <script type="text/javascript" src="vender/FileSaver/2.0.0/FileSaver.min.js"></script>
     <script type="text/javascript" src="js/utils.js"></script>
     <script type="text/javascript" src="js/controls.js"></script>
     <script type="text/javascript" src="js/logging.js"></script>
-    <script type="text/javascript" src="js/events.js"></script>
-    <script type="text/javascript" src="js/app.js"></script>
-    <script type="text/javascript" src="js/ui.js"></script>
+    <script type="text/javascript" src="js/canvas.js"></script>
+    <script type="text/javascript" src="js/drawing-page.js"></script>
     <script type="text/javascript">
-        function getDrawingAreaSize() {
-            var areasElement = document.getElementsByClassName('canvases')[0];
-
-            return {
-                height: areasElement.scrollHeight,
-                width: areasElement.scrollWidth
-            };
-        }
-
         window.addEventListener('load', function() {
-            initializeControls();
+            firebase.initializeApp({
+                apiKey: "AIzaSyCiqM8QiC3rZImR3kY7MPscYxxUqDB0gbQ",
+                authDomain: "darklight-image-editor.firebaseapp.com",
+                databaseURL: "https://darklight-image-editor.firebaseio.com",
+                projectId: "darklight-image-editor",
+                storageBucket: "darklight-image-editor.appspot.com",
+                messagingSenderId: "1080138239147"
+            });
 
-            var app = new App(
-                getDrawingAreaSize,
+            var app = new CanvasApp(
+                function() {
+                    var areasElement = document.getElementsByClassName('canvases')[0];
+                    return {
+                        height: areasElement.scrollHeight,
+                        width: areasElement.scrollWidth
+                    };
+                },
                 imageCanvas,
                 drawingCanvas
             );
 
-            app.on('image-loading', function() {
-                window.spinner.showLoadingMessage();
-            });
-            app.on('image-loaded', function() {
-                window.spinner.close();
-            });
-            app.on('image-not-loaded', function() {
-                window.spinner.close();
-            });
-            app.on('image-saving', function() {
-                window.spinner.showSavingMessage();
-            });
-            app.on('image-saved', function() {
-                window.spinner.close();
-            });
-
-            app.on('image-loaded', function hideWelcomeScreen() {
-                welcome.modal.close();
-
-                app.off('image-loaded', hideWelcomeScreen);
-            });
-
-            initializeUI(app);
+            initializeControls();
+            initializePage(app);
 
             window.app = app;
-        });
-    </script>
 
-    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase.js"></script>
-    <script>
-        firebase.initializeApp({
-            apiKey: "AIzaSyCiqM8QiC3rZImR3kY7MPscYxxUqDB0gbQ",
-            authDomain: "darklight-image-editor.firebaseapp.com",
-            databaseURL: "https://darklight-image-editor.firebaseio.com",
-            projectId: "darklight-image-editor",
-            storageBucket: "darklight-image-editor.appspot.com",
-            messagingSenderId: "1080138239147"
+            // app.loadImageFromUrl('https://firebasestorage.googleapis.com/v0/b/darklight-image-editor.appspot.com/o/8725484.jpg?alt=media&token=21c7edc0-7c8a-4ed0-a1f3-1a02e3cb87fe');
+
         });
     </script>
 </body>

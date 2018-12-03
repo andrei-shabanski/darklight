@@ -1,6 +1,6 @@
 'use strict';
 
-var App = (function() {
+window.CanvasApp = (function() {
     function getRectPoints(x0, y0, x1, y1) {
         if (x0 > x1) {
             var tmpX = x0;
@@ -20,7 +20,7 @@ var App = (function() {
         }];
     }
 
-    var logger = new Logger(Logger.DEBUG, new Logger.ConsoleHandler());
+    var logger = new Logger(Logger.ERROR, new Logger.ConsoleHandler());
 
 
 
@@ -47,7 +47,7 @@ var App = (function() {
     function Application(getWindowSizeCallback, imageCanvas, drawingCanvas) {
         Application.super.constructor.apply(this, arguments);
 
-        this.state = Application.NOT_INITIALIZED;
+        this.state = Application.INITIALIZED_STATE;
 
         this.getWindowSizeCallback = getWindowSizeCallback;
         this.imageCanvas = imageCanvas;
@@ -120,76 +120,25 @@ var App = (function() {
         this.currentShape = null;
 
         this.drawingCanvas.addEventListener('mousedown', this.onDrawingCanvasMouseDown.bind(this), false);
-        window.addEventListener('keydown', this.onKeyDown.bind(this), false);
-        window.addEventListener('paste', this.onPaste.bind(this), false);
-        window.addEventListener('copy', this.onCopy.bind(this), false);
-        window.addEventListener('cut', this.onCopy.bind(this), false);
-
-        this.emit(Application.INITIALIZED_EVENT);
     }
 
     inherit(Application, Eventable);
 
-    Application.INITIALIZED_EVENT = 'initialized';
-    Application.IMAGE_LOADING_EVENT = 'image-loading';
-    Application.IMAGE_LOADED_EVENT = 'image-loaded';
-    Application.IMAGE_NOT_LOADED_EVENT = 'image-not-loaded';
-    Application.IMAGE_SAVING_EVENT = 'image-saving';
-    Application.IMAGE_SAVED_EVENT = 'image-saved';
-    Application.OPTION_CHANGED_EVENT = 'option-changed';
+    Application.IMAGE_LOADING = 'image-loading';
+    Application.IMAGE_LOADED = 'image-loaded';
+    Application.IMAGE_NOT_LOADED = 'image-not-loaded';
+    Application.IMAGE_CHANGED = 'image-changed';
+    Application.OPTION_CHANGED = 'option-changed';
 
-    Application.NOT_INITIALIZED_STATE = 0;
     Application.INITIALIZED_STATE = 1;
     Application.DRAWING_STATE = 2;
     Application.IMAGE_LOADING_STATE = 3;
-    Application.IMAGE_SAVING_STATE = 4;
 
-    var APP_EVENT_STATE_MAPPING = {
-        [Application.INITIALIZED_EVENT]: function() { return Application.INITIALIZED_STATE },
-        [Application.IMAGE_LOADING_EVENT]: function() { return Application.IMAGE_LOADING_STATE },
-        [Application.IMAGE_LOADED_EVENT]: function() { return Application.DRAWING_STATE },
-        [Application.IMAGE_NOT_LOADED_EVENT]: function() { return this.image ? Application.DRAWING : Application.INITIALIZED },
-        [Application.IMAGE_SAVING_EVENT]: function() { return Application.IMAGE_SAVING_STATE },
-        [Application.IMAGE_SAVED_EVENT]: function() { return Application.DRAWING },
-        [Application.IMAGE_NOT_SAVED_EVENT]: function() { return Application.DRAWING }
-    }
-
-    Application.prototype.onKeyDown = function(event) {
-        logger.debug('Application is handling "keydown" event');
-
-        switch (event.keyCode) {
-            case 90:  // Ctrl + Z
-                if (event.ctrlKey) {
-                    this.removeShape();
-                }
-                break
-            case 83:  // Ctrl + S
-                if (event.ctrlKey) {
-                    this.download();
-                }
-                break
-            default:
-                return
-        }
-
-        event.preventDefault();
-    }
-
-    Application.prototype.onPaste = function(event) {
-        logger.debug('Application is handling "paste" event');
-        this.loadImageFromClipboard(event.clipboardData);
-        event.preventDefault();
-    }
-
-    Application.prototype.onCopy = function(event) {
-        logger.debug('Application is handling "copy"\\"cut" event');
-
-        var data = this.toDataURL();
-
-        event.clipboardData.setData('text/plain', 'Hello, world!');
-        event.clipboardData.setData('image/png', data);
-        event.preventDefault();
-    }
+    var _EVENT_TO_STATE_MAPPING = {
+        [Application.IMAGE_LOADING]: function() { return Application.IMAGE_LOADING_STATE },
+        [Application.IMAGE_LOADED]: function() { return Application.DRAWING_STATE },
+        [Application.IMAGE_NOT_LOADED]: function() { return this.image ? Application.DRAWING_STATE : Application.INITIALIZED_STATE },
+    };
 
     Application.prototype.onDrawingCanvasMouseDown = function(event) {
         logger.debug('Application is handling "mousedown" event');
@@ -202,64 +151,29 @@ var App = (function() {
     Application.prototype.emit = function(eventType, details) {
         logger.debug('Application is emitting "', eventType, '" event');
 
-        var changeState = APP_EVENT_STATE_MAPPING[eventType];
+        var changeState = _EVENT_TO_STATE_MAPPING[eventType];
         if (changeState) {
-            this.state = APP_EVENT_STATE_MAPPING[eventType].call(this);
+            this.state = _EVENT_TO_STATE_MAPPING[eventType].call(this);
         }
 
         Application.super.emit.apply(this, arguments);
     }
 
-    Application.prototype.loadImageFromClipboard = function(clipboard) {
-        logger.info('Application is loading an image from the clipboard');
-
-        this.emit(Application.IMAGE_LOADING_EVENT);
-
-        for (var index in clipboard.types) {
-            if (clipboard.types[index] != 'Files') {
+    Application.prototype.loadImageFromDataTransfer = function(dataTransfer) {
+        for (var index in dataTransfer.types) {
+            if (dataTransfer.types[index] != 'Files') {
                 continue
             }
 
-            var clipboardDataItem = clipboard.items[index];
-            var file = clipboardDataItem.getAsFile();
+            var dataTransferItem = dataTransfer.items[index];
+            var file = dataTransferItem.getAsFile();
 
             if (!file || !file.type.startsWith('image/')) {
                 continue
             }
-
-            this.loadImageFromFileObj(file);
-            return
+            this.loadImageFromFileObject(file);
+            return;
         }
-
-        this.emit(Application.IMAGE_NOT_LOADED_EVENT);
-
-        logger.warn("Clipboard doesn't contain a image file");
-    }
-
-    Application.prototype.loadImageFromFileObj = function(file) {
-        logger.info('Application is loading an image from a file object');
-
-        var self = this;
-
-        if (this.state !== Application.IMAGE_LOADING_STATE) {
-            this.emit(Application.IMAGE_LOADING_EVENT);
-        }
-
-        if (!file.type.startsWith('image/')) {
-            logger.warn("File isn't an image");
-            this.emit(Application.IMAGE_NOT_LOADED_EVENT);
-            return
-        }
-
-        var fileReader = new FileReader();
-        fileReader.onload = function() {
-            self.loadImageFromUrl(fileReader.result);
-        }
-        fileReader.onerror = function() {
-            logger.warn("Image wasn't been loaded from a file");
-            self.emit(Application.IMAGE_NOT_LOADED_EVENT);
-        }
-        fileReader.readAsDataURL(file);
     }
 
     Application.prototype.loadImageFromUrl = function(url) {
@@ -268,26 +182,36 @@ var App = (function() {
         var self = this;
 
         if (this.state !== Application.IMAGE_LOADING_STATE) {
-            this.emit(Application.IMAGE_LOADING_EVENT);
+            this.emit(Application.IMAGE_LOADING);
         }
 
         var image = new Image();
-        // image.crossOrigin = "";
+        image.crossOrigin = 'anonymous';
         image.onload = function() {
             self.loadImage(this);
         }
         image.onerror = function() {
             logger.warn("Image wasn't been loaded from url");
-            self.emit(Application.IMAGE_NOT_LOADED_EVENT);
+            self.emit(Application.IMAGE_NOT_LOADED);
         }
         image.src = url;
+    }
+
+    Application.prototype.loadImageFromFileObject = function(file) {
+        logger.info('Application is loading a new image from a file ');
+
+        if (this.state !== Application.IMAGE_LOADING_STATE) {
+            this.emit(Application.IMAGE_LOADING);
+        }
+
+        this.loadImageFromUrl(URL.createObjectURL(file));
     }
 
     Application.prototype.loadImage = function(image) {
         logger.info('Application loaded the image successfully');
 
         if (this.state !== Application.IMAGE_LOADING_STATE) {
-            this.emit(Application.IMAGE_LOADING_EVENT);
+            this.emit(Application.IMAGE_LOADING);
         }
 
         if (this.currentShape) {
@@ -302,7 +226,7 @@ var App = (function() {
         this.resizeCanvas();
         this.draw();
 
-        this.emit(Application.IMAGE_LOADED_EVENT);
+        this.emit(Application.IMAGE_LOADED);
     }
 
     Application.prototype.setOption = function(name, value) {
@@ -313,7 +237,7 @@ var App = (function() {
             this.currentShape.draw();
         }
 
-        this.emit(Application.OPTION_CHANGED_EVENT, {optionName: name, value: value});
+        this.emit(Application.OPTION_CHANGED, {optionName: name, value: value});
     }
 
     Application.prototype.selectTool = function(toolName) {
@@ -325,13 +249,13 @@ var App = (function() {
             return;
         }
 
-        this.activeTool = tool;
-
         if (this.currentShape) {
             this.currentShape.commit();
         }
 
+        this.activeTool = tool;
         this.currentShapeClass = tool.shape;
+        self.drawingCanvas.style.cursor = tool.cursor;
     }
 
     Application.prototype.createShape = function(x, y) {
@@ -377,6 +301,8 @@ var App = (function() {
         if (this.activeTool.afterCommit) {
             this.activeTool.afterCommit.call(this, currentShape);
         }
+
+        this.emit(Application.IMAGE_CHANGED)
     }
 
     Application.prototype.removeShape = function() {
@@ -441,9 +367,9 @@ var App = (function() {
         var croppedImageData = this.imageCanvasCtx.getImageData(x, y, width, height);
         this.loadImage(croppedImageData);
 
-        // in order to convert ImageData to Image, we'll load the image again
-        var croppedImageBase64 = this.toDataURL();
-        this.loadImageFromUrl(croppedImageBase64);
+        // in order to convert ImageData to Image we load the image again huh
+        // var croppedImageBase64 = this.toDataURL();
+        // this.loadImageFromUrl(croppedImageBase64);
     }
 
     Application.prototype.draw = function() {
@@ -487,25 +413,23 @@ var App = (function() {
         return data;
     }
 
-    Application.prototype.download = function() {
-        logger.info('Saving the image');
-
-        if (this.state === Application.IMAGE_SAVING_STATE) {
-            return
+    Application.prototype.toBlob = function(callback) {
+        if (this.currentShape) {
+            this.currentShape.commit();
         }
 
-        this.emit(Application.IMAGE_SAVING_EVENT);
+        var preScale = this.options.scale;
 
-        var base64Data = app.toDataURL();
+        this.zoom(1);
+        this.resizeCanvas();
+        this.draw();
 
-        var now = new Date();
-        var fileName = 'Image-' + dateToString(now, 'dd-mm-yyyy_H-M-S') + '.png';
+        this.imageCanvas.toBlob(callback);
 
-        saveAs(base64Data, fileName);
-
-        this.emit(Application.IMAGE_SAVED_EVENT);
+        this.zoom(preScale);
+        this.resizeCanvas();
+        this.draw();
     }
-
 
 
 

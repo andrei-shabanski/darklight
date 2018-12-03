@@ -1,6 +1,137 @@
 'use strict';
 
-var initializeUI = function(app) {
+var initializePage = function(app) {
+    var logger = new Logger(Logger.ERROR, new Logger.ConsoleHandler());
+
+
+
+    function FirebaseImageStorage(imageId) {
+        this.imageId = imageId;
+        this._refFile = firebase.storage().ref('images/' + imageId);
+    }
+
+    FirebaseImageStorage.prototype.load = function() {
+        return this._refFile.getDownloadURL();
+    }
+
+    FirebaseImageStorage.prototype.save = function(blob) {
+        return this._refFile.put(blob);
+    }
+
+    FirebaseImageStorage.prototype.delete = function() {
+        return this._refFile.delete();
+    }
+
+
+    var imageManager = {
+        imageStorage: null,
+        loadingImageFromUrl: false,
+
+        init: function() {
+
+        },
+
+        loadedImage: function() {
+            // omg
+            if (this.loadImageFromUrl) {
+                this.loadImageFromUrl = false;
+                return
+            }
+
+            if (this.imageStorage) {
+                this.save();
+            }
+
+            this.createImageStorage();
+            this.save();
+        },
+
+        didNotLoadImage: function() {
+            if (this.loadImageFromUrl) {
+                this.loadImageFromUrl = false;
+                return
+            }
+
+            logger.error('Image was not loaded. ', error);
+        },
+
+        loadImageFromStorage: function(imageId) {
+            var self = this;
+
+            this.createImageStorage(imageId);
+            this.loadingImageFromUrl = true;
+            this.imageStorage
+                .load()
+                .then(app.loadImageFromUrl.bind(app))
+                .catch(function(error) {
+                    self.didNotLoadImage();
+                });
+        },
+
+        setImageIdToLocation: function(imageId) {
+            history.pushState({imageId: imageId}, '', imageId);
+        },
+
+        parseImageIdFromLocation: function() {
+            var matchedPath = location.pathname.match(/\/(\w+\.png)/);
+            if (matchedPath) {
+                return matchedPath[1];
+            }
+
+            return null;
+        },
+
+        createImageStorage: function(imageId) {
+            if (!imageId) {
+                imageId = randomString() + '.png';
+                this.setImageIdToLocation(imageId);
+            }
+
+            this.imageStorage = new FirebaseImageStorage(imageId);
+        },
+
+        save: function() {
+            var self = this;
+
+            app.toBlob(function(blob) {
+                self.imageStorage
+                    .save(blob)
+                    .then(function(snapshot) {
+                        console.log('IMAGE WAS SAVED: ', snapshot);
+                    })
+                    .catch(function(error) {
+                        console.log('IMAGE WASN\'T SAVED: ', error);
+                        self.didNotLoadImage();
+                    });
+            });
+        },
+
+        download: function() {
+            var now = new Date();
+            var fileName = 'Image-' + dateToString(now, 'dd-mm-yyyy_H-M-S') + '.png';
+
+            app.toBlob(function(blob) {
+                saveAs(blob, fileName);
+            });
+        },
+
+        delete: function() {
+            if (!this.imageStorage) {
+                return
+            }
+
+            this.imageStorage
+                .delete()
+                .then(function() {
+                    console.log('IMAGE WAS DELETED');
+                })
+                .catch(function(error) {
+                    console.log('IMAGE WAN\'T DELETED');
+                });
+        }
+    };
+
+
     var toolConfigs = {
         enabledToolButton: null,
         enabledOptions: [],
@@ -12,7 +143,9 @@ var initializeUI = function(app) {
         },
 
         init: function() {
-            document.querySelector('.tools').addEventListener('click', this._handleToolChoose.bind(this), false);
+            document
+                .querySelector('.tools')
+                .addEventListener('click', this._handleChoosingTool.bind(this), false);
         },
         selectTool: function(button) {
             var tool = button.dataset.tool;
@@ -41,7 +174,7 @@ var initializeUI = function(app) {
 
             app.selectTool(tool);
         },
-        _handleToolChoose: function(event) {
+        _handleChoosingTool: function(event) {
             var button = event.target.closest('button');
             if (!button || this.enabledToolButton == button) {
                 return;
@@ -52,6 +185,50 @@ var initializeUI = function(app) {
             event.preventDefault();
         }
     };
+
+
+    var menuConfigs = {
+        menuToggleBtn: document.getElementById('menu-toggle'),
+        menuElement: document.getElementsByClassName('menu')[0],
+
+        saveBtn: document.getElementById('saveBtn'),
+        fileBtn: document.getElementById('fileBtn'),
+
+        init: function() {
+            var self = this;
+
+            this.menuToggleBtn.addEventListener('click', function(event) {
+                self.toggleMenu();
+                event.preventDefault();
+            }, false);
+
+            this.saveBtn.addEventListener('click', function(event) {
+                imageManager.save();
+                event.preventDefault();
+            }, false);
+
+            this.fileBtn.addEventListener('change', function(event) {
+                var fileBtn = event.target;
+
+                if (fileBtn.files.length) {
+                    app.loadImageFromFileObject(fileBtn.files[0]);
+                }
+                event.preventDefault();
+            }, false);
+        },
+
+        toggleMenu: function() {
+            this.menuToggleBtn.classList.toggle('active');
+
+            if (this.menuElement.dataset.open == undefined) {
+                this.menuElement.dataset.open = '';
+            } else {
+                delete this.menuElement.dataset.open;
+            }
+        }
+
+    };
+
 
     var colorOption = {
         colorDropdown: document.getElementById('colorOption'),
@@ -105,6 +282,7 @@ var initializeUI = function(app) {
             event.preventDefault();
         }
     };
+
 
     var baseSizeOption = {
         input: null,
@@ -180,69 +358,17 @@ var initializeUI = function(app) {
             } else if (button.dataset.sizeChange == 'decrease') {
                 this.decreaseSize();
             }
-        }
-    };
-
-    var dropImageOption = {
-        dropareaHiddingTimerID: null,
-        dragoverLastTimeFired: null,
-
-        init: function() {
-            // Note that dragstart and dragend events are not fired when dragging a file into the browser from the OS.
-            // (https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop)
-
-            // So we will set up a timer to hide droparea when dragover event will no longer fire
-            window.addEventListener('dragover', this._dragImage.bind(this), false);
-            window.addEventListener('drop', this._dropImage.bind(this), false);
-        },
-        _dragImage: function(event) {
-            this.dragoverLastTimeFired = new Date();
-
-            if (!this.dropareaHiddingTimerID) {
-                spinner.showDropArea();
-
-                this.dropareaHiddingTimerID = setInterval(function() {
-                    var nowTime = new Date();
-                    if ((nowTime - this.dragoverLastTimeFired) < 150) {
-                        return
-                    }
-
-                    spinner.close();
-
-                    clearInterval(this.dropareaHiddingTimerID);
-                    this.dropareaHiddingTimerID = null;
-                }.bind(this), 50);
-            }
-
-            event.preventDefault();
-        },
-        _dropImage: function(event) {
-            for (var index in event.dataTransfer.types) {
-                if (event.dataTransfer.types[index] != 'Files') {
-                    continue;
-                }
-
-                var dataItem = event.dataTransfer.items[index];
-                var file = dataItem.getAsFile();
-
-                if (!file.type.startsWith('image/')) {
-                    continue;
-                }
-
-                var fileReader = new FileReader();
-                fileReader.onload = function(event) {
-                    app.loadImageFromUrl(event.target.result);
-                }
-                fileReader.readAsDataURL(file);
-                break;
-            }
 
             event.preventDefault();
         }
     };
+
+    var sizeOption = Object.create(baseSizeOption);
+
+    var textSizeOption = Object.create(baseSizeOption);
+
 
     var zoomOption = {
-        zoomDropdown: document.getElementById('zoomOption'),
         zoomInput: document.getElementById('zoomInput'),
         zoomSlider: document.getElementById('zoomSlider'),
         minScaleFactor: 1,
@@ -339,7 +465,7 @@ var initializeUI = function(app) {
                 event.preventDefault();
             }
         },
-        _hackCanvasCentering: function(event) {
+        _hackCanvasCentering: function() {
             var windowWidth = window.innerWidth;
             var windowHeight = window.innerHeight;
             var canvases = document.querySelectorAll('.canvases canvas');
@@ -369,12 +495,50 @@ var initializeUI = function(app) {
     };
 
 
-    var spinner = {
-        blockScreenElement: null,
+    var dropImageOption = {
+        dropareaHiddingTimerID: null,
+        dragoverLastTimeFired: null,
 
-        init: function(blockScreenElement) {
-            this.blockScreenElement = blockScreenElement;
+        init: function() {
+            // Note that dragstart and dragend events are not fired when dragging a file into the browser from the OS.
+            // (https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop)
+
+            // So we will set up a timer to hide droparea when dragover event will no longer fire
+            window.addEventListener('dragover', this._dragImage.bind(this), false);
+            window.addEventListener('drop', this._dropImage.bind(this), false);
         },
+        _dragImage: function(event) {
+            this.dragoverLastTimeFired = new Date();
+
+            if (!this.dropareaHiddingTimerID) {
+                spinner.showDropArea();
+
+                this.dropareaHiddingTimerID = setInterval(function() {
+                    var nowTime = new Date();
+                    if ((nowTime - this.dragoverLastTimeFired) < 150) {
+                        return
+                    }
+
+                    spinner.close();
+
+                    clearInterval(this.dropareaHiddingTimerID);
+                    this.dropareaHiddingTimerID = null;
+                }.bind(this), 50);
+            }
+
+            event.preventDefault();
+        },
+        _dropImage: function(event) {
+            app.loadImageFromDataTransfer(event.dataTransfer);
+            event.preventDefault();
+        }
+    };
+
+
+    var spinner = {
+        blockScreenElement: document.getElementById('spinner'),
+
+        init: function() {},
         showDropArea: function() {
             this.blockScreenElement.screenBlock.open({
                 message: 'Drop a file here',
@@ -401,61 +565,77 @@ var initializeUI = function(app) {
         }
     };
 
-    /*
-        LET"S GO
-    */
-    toolConfigs.init();
 
-    colorOption.init();
-    window.colorOption = colorOption;
+    function activate() {
+        toolConfigs.init();
+        menuConfigs.init();
+        colorOption.init();
+        sizeOption.init(
+            'size',
+            document.getElementById('sizeOption'),
+            document.getElementById('sizeOptionInput')
+        );
+        textSizeOption.init(
+            'textSize',
+            document.getElementById('textSizeOption'),
+            document.getElementById('textSizeOptionInput')
+        );
+        zoomOption.init();
+        dropImageOption.init();
+        spinner.init();
+        imageManager.init();
 
-    window.sizeOption = Object.create(baseSizeOption);
-    window.sizeOption.init(
-        'size',
-        document.getElementById('sizeOption'),
-        document.getElementById('sizeOptionInput')
-    );
 
-    window.textSizeOption = Object.create(baseSizeOption);
-    window.textSizeOption.init(
-        'textSize',
-        document.getElementById('textSizeOption'),
-        document.getElementById('textSizeOptionInput')
-    );
+        window.addEventListener('resize', function(event) {
+            app.zoom();
+            app.resizeCanvas();
+            app.draw();
+        }, false);
 
-    zoomOption.init();
-    window.zoomOption = zoomOption;
+        window.addEventListener('keydown', function(event) {
+            if (event.keyCode === 90 && event.ctrlKey) {
+                // Ctrl + Z
+                app.removeShape();
+            } else if (event.keyCode === 90 && event.ctrlKey) {
+                // Ctrl + S
+                imageManager.save();
+            } else {
+                return
+            }
 
-    spinner.init(document.getElementById('spinner'));
-    window.spinner = spinner;
+            event.preventDefault();
+        }, false);
 
-    var menuToggleBtn = document.getElementById('menu-toggle');
-    var menuElement = document.getElementsByClassName('menu')[0];
-    menuToggleBtn.addEventListener('click', function(event) {
-        menuToggleBtn.classList.toggle('active');
-        if (menuElement.dataset.open == undefined) {
-            menuElement.dataset.open = '';
-        } else {
-            delete menuElement.dataset.open;
+        window.addEventListener('paste', function(event) {
+            app.loadImageFromDataTransfer(event.clipboardData);
+            event.preventDefault();
+        }, false);
+
+        app.on('image-loading', function() {
+            spinner.showLoadingMessage();
+        });
+
+        app.on('image-loaded', function hideWelcomeScreen() {
+            welcome.modal.close();
+            app.off('image-loaded', hideWelcomeScreen);
+        });
+        app.on('image-loaded', function() {
+            imageManager.loadedImage();
+            spinner.close();
+        });
+        app.on('image-not-loaded', function() {
+            imageManager.didNotLoadImage();
+            spinner.close();
+        });
+        app.on('image-changed', function() {
+            imageManager.save();
+        });
+
+        var imageId = imageManager.parseImageIdFromLocation();
+        if (imageId) {
+            imageManager.loadImageFromStorage(imageId);
         }
-    }, false);
+    }
 
-    var fileBtn = document.getElementById('fileBtn');
-    fileBtn.addEventListener('change', function(event) {
-        if (fileBtn.files.length) {
-            app.loadImageFromFileObj(fileBtn.files[0]);
-        }
-        event.preventDefault();
-    }, false);
-
-    var downloadButton = document.getElementById('downloadBtn');
-    downloadButton.addEventListener('click', app.download.bind(app));
-
-    dropImageOption.init();
-
-    window.addEventListener('resize', function(event) {
-        app.zoom();
-        app.resizeCanvas();
-        app.draw();
-    }, false);
+    activate();
 };
