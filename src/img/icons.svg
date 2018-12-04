@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <symbol id="text" viewBox="0 0 24 24">
+            <polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line>
+        </symbol>
+        <symbol id="pen" viewBox="0 0 24 24">
+            <polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon>
+        </symbol>
+        <symbol id="line" viewBox="0 0 24 24">
+            <line x1="20" y1="4" x2="4" y2="20"></line>
+        </symbol>
+        <symbol id="rectangle" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        </symbol>
+        <symbol id="ellipse" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+        </symbol>
+        <symbol id="arrow" viewBox="0 0 24 24">
+            <line x1="20" y1="4" x2="4" y2="20"></line><polyline points="14 20 4 20 4 10"></polyline>
+        </symbol>
+        <symbol id="crop" viewBox="0 0 24 24">
+            <path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"></path><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"></path>
+        </symbol>
+        <symbol id="chevron-down" viewBox="0 0 24 24">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </symbol>
+        <symbol id="minus" viewBox="0 0 24 24">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </symbol>
+        <symbol id="plus" viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+        </symbol>
+        <symbol id="menu" viewBox="0 0 24 24">
+            <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+        </symbol>
+        <symbol id="save" viewBox="0 0 24 24">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline>
+        </symbol>
+        <symbol id="copy" viewBox="0 0 24 24">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </symbol>
+        <symbol id="coffee" viewBox="0 0 24 24">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line>
+        </symbol>
+        <symbol id="image" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>
+        </symbol>
+    </defs>
+</svg>

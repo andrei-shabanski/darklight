@@ -7,6 +7,7 @@ var initializePage = function(app) {
 
     function FirebaseImageStorage(imageId) {
         this.imageId = imageId;
+        this.url = 'https://firebasestorage.googleapis.com/v0/b/darklight-image-editor.appspot.com/o/images%2F' + imageId + '?alt=media';
         this._refFile = firebase.storage().ref('images/' + imageId);
     }
 
@@ -15,7 +16,6 @@ var initializePage = function(app) {
     }
 
     FirebaseImageStorage.prototype.save = function(blob) {
-        console.log('saving...');
         return this._refFile.put(blob);
     }
 
@@ -29,6 +29,9 @@ var initializePage = function(app) {
         imageStorage: null,
         loadingImageFromUrl: false,
 
+        imageEditLinkInput: document.getElementById('image-edit-link'),
+        imageDirectLinkInput: document.getElementById('image-direct-link'),
+
         isSaving: false,
         hasUnsavedChanges: false,
 
@@ -39,18 +42,20 @@ var initializePage = function(app) {
         onLoadSuccess: function() {
             logger.debug('Image was loaded.');
 
-            // omg
-            if (this.loadingImageFromUrl) {
+            if (!this.loadingImageFromUrl) {
+                if (this.imageStorage) {
+                    this.save();
+                }
+
+                this.createImageStorage();
+                this.save(true);
+            } else {
+                // omg. imageStorage is already created
                 this.loadingImageFromUrl = false;
-                return
             }
 
-            if (this.imageStorage) {
-                this.save();
-            }
-
-            this.createImageStorage();
-            this.save();
+            this.imageEditLinkInput.value = location.href;
+            this.imageDirectLinkInput.value = this.imageStorage.url;
         },
 
         onLoadFailure: function(error) {
@@ -75,12 +80,13 @@ var initializePage = function(app) {
 
             this.createImageStorage(imageId);
             this.loadingImageFromUrl = true;
-            this.imageStorage
-                .load()
-                .then(app.loadImageFromUrl.bind(app))
-                .catch(function(error) {
-                    self.onLoadFailure(error);
-                });
+            // this.imageStorage
+            //     .load()
+            //     .then(app.loadImageFromUrl.bind(app))
+            //     .catch(function(error) {
+            //         self.onLoadFailure(error);
+            //     });
+            app.loadImageFromUrl(this.imageStorage.url);
         },
 
         setImageIdToLocation: function(imageId) {
@@ -105,8 +111,10 @@ var initializePage = function(app) {
             this.imageStorage = new FirebaseImageStorage(imageId);
         },
 
-        save: function() {
-            if (!this.hasUnsavedChanges || this.isSaving) {
+        save: function(force) {
+            force = force != undefined ? force : false;
+
+            if ((!this.hasUnsavedChanges || this.isSaving) && !force) {
                 return
             }
 
@@ -115,7 +123,7 @@ var initializePage = function(app) {
             this.hasUnsavedChanges = false;
             this.isSaving = true;
 
-            app.toBlob(function(blob) {
+            return app.toBlob(function(blob) {
                 self.imageStorage
                     .save(blob)
                     .then(function(snapshot) {
@@ -218,6 +226,7 @@ var initializePage = function(app) {
 
         saveBtn: document.getElementById('saveBtn'),
         fileBtn: document.getElementById('fileBtn'),
+        downloadBtn: document.getElementById('downloadBtn'),
 
         init: function() {
             var self = this;
@@ -238,6 +247,11 @@ var initializePage = function(app) {
                 if (fileBtn.files.length) {
                     app.loadImageFromFileObject(fileBtn.files[0]);
                 }
+                event.preventDefault();
+            }, false);
+
+            this.downloadBtn.addEventListener('click', function(event) {
+                imageManager.download();
                 event.preventDefault();
             }, false);
         },
@@ -286,8 +300,9 @@ var initializePage = function(app) {
             this.colorPicker.click();
         },
         changePicker: function() {
-            this.colorPickerButton.style.fill = colorPicker.value;
-            this.colorPickerButton.style.stroke = colorPicker.value;
+            var svgIcon = this.colorPickerButton.querySelector('svg');
+            svgIcon.style.fill = colorPicker.value;
+            svgIcon.style.stroke = colorPicker.value;
 
             this.setColor(this.colorPickerButton, this.colorPicker.value);
         },
@@ -570,6 +585,7 @@ var initializePage = function(app) {
                 imageClass: 'icon-image',
                 withBorder: true
             });
+            this.blockScreenElement.screenBlock.imageElement.setAttribute('xlink:href', 'img/icons.svg#image');
         },
         showLoadingMessage: function() {
             this.blockScreenElement.screenBlock.open({
@@ -577,6 +593,7 @@ var initializePage = function(app) {
                 imageClass: 'icon-coffee',
                 loading: true
             });
+            this.blockScreenElement.screenBlock.imageElement.setAttribute('xlink:href', 'img/icons.svg#coffee');
         },
         showSavingMessage: function() {
             this.blockScreenElement.screenBlock.open({
@@ -584,6 +601,7 @@ var initializePage = function(app) {
                 imageClass: 'icon-coffee',
                 loading: true
             });
+            this.blockScreenElement.screenBlock.imageElement.setAttribute('xlink:href', 'img/icons.svg#coffee');
         },
         close: function() {
             this.blockScreenElement.screenBlock.close();

@@ -182,6 +182,11 @@ p {
 }
 
 
+/* SPINNER */
+.icon-spinner {
+    fill: #6e6e6e;
+}
+
 
 /* TOOLBAR */
 .toolbar {

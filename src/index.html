@@ -16,11 +16,11 @@
     <div id="spinner" class="screen-block">
         <div class="screen-content">
             <h1 class="screen-message"></h1>
-            <span class="screen-image icon icon-extra-large"></span>
+            <svg class="screen-image icon icon-extra-large icon-spinner"><use xlink:href=""></use></svg>
         </div>
     </div>
 
-    <div id="welcome" class="modal">
+    <div id="welcome" class="modal" data-open>
         <div class="modal-content">
             <div class="modal-body">
             <section class="getting-started">
@@ -56,25 +56,25 @@
         <nav class="toolbar">
             <div class="tools">
                 <button class="btn btn-flat btn-dark flex-stretch" data-tool="text" data-options="color textSize">
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+                    <svg class="icon"><use xlink:href="img/icons.svg#text"></use></svg>
                 </button>
                 <button class="btn btn-flat btn-dark flex-stretch" data-tool="pen" data-options="color size">
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"2"><polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon></svg>
+                    <svg class="icon"><use xlink:href="img/icons.svg#pen"></use></svg>
                 </button>
                 <button class="btn btn-flat btn-dark flex-stretch" data-tool="line" data-options="color size">
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="20" y1="4" x2="4" y2="20"></line></svg>
+                    <svg class="icon"><use xlink:href="img/icons.svg#line"></use></svg>
                 </button>
                 <button class="btn btn-flat btn-dark flex-stretch" data-tool="rectangle" data-options="color size">
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                    <svg class="icon"><use xlink:href="img/icons.svg#rectangle"></use></svg>
                 </button>
                 <button class="btn btn-flat btn-dark flex-stretch" data-tool="ellipse" data-options="color size">
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg>
+                    <svg class="icon"><use xlink:href="img/icons.svg#ellipse"></use></svg>
                 </button>
                 <button class="btn btn-flat btn-dark flex-stretch" data-tool="arrow" data-options="color size">
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="20" y1="4" x2="4" y2="20"></line><polyline points="14 20 4 20 4 10"></polyline></svg>
+                    <svg class="icon"><use xlink:href="img/icons.svg#arrow"></use></svg>
                 </button>
                 <button id="cropBtn" class="btn btn-flat btn-dark flex-stretch" data-tool="crop">
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"></path><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"></path></svg>
+                    <svg class="icon"><use xlink:href="img/icons.svg#crop"></use></svg>
                 </button>
             </div>
 
@@ -82,15 +82,15 @@
                 <div id="sizeOption" class="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
                     <button class="dropdown-toggle btn btn-flat btn-dark">
                         <input id="sizeOptionInput" type="text" value="5px">
-                        <svg class="icon small round-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        <svg class="icon icon-small round-180"><use xlink:href="img/icons.svg#chevron-down"></use></svg>
                     </button>
                     <div class="dropdown-menu">
                         <div class="dropdown-group">
                             <button class="btn btn-flat btn-dark" data-dropdown-noclose data-size-change="decrease">
-                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <svg class="icon"><use xlink:href="img/icons.svg#minus"></use></svg>
                             </button>
                             <button class="btn btn-flat btn-dark" data-dropdown-noclose data-size-change="increase">
-                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"  stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <svg class="icon"><use xlink:href="img/icons.svg#plus"></use></svg>
                             </button>
                         </div>
                         <button class="btn btn-flat btn-dark" data-size-set="2">2px</button>
@@ -106,15 +106,15 @@
                 <div id="textSizeOption" class="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
                     <button class="dropdown-toggle btn btn-flat btn-dark">
                         <input id="textSizeOptionInput" type="text" value="18px">
-                        <svg class="icon icon-small round-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        <svg class="icon icon-small round-180"><use xlink:href="img/icons.svg#chevron-down"></use></svg>
                     </button>
                     <div class="dropdown-menu">
                         <div class="dropdown-group">
                             <button class="btn btn-flat btn-dark" data-size-change="decrease">
-                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <svg class="icon"><use xlink:href="img/icons.svg#minus"></use></svg>
                             </button>
                             <button class="btn btn-flat btn-dark" data-size-change="increase">
-                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <svg class="icon"><use xlink:href="img/icons.svg#plus"></use></svg>
                             </button>
                         </div>
                         <button class="btn btn-flat btn-dark" data-size-set="6">6px</button>
@@ -129,33 +129,33 @@
 
                 <div id="colorOption" class="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
                     <button class="dropdown-toggle btn btn-flat btn-dark">
-                        <svg style="fill: #ff0000; stroke: #ff0000;" class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                        <svg class="icon" style="fill: #ff0000; stroke: #ff0000;"><use xlink:href="img/icons.svg#rectangle"></use></svg>
                     </button>
                     <div class="dropdown-menu">
                         <div class="dropdown-group">
                             <button class="btn btn-flat btn-dark active" data-color-set="#ff0000">
-                                <svg class="icon icon-red" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                                <svg class="icon icon-red"><use xlink:href="img/icons.svg#rectangle"></use></svg>
                             </button>
                             <button class="btn btn-flat btn-dark" data-color-set="#00ff00">
-                                <svg class="icon icon-green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                                <svg class="icon icon-green"><use xlink:href="img/icons.svg#rectangle"></use></svg>
                             </button>
                             <button class="btn btn-flat btn-dark" data-color-set="#0000ff">
-                                <svg class="icon icon-blue" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                                <svg class="icon icon-blue"><use xlink:href="img/icons.svg#rectangle"></use></svg>
                             </button>
                         </div>
                         <div class="dropdown-group">
                             <button class="btn btn-flat btn-dark" data-color-set="#ffffff">
-                                <svg class="icon icon-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                                <svg class="icon icon-white"><use xlink:href="img/icons.svg#rectangle"></use></svg>
                             </button>
                             <button class="btn btn-flat btn-dark" data-color-set="#ffff00">
-                                <svg class="icon icon-yellow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                                <svg class="icon icon-yellow"><use xlink:href="img/icons.svg#rectangle"></use></svg>
                             </button>
                             <button class="btn btn-flat btn-dark" data-color-set="#000000">
-                                <svg class="icon icon-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                                <svg class="icon icon-black"><use xlink:href="img/icons.svg#rectangle"></use></svg>
                             </button>
                         </div>
                         <button class="btn btn-flat btn-dark picker-button" data-color-picker>
-                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                            <svg class="icon"><use xlink:href="img/icons.svg#rectangle"></use></svg>
                             Other
                         </button>
                     </div>
@@ -165,7 +165,7 @@
                 <div id="zoomOption" class="dropdown dropdown-dark dropdown-flat flex-stretch">
                     <button class="dropdown-toggle btn btn-flat btn-dark">
                         <input id="zoomInput" type="text" value="100%">
-                        <svg class="icon icon-small round-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        <svg class="icon icon-small round-180"><use xlink:href="img/icons.svg#chevron-down"></use></svg>
                     </button>
                     <div class="dropdown-menu">
                         <input id="zoomSlider" data-dropdown-noclose type="range" min="1" max="3" step="0.1" value="1">
@@ -174,22 +174,20 @@
             </div>
 
             <button id="menu-toggle" class="btn btn-dark btn-flat flex-stretch">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <svg class="icon"><use xlink:href="img/icons.svg#menu"></use></svg>
             </button>
 
             <div class="menu">
                 <div class="dropdown flex-stretch">
                     <button class="dropdown-toggle btn btn-dark btn-flat">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <svg class="icon"><use xlink:href="img/icons.svg#save"></use></svg>
                     </button>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu dropdown-menu--right">
+                        <input id="image-edit-link" type="text" title="View link" disabled="">
+                        <input id="image-direct-link" type="text" title="Orignal link" disabled="">
                         <div class="dropdown-group">
-                            <input type="text" disabled="" value="http://localhost:5000/adfasdfasdf.png">
-                            <button class="btn">
-                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                            </button>
+                            <button id="downloadBtn" class="btn">Download .png</button>
                         </div>
-                        <button id="download-image" class="btn">Download .png</button>
                     </div>
                 </div>
 

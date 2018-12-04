@@ -112,6 +112,14 @@
     box-shadow: 0 1px 2px rgba(52, 73, 94, 0.5);
 }
 
+.dropdown-menu--left {
+    left: 0;
+}
+
+.dropdown-menu--right {
+    right: 0;
+}
+
 .dropdown[data-open] .dropdown-menu {
     display: flex;
 }
@@ -178,6 +186,24 @@
 .btn:active {
     background-color: #00b89c;
     transition: all 0.3s;
+}
+
+
+.btn-light {
+    background-color: transparent;
+    color: #12212f;
+}
+
+.btn-light:focus,
+.btn-light:hover {
+    background-color: #f9f9f9;
+    transition: all 0.2s;
+}
+
+.btn-light:active,
+.btn-light.active {
+    background-color: #f2f2f2;
+    transition: all 0.2s;
 }
 
 
