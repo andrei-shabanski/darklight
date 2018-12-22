@@ -153,7 +153,7 @@ var initializePage = function(app) {
                 return
             }
 
-            this.imageStorage
+            return this.imageStorage
                 .delete()
                 .then(function() {
                     console.log('IMAGE WAS DELETED');
@@ -582,7 +582,6 @@ var initializePage = function(app) {
         showDropArea: function() {
             this.blockScreenElement.screenBlock.open({
                 message: 'Drop a file here',
-                imageClass: 'icon-image',
                 withBorder: true
             });
             this.blockScreenElement.screenBlock.imageElement.setAttribute('xlink:href', 'img/icons.svg#image');
@@ -590,7 +589,6 @@ var initializePage = function(app) {
         showLoadingMessage: function() {
             this.blockScreenElement.screenBlock.open({
                 message: 'Loading a image',
-                imageClass: 'icon-coffee',
                 loading: true
             });
             this.blockScreenElement.screenBlock.imageElement.setAttribute('xlink:href', 'img/icons.svg#coffee');
@@ -598,7 +596,6 @@ var initializePage = function(app) {
         showSavingMessage: function() {
             this.blockScreenElement.screenBlock.open({
                 message: 'Saving the image',
-                imageClass: 'icon-coffee',
                 loading: true
             });
             this.blockScreenElement.screenBlock.imageElement.setAttribute('xlink:href', 'img/icons.svg#coffee');
@@ -687,6 +684,8 @@ var initializePage = function(app) {
         if (imageId) {
             imageManager.loadImageFromStorage(imageId);
         }
+
+        window.imageManager = imageManager;
     }
 
     activate();

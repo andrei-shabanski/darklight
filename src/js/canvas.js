@@ -24,6 +24,27 @@ window.CanvasApp = (function() {
 
 
 
+    var EVENT_TYPES = {
+        IMAGE_LOADING: 'image-loading',
+        IMAGE_LOADED: 'image-loaded',
+        IMAGE_NOT_LOADED: 'image-not-loaded',
+        IMAGE_CHANGED: 'image-changed',
+        OPTION_CHANGED: 'option-changed'
+    };
+
+    var STATE_TYPES = {
+        INITIALIZED: 'init',
+        LOADING: 'loading',
+        DRAWING: 'drawing'
+    };
+
+    var EVENT_TO_STATE_MAPPING = {
+        [EVENT_TYPES.IMAGE_LOADING]: function() { return STATE_TYPES.LOADING },
+        [EVENT_TYPES.IMAGE_LOADED]: function() { return STATE_TYPES.LOADING },
+        [EVENT_TYPES.IMAGE_NOT_LOADED]: function() { return this.image ? STATE_TYPES.LOADING : STATE_TYPES.INITIALIZED },
+    };
+
+
 
     function Options(options) {
         var defaultOptions = {
@@ -43,11 +64,10 @@ window.CanvasApp = (function() {
 
 
 
-
     function Application(getWindowSizeCallback, imageCanvas, drawingCanvas) {
         Application.super.constructor.apply(this, arguments);
 
-        this.state = Application.INITIALIZED_STATE;
+        this.state = STATE_TYPES.INITIALIZED;
 
         this.getWindowSizeCallback = getWindowSizeCallback;
         this.imageCanvas = imageCanvas;
@@ -124,22 +144,6 @@ window.CanvasApp = (function() {
 
     inherit(Application, Eventable);
 
-    Application.IMAGE_LOADING = 'image-loading';
-    Application.IMAGE_LOADED = 'image-loaded';
-    Application.IMAGE_NOT_LOADED = 'image-not-loaded';
-    Application.IMAGE_CHANGED = 'image-changed';
-    Application.OPTION_CHANGED = 'option-changed';
-
-    Application.INITIALIZED_STATE = 1;
-    Application.DRAWING_STATE = 2;
-    Application.IMAGE_LOADING_STATE = 3;
-
-    var _EVENT_TO_STATE_MAPPING = {
-        [Application.IMAGE_LOADING]: function() { return Application.IMAGE_LOADING_STATE },
-        [Application.IMAGE_LOADED]: function() { return Application.DRAWING_STATE },
-        [Application.IMAGE_NOT_LOADED]: function() { return this.image ? Application.DRAWING_STATE : Application.INITIALIZED_STATE },
-    };
-
     Application.prototype.onDrawingCanvasMouseDown = function(event) {
         logger.debug('Application is handling "mousedown" event');
 
@@ -151,9 +155,9 @@ window.CanvasApp = (function() {
     Application.prototype.emit = function(eventType, details) {
         logger.debug('Application is emitting "', eventType, '" event');
 
-        var changeState = _EVENT_TO_STATE_MAPPING[eventType];
+        var changeState = EVENT_TO_STATE_MAPPING[eventType];
         if (changeState) {
-            this.state = _EVENT_TO_STATE_MAPPING[eventType].call(this);
+            this.state = EVENT_TO_STATE_MAPPING[eventType].call(this);
         }
 
         Application.super.emit.apply(this, arguments);
@@ -181,8 +185,8 @@ window.CanvasApp = (function() {
 
         var self = this;
 
-        if (this.state !== Application.IMAGE_LOADING_STATE) {
-            this.emit(Application.IMAGE_LOADING);
+        if (this.state !== STATE_TYPES.LOADING) {
+            this.emit(EVENT_TYPES.IMAGE_LOADING);
         }
 
         var image = new Image();
@@ -192,7 +196,7 @@ window.CanvasApp = (function() {
         }
         image.onerror = function() {
             logger.warn("Image wasn't been loaded from url");
-            self.emit(Application.IMAGE_NOT_LOADED);
+            self.emit(EVENT_TYPES.IMAGE_NOT_LOADED);
         }
         image.src = url;
     }
@@ -200,8 +204,8 @@ window.CanvasApp = (function() {
     Application.prototype.loadImageFromFileObject = function(file) {
         logger.info('Application is loading a new image from a file ');
 
-        if (this.state !== Application.IMAGE_LOADING_STATE) {
-            this.emit(Application.IMAGE_LOADING);
+        if (this.state !== STATE_TYPES.LOADING) {
+            this.emit(EVENT_TYPES.IMAGE_LOADING);
         }
 
         this.loadImageFromUrl(URL.createObjectURL(file));
@@ -210,8 +214,8 @@ window.CanvasApp = (function() {
     Application.prototype.loadImage = function(image) {
         logger.info('Application loaded the image successfully');
 
-        if (this.state !== Application.IMAGE_LOADING_STATE) {
-            this.emit(Application.IMAGE_LOADING);
+        if (this.state !== STATE_TYPES.LOADING) {
+            this.emit(EVENT_TYPES.IMAGE_LOADING);
         }
 
         if (this.currentShape) {
@@ -226,7 +230,7 @@ window.CanvasApp = (function() {
         this.resizeCanvas();
         this.draw();
 
-        this.emit(Application.IMAGE_LOADED);
+        this.emit(EVENT_TYPES.IMAGE_LOADED);
     }
 
     Application.prototype.setOption = function(name, value) {
@@ -237,7 +241,7 @@ window.CanvasApp = (function() {
             this.currentShape.draw();
         }
 
-        this.emit(Application.OPTION_CHANGED, {optionName: name, value: value});
+        this.emit(EVENT_TYPES.OPTION_CHANGED, {optionName: name, value: value});
     }
 
     Application.prototype.selectTool = function(toolName) {
@@ -302,7 +306,7 @@ window.CanvasApp = (function() {
             this.activeTool.afterCommit.call(this, currentShape);
         }
 
-        this.emit(Application.IMAGE_CHANGED)
+        this.emit(EVENT_TYPES.IMAGE_CHANGED)
     }
 
     Application.prototype.removeShape = function() {

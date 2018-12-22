@@ -140,18 +140,6 @@ p {
     stroke-width: 0;
 }
 
-.icon-coffee {
-    background-size: contain;
-    background-image: url('../img/coffee.svg');
-}
-
-.icon-image {
-    background-size: contain;
-    background-image: url('../img/image.svg');
-}
-
-
-
 
 /* GETTING STARTED */
 .welcome {
