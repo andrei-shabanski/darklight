@@ -57,3 +57,15 @@
     // ...
     dropdownElement.close();
 ```
+
+### Light indicators
+
+```html
+    <span class="light"></span>
+    <span class="light light-red"></span>
+    <span class="light light-yellow"></span>
+    <span class="light light-green"></span>
+    <span class="light light-red lighting"></span>
+    <span class="light light-yellow lighting"></span>
+    <span class="light light-green lighting"></span>
+```

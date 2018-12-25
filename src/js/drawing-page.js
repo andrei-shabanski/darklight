@@ -1,7 +1,7 @@
 'use strict';
 
 var initializePage = function(app) {
-    var logger = new Logger(Logger.ERROR, new Logger.ConsoleHandler());
+    var logger = new Logger(Logger.DEBUG, new Logger.ConsoleHandler());
 
 
 
@@ -24,19 +24,28 @@ var initializePage = function(app) {
     }
 
 
-
     var imageManager = {
         imageStorage: null,
         loadingImageFromUrl: false,
 
-        imageEditLinkInput: document.getElementById('image-edit-link'),
-        imageDirectLinkInput: document.getElementById('image-direct-link'),
+        saveBtn: document.getElementById('saveBtn'),
+        imageEditLinkBtn: document.getElementById('imageEditLinkBtn'),
+        imageDirectLinkBtn: document.getElementById('imageDirectLinkBtn'),
 
         isSaving: false,
         hasUnsavedChanges: false,
 
         init: function() {
+            var self = this;
 
+            this.imageEditLinkBtn.addEventListener('click', function(event) {
+                copyToClipboard(location.href);
+                event.preventDefault();
+            }, false);
+            this.imageDirectLinkBtn.addEventListener('focus', function(event) {
+                copyToClipboard(self.imageStorage.url);
+                event.preventDefault();
+            }, false);
         },
 
         onLoadSuccess: function() {
@@ -53,9 +62,6 @@ var initializePage = function(app) {
                 // omg. imageStorage is already created
                 this.loadingImageFromUrl = false;
             }
-
-            this.imageEditLinkInput.value = location.href;
-            this.imageDirectLinkInput.value = this.imageStorage.url;
         },
 
         onLoadFailure: function(error) {
@@ -65,14 +71,6 @@ var initializePage = function(app) {
                 this.loadingImageFromUrl = false;
                 return
             }
-        },
-
-        onSaveSuccess: function() {
-            logger.debug('Image was saved');
-        },
-
-        onSaveFailure: function(error) {
-            logger.error('Image wasn\'t saved. ', error);
         },
 
         loadImageFromStorage: function(imageId) {
@@ -123,18 +121,23 @@ var initializePage = function(app) {
             this.hasUnsavedChanges = false;
             this.isSaving = true;
 
+            saveButton.changeState('saving');
+
             return app.toBlob(function(blob) {
                 self.imageStorage
                     .save(blob)
                     .then(function(snapshot) {
-                        console.log('IMAGE WAS SAVED: ', snapshot);
-                        self.isSaving = false;
-                        self.onSaveSuccess();
+                        saveButton.changeState('saved');
                     })
                     .catch(function(error) {
-                        console.log('IMAGE WASN\'T SAVED: ', error);
+                        saveButton.changeState('not-saved');
+                    })
+                    .finally(function() {
                         self.isSaving = false;
-                        self.onSaveFailure(error);
+
+                        if (self.hasUnsavedChanges) {
+                            self.save();
+                        }
                     });
             });
         },
@@ -265,7 +268,6 @@ var initializePage = function(app) {
                 delete this.menuElement.dataset.open;
             }
         }
-
     };
 
 
@@ -535,6 +537,51 @@ var initializePage = function(app) {
     };
 
 
+    var saveButton = {
+        buttonElement: null,
+        lightIndicatorElement: null,
+        lightColor: 'green',
+
+        init: function() {
+            this.buttonElement = document.getElementById('saveBtn');
+            this.lightIndicatorElement = this.buttonElement.querySelector('.light');
+        },
+
+        changeState: function(state) {
+            switch (state) {
+                case 'saving':
+                    this.lightColor = this.lightColor == 'red' ? 'yellow' : this.lightColor;
+                    this._changeText('Saving');
+                    this._changeLightIndicator(this.lightColor, true)
+                    break;
+                case 'saved':
+                    this.lightColor = 'green';
+                    this._changeText('Saved');
+                    this._changeLightIndicator(this.lightColor, false)
+                    break;
+                case 'not-saved':
+                    this.lightColor = 'red';
+                    this._changeText('Not saved');
+                    this._changeLightIndicator(this.lightColor, false)
+                    break;
+            }
+        },
+
+        _changeText: function(text) {
+            this.buttonElement.childNodes[2].textContent = text;
+        },
+
+        _changeLightIndicator: function(color, isLighting) {
+            var classNames = ['light', 'light-' + color];
+            if (isLighting) {
+                classNames.push('lighting');
+            }
+
+            this.lightIndicatorElement.className = classNames.join(' ');
+        }
+    };
+
+
     var dropImageOption = {
         dropareaHiddingTimerID: null,
         dragoverLastTimeFired: null,
@@ -577,28 +624,29 @@ var initializePage = function(app) {
 
     var spinner = {
         blockScreenElement: document.getElementById('spinner'),
+        iconElement: document.querySelector('#spinner svg use'),
 
         init: function() {},
         showDropArea: function() {
             this.blockScreenElement.screenBlock.open({
-                message: 'Drop a file here',
+                message: 'Drop an image here',
                 withBorder: true
             });
-            this.blockScreenElement.screenBlock.imageElement.setAttribute('xlink:href', 'img/icons.svg#image');
+            this.iconElement.setAttribute('xlink:href', 'img/icons.svg#image');
         },
         showLoadingMessage: function() {
             this.blockScreenElement.screenBlock.open({
-                message: 'Loading a image',
+                message: 'Loading an image',
                 loading: true
             });
-            this.blockScreenElement.screenBlock.imageElement.setAttribute('xlink:href', 'img/icons.svg#coffee');
+            this.iconElement.setAttribute('xlink:href', 'img/icons.svg#coffee');
         },
         showSavingMessage: function() {
             this.blockScreenElement.screenBlock.open({
                 message: 'Saving the image',
                 loading: true
             });
-            this.blockScreenElement.screenBlock.imageElement.setAttribute('xlink:href', 'img/icons.svg#coffee');
+            this.iconElement.setAttribute('xlink:href', 'img/icons.svg#coffee');
         },
         close: function() {
             this.blockScreenElement.screenBlock.close();
@@ -621,6 +669,7 @@ var initializePage = function(app) {
             document.getElementById('textSizeOptionInput')
         );
         zoomOption.init();
+        saveButton.init();
         dropImageOption.init();
         spinner.init();
         imageManager.init();
@@ -654,6 +703,9 @@ var initializePage = function(app) {
         window.addEventListener('beforeunload', function(event) {
             if (imageManager.hasUnsavedChanges) {
                 imageManager.save();
+            }
+
+            if (imageManager.hasUnsavedChanges || imageManager.isSaving) {
                 event.preventDefault();
                 event.returnValue = '';
             }
@@ -686,6 +738,7 @@ var initializePage = function(app) {
         }
 
         window.imageManager = imageManager;
+        window.spinner = spinner;
     }
 
     activate();

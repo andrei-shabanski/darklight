@@ -80,9 +80,9 @@ var initializeControls = (function() {
     ScreenBlock.prototype.open = function(options) {
         this.messageElement.innerText = options.message || '';
         if (options.loading) {
-            this.element.classList.add('loading');
+            this.messageElement.classList.add('loading');
         } else {
-            this.element.classList.remove('loading');
+            this.messageElement.classList.remove('loading');
         }
 
         if (this._options.imageClass) {

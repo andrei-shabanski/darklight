@@ -98,6 +98,7 @@
 }
 
 .dropdown-menu {
+    width: max-content;
     position: absolute;
     top: calc(100% + 5px);
 
@@ -239,6 +240,10 @@
     outline: 0;
 }
 
+.btn > * {
+    margin-right: 6px;
+}
+
 
 
 /* SCREEN BLOCK */
@@ -281,7 +286,9 @@
     font-size: 2.2em;
 }
 
-.loading .screen-message:after {
+
+/* LOADING */
+.loading:after {
     content: ' .';
     animation: dots 1s steps(5, end) infinite;
 }

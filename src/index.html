@@ -17,7 +17,7 @@
     <div id="spinner" class="screen-block">
         <div class="screen-content">
             <h1 class="screen-message"></h1>
-            <svg class="screen-image icon icon-extra-large icon-spinner"><use xlink:href=""></use></svg>
+            <svg class="screen-image icon icon-extra-large"><use xlink:href=""></use></svg>
         </div>
     </div>
 
@@ -179,20 +179,31 @@
             </button>
 
             <div class="menu">
-                <div class="dropdown flex-stretch">
+                <button id="saveBtn" class="btn btn-dark btn-flat flex-stretch">
+                    <span class="light light-green"></span>
+                    Saved
+                </button>
+
+                <div class="dropdown dropdown-dark dropdown-flat flex-stretch">
                     <button class="dropdown-toggle btn btn-dark btn-flat">
                         <svg class="icon"><use xlink:href="img/icons.svg#save"></use></svg>
                     </button>
                     <div class="dropdown-menu dropdown-menu--right">
-                        <input id="image-edit-link" type="text" title="View link" disabled="">
-                        <input id="image-direct-link" type="text" title="Orignal link" disabled="">
-                        <div class="dropdown-group">
-                            <button id="downloadBtn" class="btn">Download .png</button>
-                        </div>
+                        <button id="imageEditLinkBtn" class="btn btn-dark btn-flat">
+                            <svg class="icon icon-small"><use xlink:href="img/icons.svg#link"></use></svg>
+                            Copy a link
+                        </button>
+                        <button id="imageDirectLinkBtn" class="btn btn-dark btn-flat">
+                            <svg class="icon icon-small"><use xlink:href="img/icons.svg#link"></use></svg>
+                            Copy a direct link
+                        </button>
+                        <button id="downloadBtn" class="btn btn-dark btn-flat">
+                            <svg class="icon icon-small"><use xlink:href="img/icons.svg#download"></use></svg>
+                            Download
+                        </button>
                     </div>
                 </div>
 
-                <button id="saveBtn" class="btn">Save</button>
             </div>
         </nav>
 
@@ -202,15 +213,13 @@
         </div>
     </main>
 
-    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase-storage.js"></script>
-    <script type="text/javascript" src="vender/FileSaver/2.0.0/FileSaver.min.js"></script>
-    <script type="text/javascript" src="js/utils.js"></script>
-    <script type="text/javascript" src="js/controls.js"></script>
-    <script type="text/javascript" src="js/logging.js"></script>
-    <script type="text/javascript" src="js/canvas.js"></script>
-    <script type="text/javascript" src="js/drawing-page.js"></script>
+
+    <script defer src="https://www.gstatic.com/firebasejs/5.7.1/firebase.js"></script>
+    <script defer src="js/utils.js"></script>
+    <script defer src="js/controls.js"></script>
+    <script defer src="js/logging.js"></script>
+    <script defer src="js/canvas.js"></script>
+    <script defer src="js/drawing-page.js"></script>
     <script type="text/javascript">
         window.addEventListener('load', function() {
             firebase.initializeApp({
