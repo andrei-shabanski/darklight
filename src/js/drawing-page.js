@@ -131,6 +131,7 @@ var initializePage = function(app) {
                     })
                     .catch(function(error) {
                         saveButton.changeState('not-saved');
+                        self.hasUnsavedChanges = true;
                     })
                     .finally(function() {
                         self.isSaving = false;
@@ -544,6 +545,7 @@ var initializePage = function(app) {
 
         init: function() {
             this.buttonElement = document.getElementById('saveBtn');
+            this.savingStatusElement = document.getElementById('savingStatus');
             this.lightIndicatorElement = this.buttonElement.querySelector('.light');
         },
 
@@ -568,7 +570,7 @@ var initializePage = function(app) {
         },
 
         _changeText: function(text) {
-            this.buttonElement.childNodes[2].textContent = text;
+            this.savingStatusElement.textContent = text;
         },
 
         _changeLightIndicator: function(color, isLighting) {

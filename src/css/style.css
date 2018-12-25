@@ -229,6 +229,12 @@ p {
 }
 
 
+.icon ~ *,
+span ~ * {
+    margin-left: 6px;
+}
+
+
 /* GETTING STARTED */
 .welcome {
   width: 100%;
