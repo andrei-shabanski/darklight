@@ -1,6 +1,5 @@
 .firebase/
 .idea/
-test/
-.drop*
-desk*
+node_modules/
+
 firebase-debug.log

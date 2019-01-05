@@ -13,15 +13,15 @@ var initializePage = function(app) {
 
     FirebaseImageStorage.prototype.load = function() {
         return this._refFile.getDownloadURL();
-    }
+    };
 
     FirebaseImageStorage.prototype.save = function(blob) {
         return this._refFile.put(blob);
-    }
+    };
 
     FirebaseImageStorage.prototype.delete = function() {
         return this._refFile.delete();
-    }
+    };
 
 
     var imageManager = {
@@ -69,7 +69,6 @@ var initializePage = function(app) {
 
             if (this.loadingImageFromUrl) {
                 this.loadingImageFromUrl = false;
-                return
             }
         },
 
@@ -110,7 +109,7 @@ var initializePage = function(app) {
         },
 
         save: function(force) {
-            force = force != undefined ? force : false;
+            force = force !== undefined ? force : false;
 
             if ((!this.hasUnsavedChanges || this.isSaving) && !force) {
                 return
@@ -213,7 +212,7 @@ var initializePage = function(app) {
         },
         _handleChoosingTool: function(event) {
             var button = event.target.closest('button');
-            if (!button || this.enabledToolButton == button) {
+            if (!button || this.enabledToolButton === button) {
                 return;
             }
 
@@ -263,7 +262,7 @@ var initializePage = function(app) {
         toggleMenu: function() {
             this.menuToggleBtn.classList.toggle('active');
 
-            if (this.menuElement.dataset.open == undefined) {
+            if (this.menuElement.dataset.open === undefined) {
                 this.menuElement.dataset.open = '';
             } else {
                 delete this.menuElement.dataset.open;
@@ -318,7 +317,7 @@ var initializePage = function(app) {
             if (button.dataset.colorSet) {
                 var color = button.dataset.colorSet;
                 this.setColor(button, color);
-            } else if (button.dataset.colorPicker != undefined) {
+            } else if (button.dataset.colorPicker !== undefined) {
                 this.openPicker();
             }
 
@@ -396,9 +395,9 @@ var initializePage = function(app) {
             if (button.dataset.sizeSet) {
                 var size = +button.dataset.sizeSet;
                 this.setSize(size);
-            } else if (button.dataset.sizeChange == 'increase') {
+            } else if (button.dataset.sizeChange === 'increase') {
                 this.increaseSize();
-            } else if (button.dataset.sizeChange == 'decrease') {
+            } else if (button.dataset.sizeChange === 'decrease') {
                 this.decreaseSize();
             }
 
@@ -453,7 +452,7 @@ var initializePage = function(app) {
                 this._previousZoomInputValue = scaleStr;
 
                 var scaleFactor = +scaleStr.slice(0, scaleStr.length - 1) / 100;
-                if (scaleFactor != NaN && scaleFactor >= this.minScaleFactor && scaleFactor <= this.maxScaleFactor) {
+                if (!isNaN(scaleFactor) && scaleFactor >= this.minScaleFactor && scaleFactor <= this.maxScaleFactor) {
                     this._setSliderValue(scaleFactor);
                     this.setScale(scaleFactor);
                 }
@@ -465,7 +464,7 @@ var initializePage = function(app) {
             var scaleStr = this.zoomInput.value;
             var scaleFactor = +scaleStr.slice(0, scaleStr.length - 1) / 100;
 
-            if (scaleFactor != NaN && scaleFactor >= this.minScaleFactor && scaleFactor <= this.maxScaleFactor) {
+            if (!isNaN(scaleFactor) && scaleFactor >= this.minScaleFactor && scaleFactor <= this.maxScaleFactor) {
                 event.preventDefault();
                 return;
             }
@@ -477,7 +476,6 @@ var initializePage = function(app) {
             }
             this.zoomInput.value = this._previousZoomInputValue;
 
-            var scaleStr = this.zoomInput.value;
             scaleFactor = +scaleStr.slice(0, scaleStr.length - 1) / 100;
 
             this.setScale(scaleFactor);
@@ -552,19 +550,19 @@ var initializePage = function(app) {
         changeState: function(state) {
             switch (state) {
                 case 'saving':
-                    this.lightColor = this.lightColor == 'red' ? 'yellow' : this.lightColor;
+                    this.lightColor = this.lightColor === 'red' ? 'yellow' : this.lightColor;
                     this._changeText('Saving');
-                    this._changeLightIndicator(this.lightColor, true)
+                    this._changeLightIndicator(this.lightColor, true);
                     break;
                 case 'saved':
                     this.lightColor = 'green';
                     this._changeText('Saved');
-                    this._changeLightIndicator(this.lightColor, false)
+                    this._changeLightIndicator(this.lightColor, false);
                     break;
                 case 'not-saved':
                     this.lightColor = 'red';
                     this._changeText('Not saved');
-                    this._changeLightIndicator(this.lightColor, false)
+                    this._changeLightIndicator(this.lightColor, false);
                     break;
             }
         },

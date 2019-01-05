@@ -5,6 +5,8 @@
   "author": "Andrei Shabanski",
   "license": "MIT",
   "scripts": {
+    "serve": "firebase serve",
+    "deploy": "firebase deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,7 +17,6 @@
     "url": "https://github.com/andrei-shabanski/darklight/issues"
   },
   "homepage": "https://github.com/andrei-shabanski/darklight#readme",
-  "devDependencies": {
-    "firebase-tools": "^6.1.1"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }

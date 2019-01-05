@@ -19,11 +19,11 @@ var initializeControls = (function() {
 
     Modal.prototype.open = function() {
         this.modalElement.dataset.open = '';
-    }
+    };
 
     Modal.prototype.close = function() {
         delete this.modalElement.dataset.open;
-    }
+    };
 
 
 
@@ -63,7 +63,7 @@ var initializeControls = (function() {
         this.dropdownToggleElement.removeEventListener('click', this.closeHandler);
         this.dropdownToggleElement.addEventListener('click', this.openHandler, false);
         window.removeEventListener('click', this.closeHandler);
-    }
+    };
 
 
 
@@ -100,11 +100,11 @@ var initializeControls = (function() {
 
         this.element.dataset.open = '';
         this._options = options;
-    }
+    };
 
     ScreenBlock.prototype.close = function() {
         delete this.element.dataset.open;
-    }
+    };
 
 
 

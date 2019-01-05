@@ -29,23 +29,23 @@ var Logger = (function() {
         var text = [].join.bind(args)('');
 
         this.handler.write(level, text);
-    }
+    };
 
     Logger.prototype.debug = function() {
         return this.log(DEBUG, arguments);
-    }
+    };
 
     Logger.prototype.info = function() {
         return this.log(INFO, arguments);
-    }
+    };
 
     Logger.prototype.warn = function() {
         return this.log(WARNING, arguments);
-    }
+    };
 
     Logger.prototype.error = function() {
         return this.log(ERROR, arguments);
-    }
+    };
 
 
 
@@ -65,7 +65,7 @@ var Logger = (function() {
             .replace('{date}', date)
             .replace('{time}', time)
             .replace('{message}', message);
-    }
+    };
 
     LoggerHandler.prototype.write = function(level, message) {}
 
@@ -90,7 +90,7 @@ var Logger = (function() {
         var logFunc = ConsoleHandler.LOG_FUNCTIONS[level];
 
         logFunc(log);
-    }
+    };
 
 
 

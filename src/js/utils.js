@@ -8,15 +8,13 @@ function inherit(klass, parent) {
 
 function dateToString(date, format) {
     format = format || 'dd-mm-yyyy_H:M:S';
-    var result = format
+    return format
         .replace('dd', date.getDate().toString().padStart(2, '0'))
         .replace('mm', date.getMonth().toString().padStart(2, '0'))
         .replace('yyyy', date.getFullYear().toString())
         .replace('H', date.getHours().toString().padStart(2, '0'))
         .replace('M', date.getMinutes().toString().padStart(2, '0'))
         .replace('S', date.getSeconds().toString().padStart(2, '0'));
-
-    return result;
 }
 
 function copyToClipboard(text) {
@@ -58,7 +56,7 @@ Eventable.prototype.off = function(eventType, callback) {
 
     var callbackIndex = events.indexOf(callback);
     events.splice(callbackIndex, 1);
-}
+};
 
 Eventable.prototype.emit = function(eventType, details) {
     var events = this._events[eventType];
@@ -71,4 +69,4 @@ Eventable.prototype.emit = function(eventType, details) {
     events.slice(0).forEach(function(callback) {
         callback.apply(this, details);
     });
-}
+};

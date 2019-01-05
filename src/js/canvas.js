@@ -60,7 +60,7 @@ window.CanvasApp = (function() {
 
     Options.prototype.zoom = function(scale) {
         this.scale = scale;
-    }
+    };
 
 
 
@@ -150,7 +150,7 @@ window.CanvasApp = (function() {
         if (event.button === 0) {
             this.createShape(event.offsetX, event.offsetY);
         }
-    }
+    };
 
     Application.prototype.emit = function(eventType, details) {
         logger.debug('Application is emitting "', eventType, '" event');
@@ -161,11 +161,11 @@ window.CanvasApp = (function() {
         }
 
         Application.super.emit.apply(this, arguments);
-    }
+    };
 
     Application.prototype.loadImageFromDataTransfer = function(dataTransfer) {
         for (var index in dataTransfer.types) {
-            if (dataTransfer.types[index] != 'Files') {
+            if (dataTransfer.types[index] !== 'Files') {
                 continue
             }
 
@@ -178,7 +178,7 @@ window.CanvasApp = (function() {
             this.loadImageFromFileObject(file);
             return;
         }
-    }
+    };
 
     Application.prototype.loadImageFromUrl = function(url) {
         logger.info('Application is loading a new image from ', url.length < 30 ? url : url.slice(0, 30) + '...');
@@ -193,13 +193,13 @@ window.CanvasApp = (function() {
         image.crossOrigin = 'anonymous';
         image.onload = function() {
             self.loadImage(this);
-        }
+        };
         image.onerror = function() {
             logger.warn("Image wasn't been loaded from url");
             self.emit(EVENT_TYPES.IMAGE_NOT_LOADED);
-        }
+        };
         image.src = url;
-    }
+    };
 
     Application.prototype.loadImageFromFileObject = function(file) {
         logger.info('Application is loading a new image from a file ');
@@ -209,7 +209,7 @@ window.CanvasApp = (function() {
         }
 
         this.loadImageFromUrl(URL.createObjectURL(file));
-    }
+    };
 
     Application.prototype.loadImage = function(image) {
         logger.info('Application loaded the image successfully');
@@ -231,7 +231,7 @@ window.CanvasApp = (function() {
         this.draw();
 
         this.emit(EVENT_TYPES.IMAGE_LOADED);
-    }
+    };
 
     Application.prototype.setOption = function(name, value) {
         this.options[name] = value;
@@ -242,7 +242,7 @@ window.CanvasApp = (function() {
         }
 
         this.emit(EVENT_TYPES.OPTION_CHANGED, {optionName: name, value: value});
-    }
+    };
 
     Application.prototype.selectTool = function(toolName) {
         logger.info('Application is selecting "', toolName, '"');
@@ -260,7 +260,7 @@ window.CanvasApp = (function() {
         this.activeTool = tool;
         this.currentShapeClass = tool.shape;
         self.drawingCanvas.style.cursor = tool.cursor;
-    }
+    };
 
     Application.prototype.createShape = function(x, y) {
         if (!this.currentShapeClass || this.currentShape) {
@@ -276,7 +276,7 @@ window.CanvasApp = (function() {
         );
 
         logger.debug('Application is creating a new "', this.currentShape.constructor.name, '"');
-    }
+    };
 
     Application.prototype.commitShape = function() {
         if (!this.currentShape) {
@@ -307,7 +307,7 @@ window.CanvasApp = (function() {
         }
 
         this.emit(EVENT_TYPES.IMAGE_CHANGED)
-    }
+    };
 
     Application.prototype.removeShape = function() {
         if (this.currentShape) {
@@ -319,7 +319,7 @@ window.CanvasApp = (function() {
             this.shapes.splice(this.shapes.length - 1, 1);
             this.draw();
         }
-    }
+    };
 
     Application.prototype.resizeCanvas = function() {
         logger.info('Application is resizing canvases');
@@ -337,7 +337,7 @@ window.CanvasApp = (function() {
 
         this.drawingCanvas.width = width;
         this.drawingCanvas.height = height;
-    }
+    };
 
     Application.prototype.zoom = function(scale) {
         logger.info('Application is zooming canvases to ', scale);
@@ -359,7 +359,7 @@ window.CanvasApp = (function() {
         }
 
         this.options.zoom(scale);
-    }
+    };
 
     Application.prototype.crop = function(x, y, width, height) {
         logger.info('Application is cropping the image (', [x, y, width, height].join(' ,'), ')');
@@ -374,14 +374,14 @@ window.CanvasApp = (function() {
         // in order to convert ImageData to Image we load the image again huh
         // var croppedImageBase64 = this.toDataURL();
         // this.loadImageFromUrl(croppedImageBase64);
-    }
+    };
 
     Application.prototype.draw = function() {
         logger.info('Application is drawing the image and all shapes');
 
         this.imageCanvasCtx.clearRect(0, 0, this.imageCanvas.width, this.imageCanvas.height);
         if (this.image) {
-            if (this.image.constructor == ImageData) {
+            if (this.image.constructor === ImageData) {
                 this.imageCanvasCtx.putImageData(this.image, 0, 0, 0, 0, this.image.width / this.options.scale, this.image.height / this.options.scale);
             } else {
                 this.imageCanvasCtx.drawImage(this.image, 0, 0, this.image.width / this.options.scale, this.image.height / this.options.scale);
@@ -395,7 +395,7 @@ window.CanvasApp = (function() {
         if (this.currentShape) {
             this.currentShape.draw(this.options.scale);
         }
-    }
+    };
 
     Application.prototype.toDataURL = function() {
         if (this.currentShape) {
@@ -415,7 +415,7 @@ window.CanvasApp = (function() {
         this.draw();
 
         return data;
-    }
+    };
 
     Application.prototype.toBlob = function(callback) {
         if (this.currentShape) {
@@ -433,7 +433,7 @@ window.CanvasApp = (function() {
         this.zoom(preScale);
         this.resizeCanvas();
         this.draw();
-    }
+    };
 
 
 
@@ -454,7 +454,7 @@ window.CanvasApp = (function() {
             return value * this.options.scale / scale;
         }
         return value;
-    }
+    };
 
     Shape.prototype.zo = function(value, scale) {
         // zoom an option
@@ -464,11 +464,11 @@ window.CanvasApp = (function() {
         //  -----
         scale = scale || this.options.scale;
         return value * this.options.originalScale / scale;
-    }
+    };
 
     Shape.prototype.isEmpty = function() {
         return false;
-    }
+    };
 
     Shape.prototype.update = function(data) {
         logger.debug('Updating "', this.constructor.name, '"');
@@ -478,7 +478,7 @@ window.CanvasApp = (function() {
         this.options = data.options ? Object.assign({}, data.options) : this.options;
 
         this.draw();
-    }
+    };
 
     Shape.prototype.draw = function(scale) {
         logger.debug('Drawing "', this.constructor.name, '" (', this.committed ? 'committed' : 'not committed', ')');
@@ -523,14 +523,14 @@ window.CanvasApp = (function() {
         this.y1 = data.y1 || this.y1;
 
         MouseDrawableShape.super.update.apply(this, arguments);
-    }
+    };
 
     MouseDrawableShape.prototype.onMouseDown = function(event) {
         if (event.button !== 0) {
             return
         }
         logger.debug('"', this.constructor.name, '" is handling "mousedown"');
-    }
+    };
 
     MouseDrawableShape.prototype.onMouseMove = function(event) {
         logger.debug('"', this.constructor.name, '" is handling "mousemove"');
@@ -539,7 +539,7 @@ window.CanvasApp = (function() {
             x1: event.offsetX,
             y1: event.offsetY
         });
-    }
+    };
 
     MouseDrawableShape.prototype.onMouseUp = function(event) {
         if (event.button !== 0) {
@@ -549,7 +549,7 @@ window.CanvasApp = (function() {
         logger.debug('"', this.constructor.name, '" is handling "mouseup"');
 
         this.commit();
-    }
+    };
 
     MouseDrawableShape.prototype.commit = function() {
         this.canvasCtx.canvas.removeEventListener('mousedown', this._onMouseDownBinded);
@@ -557,7 +557,7 @@ window.CanvasApp = (function() {
         this.canvasCtx.canvas.removeEventListener('mouseup', this._onMouseUpBinded);
 
         MouseDrawableShape.super.commit.apply(this, arguments);
-    }
+    };
 
 
 
@@ -577,7 +577,7 @@ window.CanvasApp = (function() {
         });
 
         this.draw();
-    }
+    };
 
     Pen.prototype.draw = function(scale) {
         Pen.super.draw.apply(this, arguments);
@@ -593,7 +593,7 @@ window.CanvasApp = (function() {
             this.canvasCtx.lineTo(this.zp(point.x, scale), this.zp(point.y, scale));
         }.bind(this));
         this.canvasCtx.stroke();
-    }
+    };
 
 
 
@@ -615,8 +615,7 @@ window.CanvasApp = (function() {
         this.canvasCtx.moveTo(this.zp(this.x0, scale), this.zp(this.y0, scale));
         this.canvasCtx.lineTo(this.zp(this.x1, scale), this.zp(this.y1, scale));
         this.canvasCtx.stroke();
-    }
-
+    };
 
 
 
@@ -639,7 +638,7 @@ window.CanvasApp = (function() {
             this.zp(this.x1 - this.x0, scale),
             this.zp(this.y1 - this.y0, scale)
         );
-    }
+    };
 
 
 
@@ -672,32 +671,7 @@ window.CanvasApp = (function() {
             0, 0, 2 * Math.PI
         );
         this.canvasCtx.stroke();
-    }
-
-
-
-
-    function Rectangle(canvasContext, x0, y0, options, commitCallback) {
-        Rectangle.super.constructor.apply(this, arguments);
-    }
-
-    inherit(Rectangle, MouseDrawableShape);
-
-    Rectangle.prototype.draw = function(scale) {
-        Rectangle.super.draw.apply(this, arguments);
-
-        this.canvasCtx.strokeStyle = this.options.color;
-        this.canvasCtx.lineJoin = 'round';
-        this.canvasCtx.lineWidth = this.zo(this.options.size, scale);
-
-        this.canvasCtx.strokeRect(
-            this.zp(this.x0, scale),
-            this.zp(this.y0, scale),
-            this.zp(this.x1 - this.x0, scale),
-            this.zp(this.y1 - this.y0, scale)
-        );
-    }
-
+    };
 
 
 
@@ -737,7 +711,7 @@ window.CanvasApp = (function() {
             this.canvasCtx.lineTo(x1 - dX1, y1 + dY1);
         }
         this.canvasCtx.stroke();
-    }
+    };
 
 
 
@@ -755,7 +729,6 @@ window.CanvasApp = (function() {
         this.canvasCtx.canvas.addEventListener('mousedown', this._onMouseDownBinded, false);
         window.addEventListener('keypress', this._onKeyPressedBinded, false);
         window.addEventListener('keydown', this._onKeyDownBinded, false);
-
         this.draw(); // draw the border
     }
 
@@ -765,7 +738,7 @@ window.CanvasApp = (function() {
         logger.debug('"Text" is handing "mousedown" event');
 
         this.commit();
-    }
+    };
 
     Text.prototype.onKeyDown = function(event) {
         logger.debug('"Text" is handing "keydown" event');
@@ -792,7 +765,7 @@ window.CanvasApp = (function() {
         }
 
         event.preventDefault();
-    }
+    };
 
     Text.prototype.onKeyPressed = function(event) {
         logger.debug('"Text" is handing "keypress" event');
@@ -800,7 +773,7 @@ window.CanvasApp = (function() {
         var char;
 
         if (event.code) {
-            var char = this._getChar(event);
+            char = this._getChar(event);
         } else {
             logger.warn("Don't parse key");
         }
@@ -811,7 +784,7 @@ window.CanvasApp = (function() {
         }
 
         event.preventDefault();
-    }
+    };
 
     Text.prototype._getChar = function(event) {
         if (event.which == null) { // IE
@@ -821,7 +794,7 @@ window.CanvasApp = (function() {
             return String.fromCharCode(event.keyCode)
         }
 
-        if (event.which != 0 && event.charCode != 0) {
+        if (event.which !== 0 && event.charCode !== 0) {
             if (event.which === 13) {
                 return '\n';
             } else if (event.which < 32) {
@@ -831,11 +804,11 @@ window.CanvasApp = (function() {
         }
 
         return null;
-    }
+    };
 
     Text.prototype.isEmpty = function() {
         return !this.text.length;
-    }
+    };
 
     Text.prototype.draw = function(scale) {
         Text.super.draw.apply(this, arguments);
@@ -866,7 +839,7 @@ window.CanvasApp = (function() {
                 this.zo(this.options.textSize * lines.length + 8, scale)
             );
         }
-    }
+    };
 
     Text.prototype.commit = function() {
         this.canvasCtx.canvas.removeEventListener('mousedown', this._onMouseDownBinded);
@@ -874,7 +847,7 @@ window.CanvasApp = (function() {
         window.removeEventListener('keydown', this._onKeyDownBinded);
 
         Text.super.commit.apply(this, arguments);
-    }
+    };
 
 
 
@@ -894,7 +867,7 @@ window.CanvasApp = (function() {
 
     Crop.prototype.isEmpty = function() {
         return true;
-    }
+    };
 
     Crop.prototype.onMouseDown = function(event) {
         if (event.button !== 0) {
@@ -911,7 +884,7 @@ window.CanvasApp = (function() {
             x1: event.offsetX,
             y1: event.offsetY
         });
-    }
+    };
 
     Crop.prototype.onMouseUp = function(event) {
         if (event.button !== 0) {
@@ -920,7 +893,7 @@ window.CanvasApp = (function() {
 
         logger.debug('"Crop" is handling "mouseup"');
         this.canvasCtx.canvas.removeEventListener('mousemove', this._onMouseMoveBinded);
-    }
+    };
 
     Crop.prototype.onKeyPressed = function(event) {
         logger.debug('"Crop " is handling "keydown"')
@@ -936,12 +909,12 @@ window.CanvasApp = (function() {
                 this.commit();  // don't crop an image
                 break;
         }
-    }
+    };
 
     Crop.prototype.crop = function() {
         logger.debug('Set a flag to crop the image');
         this.needCrop = true;
-    }
+    };
 
     Crop.prototype.draw = function(scale) {
         Crop.super.draw.apply(this, arguments);
@@ -972,7 +945,7 @@ window.CanvasApp = (function() {
             var textScale = textWidth / (points[1].x - points[0].x - 10);
             textHeight = Math.max(Math.round(textHeight / textScale), 1);
             this.canvasCtx.font = textHeight + 'px arial';
-            var textWidth = this.canvasCtx.measureText(text).width;
+            textWidth = this.canvasCtx.measureText(text).width;
         }
 
         this.canvasCtx.fillText(
@@ -980,13 +953,13 @@ window.CanvasApp = (function() {
             points[0].x + (points[1].x - points[0].x - textWidth) / 2,
             points[0].y + (points[1].y - points[0].y - textHeight) / 2
         );
-    }
+    };
 
     Crop.prototype.commit = function() {
         window.removeEventListener('keydown', this._onKeyPressedBinded);
 
         Crop.super.commit.apply(this, arguments);
-    }
+    };
 
 
 

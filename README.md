@@ -1,4 +1,35 @@
-# Controls
+# Online image editor
+
+## Development
+
+0. Clone the repository
+
+    ```bash
+    git clone 
+    ```
+
+0. Install NPM packages
+
+    ```bash
+    npm install -g firebase-tools
+    npm install
+    ```
+
+0. (Optional) Login to firebase in order to deploy the application
+
+    ```bash
+    firebase login
+    ```
+
+Use NPM scripts to test and deploy the application:
+
+```bash
+npm run serve  # start a local server
+npm run deploy  # deploy the application to Firebase
+
+```
+
+# Custom components
 
 ### Modal
 
