@@ -1,10 +1,10 @@
 'use strict';
 
-var initializeControls = (function() {
-    function Modal(modalElement) {
+(function() {
+    function Modal(element) {
         var self = this;
 
-        this.modalElement = modalElement;
+        this.modalElement = element;
         this.modalElement.modal = this;
 
         this.modalElement
@@ -26,9 +26,8 @@ var initializeControls = (function() {
     };
 
 
-
-    function Dropdown(dropdownElement) {
-        dropdownElement.dropdown = this;
+    function Dropdown(element) {
+        element.dropdown = this;
 
         this.openHandler = function(event) {
             this.open();
@@ -43,8 +42,8 @@ var initializeControls = (function() {
             this.close();
         }.bind(this);
 
-        this.dropdownElement = dropdownElement;
-        this.dropdownToggleElement = dropdownElement.querySelector('.dropdown-toggle');
+        this.dropdownElement = element;
+        this.dropdownToggleElement = element.querySelector('.dropdown-toggle');
 
         this.dropdownToggleElement.addEventListener('click', this.openHandler, false);
     }
@@ -65,6 +64,169 @@ var initializeControls = (function() {
         window.removeEventListener('click', this.closeHandler);
     };
 
+
+    function InputDropdown(element, valueConfig) {
+        this.dropdownElement = element;
+        this.inputElement = element.querySelector('.dropdown-toggle input');
+
+        var defaultValueConfig = {
+            inputValuePattern: '.*',
+            convertValue: function(rawValue) { return rawValue },
+            validateValue: function(value) { return true; },
+            changeValue: function(value) {}
+        };
+
+        Object.assign(this, defaultValueConfig, valueConfig);
+
+        this._currentRawValue = this.inputElement.value;
+        this._typingRawValue = this.inputElement.value;
+        this._currentValue = this._convert(this.inputElement.value);
+
+        this.inputElement.addEventListener('input', this._inputTyping.bind(this), false);
+        this.inputElement.addEventListener('change', this._inputChange.bind(this), false);
+        this.dropdownElement
+            .querySelector('.dropdown-menu')
+            .addEventListener('click', this._handleAction.bind(this), false);
+    }
+
+    InputDropdown.prototype.setValue = function(value) {
+        if (this._validate(value)) {
+            this.changeValue(value);
+            this._currentValue = value;
+        }
+
+        this._currentRawValue = this._valueToString(this._currentValue);
+        this._typingRawValue = this._currentRawValue;
+
+        this.inputElement.value = this._currentRawValue;
+    };
+
+    InputDropdown.prototype._convert = function(rawValue) {
+        return this.convertValue(rawValue);
+    };
+
+    InputDropdown.prototype._validate = function(value) {
+        return this.validateValue(value);
+    };
+
+    InputDropdown.prototype._valueToString = function(value) {
+        if (value === null) {
+            return '';
+        }
+        return value.toString();
+    };
+
+    InputDropdown.prototype._inputTyping = function(event) {
+        var rawValue = this.inputElement.value;
+        if (rawValue.match(this.inputValuePattern)) {
+            this._typingRawValue = rawValue;
+        } else {
+            this.inputElement.value = this._typingRawValue;
+        }
+
+        event.preventDefault();
+    };
+
+    InputDropdown.prototype._inputChange = function (event) {
+        var value = this._convert(this.inputElement.value);
+        this.setValue(value);
+
+        event.preventDefault();
+    };
+
+    InputDropdown.prototype._handleAction = function(event) {
+        var button = event.target.closest('button');
+        if (!button) {
+            return;
+        }
+
+        if (button.dataset.optionValue) {
+            var value = button.dataset.optionValue;
+            this.setValue(value);
+        } else if (button.dataset.optionAction) {
+            var actionFunc = this[button.dataset.optionAction];
+            if (actionFunc) {
+                actionFunc.apply(this);
+            }
+        }
+
+        event.preventDefault();
+    };
+
+
+    function NumericInputDropdown(element, valueConfig) {
+        var defaultValueConfig = {
+            inputValuePrefix: '',
+            inputValueSuffix: '',
+            valueMin: null,
+            valueMax: null,
+            valueDelta: 1,
+            convertValue: function(rawValue) {
+                try {
+                    var number = rawValue.slice(this.inputValuePrefix.length, rawValue.length - this.inputValueSuffix.length);
+                    return (number.length > 0) ? +number : null;
+                } catch (e) {
+                    return null;
+                }
+            }
+        };
+
+        valueConfig = Object.assign({}, defaultValueConfig, valueConfig || {});
+
+        NumericInputDropdown.super.constructor.call(this, element, valueConfig);
+    }
+
+    inherit(NumericInputDropdown, InputDropdown);
+
+    NumericInputDropdown.prototype._convert = function(rawValue) {
+        var value = NumericInputDropdown.super._convert.call(this, rawValue);
+        if (value === null) {
+            return null;
+        }
+
+        if (this.valueMin !== null && value < this.valueMin) {
+            value = this.valueMin;
+        } else if (this.valueMax !== null && value > this.valueMax) {
+            value = this.valueMax;
+        }
+
+        return value;
+    };
+
+    NumericInputDropdown.prototype._validate = function(value) {
+        var result = NumericInputDropdown.super._validate.call(this, value);
+        if (!result) {
+            return false;
+        }
+
+        if (this.valueMin !== null && value < this.valueMin) {
+            return false;
+        } else if (this.valueMax !== null && value > this.valueMax) {
+            return false
+        }
+
+        return true;
+    };
+
+    NumericInputDropdown.prototype._valueToString = function(value) {
+        return `${this.inputValuePrefix}${value}${this.inputValueSuffix}`
+    };
+
+    NumericInputDropdown.prototype.decrease = function() {
+        var value = this._currentValue - this.valueDelta;
+        if (this.valueMin !== null && value < this.valueMin) {
+            value = this.valueMin;
+        }
+        this.setValue(value);
+    };
+
+    NumericInputDropdown.prototype.increase = function() {
+        var value = this._currentValue + this.valueDelta;
+        if (this.valueMax !== null && value > this.valueMax) {
+            value = this.valueMax;
+        }
+        this.setValue(value);
+    };
 
 
     function ScreenBlock(element) {
@@ -107,8 +269,13 @@ var initializeControls = (function() {
     };
 
 
+    function initialize() {
+        window.Modal = Modal;
+        window.Dropdown = Dropdown;
+        window.InputDropdown = InputDropdown;
+        window.NumericInputDropdown = NumericInputDropdown;
+        window.ScreenBlock = ScreenBlock;
 
-    function initializeControls() {
         document
             .querySelectorAll('.dropdown')
             .forEach(function(dropdown) {
@@ -128,5 +295,5 @@ var initializeControls = (function() {
             });
     }
 
-    return initializeControls;
+    initialize();
 })();

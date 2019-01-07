@@ -1,6 +1,6 @@
 'use strict';
 
-var initializePage = function(app) {
+var initializePage = function(desk) {
     var logger = new Logger(Logger.DEBUG, new Logger.ConsoleHandler());
 
 
@@ -51,6 +51,8 @@ var initializePage = function(app) {
         onLoadSuccess: function() {
             logger.debug('Image was loaded.');
 
+            scaleOption.fillIn();
+
             if (!this.loadingImageFromUrl) {
                 if (this.imageStorage) {
                     this.save();
@@ -79,11 +81,11 @@ var initializePage = function(app) {
             this.loadingImageFromUrl = true;
             // this.imageStorage
             //     .load()
-            //     .then(app.loadImageFromUrl.bind(app))
+            //     .then(desk.loadImageFromUrl.bind(desk))
             //     .catch(function(error) {
             //         self.onLoadFailure(error);
             //     });
-            app.loadImageFromUrl(this.imageStorage.url);
+            desk.loadImageFromUrl(this.imageStorage.url);
         },
 
         setImageIdToLocation: function(imageId) {
@@ -109,7 +111,7 @@ var initializePage = function(app) {
         },
 
         save: function(force) {
-            force = force !== undefined ? force : false;
+            force = force !== null ? force : false;
 
             if ((!this.hasUnsavedChanges || this.isSaving) && !force) {
                 return
@@ -122,7 +124,7 @@ var initializePage = function(app) {
 
             saveButton.changeState('saving');
 
-            return app.toBlob(function(blob) {
+            return desk.toBlob(function(blob) {
                 self.imageStorage
                     .save(blob)
                     .then(function(snapshot) {
@@ -146,7 +148,7 @@ var initializePage = function(app) {
             var now = new Date();
             var fileName = 'Image-' + dateToString(now, 'dd-mm-yyyy_H-M-S') + '.png';
 
-            app.toBlob(function(blob) {
+            desk.toBlob(function(blob) {
                 saveAs(blob, fileName);
             });
         },
@@ -186,33 +188,36 @@ var initializePage = function(app) {
         selectTool: function(button) {
             var tool = button.dataset.tool;
             var options = button.dataset.options ? button.dataset.options.split(' ') : [];
-
             if (!tool) {
                 return;
             }
 
             if (this.enabledToolButton) {
-                this.enabledToolButton.classList.remove('active');
+                this.enabledToolButton.classList.toggle('active');
+                this.enabledOptions.forEach(function(optionName) {
+                    this.options[optionName].classList.add('hidden');
+                }.bind(this));
             }
 
-            this.enabledOptions.forEach(function(optionName) {
-                this.options[optionName].classList.add('hidden');
-            }.bind(this));
+            if (button !== this.enabledToolButton) {
+                button.classList.toggle('active');
 
-            button.classList.add('active');
+                options.forEach(function(optionName) {
+                    this.options[optionName].classList.remove('hidden');
+                }.bind(this));
 
-            options.forEach(function(optionName) {
-                this.options[optionName].classList.remove('hidden');
-            }.bind(this));
+                this.enabledToolButton = button;
+                this.enabledOptions = options;
+            } else {
+                this.enabledToolButton = null;
+                this.enabledOptions = [];
+            }
 
-            this.enabledToolButton = button;
-            this.enabledOptions = options;
-
-            app.selectTool(tool);
+            desk.selectTool(tool);
         },
         _handleChoosingTool: function(event) {
             var button = event.target.closest('button');
-            if (!button || this.enabledToolButton === button) {
+            if (!button) {
                 return;
             }
 
@@ -248,7 +253,7 @@ var initializePage = function(app) {
                 var fileBtn = event.target;
 
                 if (fileBtn.files.length) {
-                    app.loadImageFromFileObject(fileBtn.files[0]);
+                    desk.loadImageFromFileObject(fileBtn.files[0]);
                 }
                 event.preventDefault();
             }, false);
@@ -262,7 +267,7 @@ var initializePage = function(app) {
         toggleMenu: function() {
             this.menuToggleBtn.classList.toggle('active');
 
-            if (this.menuElement.dataset.open === undefined) {
+            if (this.menuElement.dataset.open === null) {
                 this.menuElement.dataset.open = '';
             } else {
                 delete this.menuElement.dataset.open;
@@ -295,10 +300,10 @@ var initializePage = function(app) {
             svgRect.style.fill = color;
             svgRect.style.stroke = color;
 
-            app.setOption('color', color);
+            desk.setOption('color', color);
         },
         openPicker: function() {
-            this.colorPicker.value = app.options.color;
+            this.colorPicker.value = desk.options.color;
             this.colorPicker.click();
         },
         changePicker: function() {
@@ -317,7 +322,7 @@ var initializePage = function(app) {
             if (button.dataset.colorSet) {
                 var color = button.dataset.colorSet;
                 this.setColor(button, color);
-            } else if (button.dataset.colorPicker !== undefined) {
+            } else if (button.dataset.colorPicker !== null) {
                 this.openPicker();
             }
 
@@ -326,213 +331,106 @@ var initializePage = function(app) {
     };
 
 
-    var baseSizeOption = {
-        input: null,
-        inputValueUnit: 'px',
-        optionName: null,
-        _inputPreviousValue: null,
-
-        init: function(optionName, dropdownElement, inputElement) {
-            this.input = inputElement;
-            this.dropdown = dropdownElement;
-            this.optionName = optionName;
-            this._inputPreviousValue = this.input.value;
-
-            this.input.addEventListener('input', this._inputInput.bind(this), false);
-            this.input.addEventListener('change', this._inputChange.bind(this), false);
-            this.dropdown
-                .querySelector('.dropdown-menu')
-                .addEventListener('click', this._handleSizeAction.bind(this), false);
-        },
-        setSize: function(size) {
-            app.setOption(this.optionName, size);
-
-            this.input.value = size + this.inputValueUnit;
-        },
-        increaseSize: function(deltaSize) {
-            deltaSize = deltaSize || 2;
-
-            var newSize = app.options[this.optionName] + deltaSize;
-            if (newSize > 99) {
-                newSize = 99;
+    function ScaleInputDropdown(element) {
+        var valueConfig = {
+            inputValuePattern: /^\d{0,3}?%$/,
+            inputValueSuffix: '%',
+            valueMin: 0.1,
+            valueMax: 3,
+            valueDelta: 0.1,
+            convertValue: function(rawValue) {
+                try {
+                    var number = rawValue.slice(this.inputValuePrefix.length, rawValue.length - this.inputValueSuffix.length);
+                    return (number.length > 0) ? +number / 100 : null;
+                } catch (e) {
+                    return null;
+                }
+            },
+            changeValue: function(value) {
+                desk.setOption('scale', value);
             }
+        };
 
-            this.setSize(newSize);
-        },
-        decreaseSize: function(deltaSize) {
-            deltaSize = deltaSize || 2;
+        this._fillingIn = true;
+        this._canvasesContainer = document.querySelector('.canvases');
+        this._canvases = this._canvasesContainer.querySelectorAll('canvas');
 
-            var newSize = app.options[this.optionName] - deltaSize;
-            if (newSize < 1) {
-                newSize = 1;
-            }
+        ScaleInputDropdown.super.constructor.call(this, element, valueConfig);
 
-            this.setSize(newSize);
-        },
-        _inputInput: function(event) {
-            var sizeStr = this.input.value;
-            if (sizeStr.match('^\\d{0,2}?' + this.inputValueUnit + '$') == null) {
-                this.input.value = this._inputPreviousValue;
+        window.addEventListener('wheel', this._wheelWindow.bind(this), false);
+        window.addEventListener('resize', this._resizeWindow.bind(this), false);
+    }
+
+    inherit(ScaleInputDropdown, NumericInputDropdown);
+
+    ScaleInputDropdown.prototype.setValue = function(value) {
+        ScaleInputDropdown.super.setValue.call(this, value);
+
+        this._fillingIn = false;
+
+        this._zoomCanvas();
+        this._hackCanvasCentering();
+    };
+
+    ScaleInputDropdown.prototype._valueToString = function(value) {
+        value = Math.round(value * 100);
+        return ScaleInputDropdown.super._valueToString.call(this, value);
+    };
+
+    ScaleInputDropdown.prototype.fillIn = function() {
+        if (!desk.image) {
+            return;
+        }
+
+        var widthScale = this._canvasesContainer.offsetWidth / desk.image.width;
+        var heightScale = this._canvasesContainer.offsetHeight / desk.image.height;
+        var scale = Math.min(widthScale, heightScale, 1);
+
+        this.setValue(scale);
+
+        this._fillingIn = true;
+    };
+
+    ScaleInputDropdown.prototype._wheelWindow = function(event) {
+        var onCanvas = event.target.closest('canvas') !== null;
+
+        if (event.ctrlKey) {
+            event.preventDefault();
+        }
+
+        if (event.ctrlKey && onCanvas) {
+            if (event.deltaY > 0) {
+                this.decrease();
             } else {
-                this._inputPreviousValue = sizeStr;
+                this.increase();
             }
-
-            event.preventDefault();
-        },
-        _inputChange: function(event) {
-            var sizeStr = this.input.value;
-            var size = +sizeStr.slice(0, sizeStr.length - 2) || 1;
-
-            this.setSize(size);
-            event.preventDefault();
-        },
-        _handleSizeAction: function(event) {
-            var button = event.target.closest('button');
-            if (!button) {
-                return;
-            }
-
-            if (button.dataset.sizeSet) {
-                var size = +button.dataset.sizeSet;
-                this.setSize(size);
-            } else if (button.dataset.sizeChange === 'increase') {
-                this.increaseSize();
-            } else if (button.dataset.sizeChange === 'decrease') {
-                this.decreaseSize();
-            }
-
-            event.preventDefault();
         }
     };
 
-    var sizeOption = Object.create(baseSizeOption);
-
-    var textSizeOption = Object.create(baseSizeOption);
-
-
-    var zoomOption = {
-        zoomInput: document.getElementById('zoomInput'),
-        zoomSlider: document.getElementById('zoomSlider'),
-        minScaleFactor: 1,
-        maxScaleFactor: 3,
-        _previousZoomInputValue: null,
-
-        init: function() {
-            this._previousZoomInputValue = this.zoomInput.value;
-
-            this.zoomInput.addEventListener('input', this._inputInput.bind(this), false);
-            this.zoomInput.addEventListener('change', this._inputChange.bind(this), false);
-            this.zoomSlider.addEventListener('change', this._sliderChange.bind(this), false);
-            window.addEventListener('wheel', this._windowWheel.bind(this), false);
-        },
-        setScale: function(scaleFactor) {
-            var scale = 1;
-
-            if (app.options.originalScale) {
-                scale = app.options.originalScale / scaleFactor;
-            }
-
-            app.zoom(scale);
-            app.resizeCanvas();
-            app.draw();
-
-            this._hackCanvasCentering();
-        },
-        _setInputValue: function(scaleFactor) {
-            this.zoomInput.value = Math.round(scaleFactor * 100) + '%';
-        },
-        _setSliderValue: function(scaleFactor) {
-            this.zoomSlider.value = scaleFactor;
-        },
-        _inputInput: function(event) {
-            var scaleStr = this.zoomInput.value;
-            if (scaleStr.match(/^\d{0,3}?%$/) == null) {
-                this.zoomInput.value = this._previousZoomInputValue;
-            } else {
-                this._previousZoomInputValue = scaleStr;
-
-                var scaleFactor = +scaleStr.slice(0, scaleStr.length - 1) / 100;
-                if (!isNaN(scaleFactor) && scaleFactor >= this.minScaleFactor && scaleFactor <= this.maxScaleFactor) {
-                    this._setSliderValue(scaleFactor);
-                    this.setScale(scaleFactor);
-                }
-            }
-
-            event.preventDefault();
-        },
-        _inputChange: function(event) {
-            var scaleStr = this.zoomInput.value;
-            var scaleFactor = +scaleStr.slice(0, scaleStr.length - 1) / 100;
-
-            if (!isNaN(scaleFactor) && scaleFactor >= this.minScaleFactor && scaleFactor <= this.maxScaleFactor) {
-                event.preventDefault();
-                return;
-            }
-
-            if (scaleFactor < this.minScaleFactor) {
-                this._previousZoomInputValue = '100%';
-            } else if (scaleFactor > this.maxScaleFactor) {
-                this._previousZoomInputValue = '300%';
-            }
-            this.zoomInput.value = this._previousZoomInputValue;
-
-            scaleFactor = +scaleStr.slice(0, scaleStr.length - 1) / 100;
-
-            this.setScale(scaleFactor);
-            event.preventDefault();
-        },
-        _sliderChange: function(event) {
-            var scaleFactor = this.zoomSlider.valueAsNumber;
-
-            this._setInputValue(scaleFactor);
-            this.setScale(scaleFactor);
-            event.preventDefault();
-        },
-        _windowWheel: function(event) {
-            if (event.ctrlKey) {
-                var scaleFactor = this.zoomSlider.valueAsNumber;
-                if (event.deltaY < 0) {
-                    scaleFactor += 0.2;
-                } else {
-                    scaleFactor -= 0.2;
-                }
-
-                if (scaleFactor >= this.minScaleFactor && scaleFactor <= this.maxScaleFactor) {
-                    this._setInputValue(scaleFactor);
-                    this._setSliderValue(scaleFactor);
-                    this.setScale(scaleFactor);
-                }
-
-                event.preventDefault();
-            }
-        },
-        _hackCanvasCentering: function() {
-            var windowWidth = window.innerWidth;
-            var windowHeight = window.innerHeight;
-            var canvases = document.querySelectorAll('.canvases canvas');
-            var canvasWidth = canvases[0].offsetWidth;
-            var canvasHeight = canvases[0].offsetHeight;
-
-            if (canvasWidth >= windowWidth) {
-                canvases.forEach(function(canvas) {
-                    canvas.style.left = 0;
-                });
-            } else {
-                canvases.forEach(function(canvas) {
-                    canvas.style.left = null;
-                });
-            }
-
-            if (canvasHeight >= windowHeight) {
-                canvases.forEach(function(canvas) {
-                    canvas.style.top = 0;
-                });
-            } else {
-                canvases.forEach(function(canvas) {
-                    canvas.style.top = null;
-                });
-            }
+    ScaleInputDropdown.prototype._resizeWindow = function(event) {
+        if (this._fillingIn) {
+            this.fillIn();
         }
+    };
+
+    ScaleInputDropdown.prototype._zoomCanvas = function() {
+        var width = desk.image.width * this._currentValue;
+        this._canvases.forEach(function(canvas) {
+            canvas.style.width = `${width}px`;
+        });
+    };
+
+    ScaleInputDropdown.prototype._hackCanvasCentering = function() {
+        var canvasWidth = desk.image.width * this._currentValue;
+        var canvasHeight = desk.image.height * this._currentValue;
+
+        var left = canvasWidth >= this._canvasesContainer.offsetWidth ? 0 : null;
+        var top = canvasHeight >= this._canvasesContainer.offsetHeight ? 0 : null;
+
+        this._canvases.forEach(function(canvas) {
+            canvas.style.left = left;
+            canvas.style.top = top;
+        });
     };
 
 
@@ -581,6 +479,9 @@ var initializePage = function(app) {
         }
     };
 
+    var sizeOption;
+    var textSizeOption;
+    var scaleOption;
 
     var dropImageOption = {
         dropareaHiddingTimerID: null,
@@ -616,7 +517,7 @@ var initializePage = function(app) {
             event.preventDefault();
         },
         _dropImage: function(event) {
-            app.loadImageFromDataTransfer(event.dataTransfer);
+            desk.loadImageFromDataTransfer(event.dataTransfer);
             event.preventDefault();
         }
     };
@@ -654,37 +555,45 @@ var initializePage = function(app) {
     };
 
 
-    function activate() {
+    function initialize() {
         toolConfigs.init();
         menuConfigs.init();
         colorOption.init();
-        sizeOption.init(
-            'size',
-            document.getElementById('sizeOption'),
-            document.getElementById('sizeOptionInput')
-        );
-        textSizeOption.init(
-            'textSize',
-            document.getElementById('textSizeOption'),
-            document.getElementById('textSizeOptionInput')
-        );
-        zoomOption.init();
+
+        sizeOption = new NumericInputDropdown(document.getElementById('sizeOption'), {
+            // inputValuePattern: /^\d{0,2}?px$/,
+            inputValueSuffix: 'px',
+            valueMin: 1,
+            valueMax: 99,
+            valueDelta: 2,
+            changeValue: function(value) {
+                desk.setOption('size', value)
+            }
+        });
+
+        textSizeOption = new NumericInputDropdown(document.getElementById('textSizeOption'), {
+            // inputValuePattern: /^\d{0,2}?px$/,
+            inputValueSuffix: 'px',
+            valueMin: 1,
+            valueMax: 99,
+            valueDelta: 2,
+            changeValue: function(value) {
+                desk.setOption('textSize', value)
+            }
+        });
+
+        scaleOption = new ScaleInputDropdown(document.getElementById('scaleOption'));
+
         saveButton.init();
         dropImageOption.init();
         spinner.init();
         imageManager.init();
 
 
-        window.addEventListener('resize', function(event) {
-            app.zoom();
-            app.resizeCanvas();
-            app.draw();
-        }, false);
-
         window.addEventListener('keydown', function(event) {
             if (event.keyCode === 90 && event.ctrlKey) {
                 // Ctrl + Z
-                app.removeShape();
+                desk.removeShape();
             } else if (event.keyCode === 83 && event.ctrlKey) {
                 // Ctrl + S
                 imageManager.save();
@@ -696,7 +605,7 @@ var initializePage = function(app) {
         }, false);
 
         window.addEventListener('paste', function(event) {
-            app.loadImageFromDataTransfer(event.clipboardData);
+            desk.loadImageFromDataTransfer(event.clipboardData);
             event.preventDefault();
         }, false);
 
@@ -711,23 +620,23 @@ var initializePage = function(app) {
             }
         }, false);
 
-        app.on('image-loading', function() {
+        desk.on('image-loading', function() {
             spinner.showLoadingMessage();
         });
 
-        app.on('image-loaded', function hideWelcomeScreen() {
+        desk.on('image-loaded', function hideWelcomeScreen() {
             welcome.modal.close();
-            app.off('image-loaded', hideWelcomeScreen);
+            desk.off('image-loaded', hideWelcomeScreen);
         });
-        app.on('image-loaded', function() {
+        desk.on('image-loaded', function() {
             imageManager.onLoadSuccess();
             spinner.close();
         });
-        app.on('image-not-loaded', function() {
+        desk.on('image-not-loaded', function() {
             imageManager.onLoadFailure();
             spinner.close();
         });
-        app.on('image-changed', function() {
+        desk.on('image-changed', function() {
             imageManager.hasUnsavedChanges = true;
             imageManager.save();
         });
@@ -741,5 +650,5 @@ var initializePage = function(app) {
         window.spinner = spinner;
     }
 
-    activate();
+    initialize();
 };

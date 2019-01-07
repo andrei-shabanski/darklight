@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <main class="drawing-area">
+    <main class="desk">
         <nav class="toolbar">
             <div class="tools">
                 <button class="btn btn-flat btn-dark flex-stretch" data-tool="text" data-options="color textSize">
@@ -86,20 +86,20 @@
                     </button>
                     <div class="dropdown-menu">
                         <div class="dropdown-group">
-                            <button class="btn btn-flat btn-dark" data-dropdown-noclose data-size-change="decrease">
+                            <button class="btn btn-flat btn-dark" data-dropdown-noclose data-option-action="decrease">
                                 <svg class="icon"><use xlink:href="img/icons.svg#minus"></use></svg>
                             </button>
-                            <button class="btn btn-flat btn-dark" data-dropdown-noclose data-size-change="increase">
+                            <button class="btn btn-flat btn-dark" data-dropdown-noclose data-option-action="increase">
                                 <svg class="icon"><use xlink:href="img/icons.svg#plus"></use></svg>
                             </button>
                         </div>
-                        <button class="btn btn-flat btn-dark" data-size-set="2">2px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="5">5px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="8">8px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="14">14px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="24">24px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="36">36px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="72">72px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="2">2px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="5">5px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="8">8px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="14">14px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="24">24px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="36">36px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="72">72px</button>
                     </div>
                 </div>
 
@@ -110,20 +110,20 @@
                     </button>
                     <div class="dropdown-menu">
                         <div class="dropdown-group">
-                            <button class="btn btn-flat btn-dark" data-size-change="decrease">
+                            <button class="btn btn-flat btn-dark" data-option-action="decrease">
                                 <svg class="icon"><use xlink:href="img/icons.svg#minus"></use></svg>
                             </button>
-                            <button class="btn btn-flat btn-dark" data-size-change="increase">
+                            <button class="btn btn-flat btn-dark" data-option-action="increase">
                                 <svg class="icon"><use xlink:href="img/icons.svg#plus"></use></svg>
                             </button>
                         </div>
-                        <button class="btn btn-flat btn-dark" data-size-set="6">6px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="10">10px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="14">14px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="18">18px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="24">24px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="36">36px</button>
-                        <button class="btn btn-flat btn-dark" data-size-set="72">72px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="6">6px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="10">10px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="14">14px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="18">18px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="24">24px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="36">36px</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="72">72px</button>
                     </div>
                 </div>
 
@@ -162,13 +162,27 @@
                 </div>
                 <input id="colorPicker" class="hidden" type="color">
 
-                <div id="zoomOption" class="dropdown dropdown-dark dropdown-flat flex-stretch">
+                <div id="scaleOption" class="dropdown dropdown-dark dropdown-flat flex-stretch">
                     <button class="dropdown-toggle btn btn-flat btn-dark">
-                        <input id="zoomInput" type="text" value="100%">
+                        <input id="scaleOptionInput" type="text" value="100%">
                         <svg class="icon icon-small round-180"><use xlink:href="img/icons.svg#chevron-down"></use></svg>
                     </button>
                     <div class="dropdown-menu">
-                        <input id="zoomSlider" data-dropdown-noclose type="range" min="1" max="3" step="0.1" value="1">
+                        <div class="dropdown-group">
+                            <button class="btn btn-flat btn-dark" data-dropdown-noclose data-option-action="decrease">
+                                <svg class="icon"><use xlink:href="img/icons.svg#minus"></use></svg>
+                            </button>
+                            <button class="btn btn-flat btn-dark" data-option-action="fillIn">
+                                <svg class="icon"><use xlink:href="img/icons.svg#maximize"></use></svg>
+                            </button>
+                            <button class="btn btn-flat btn-dark" data-dropdown-noclose data-option-action="increase">
+                                <svg class="icon"><use xlink:href="img/icons.svg#plus"></use></svg>
+                            </button>
+                        </div>
+
+                        <button class="btn btn-flat btn-dark" data-option-value="0.5">50%</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="1">100%</button>
+                        <button class="btn btn-flat btn-dark" data-option-value="2">200%</button>
                     </div>
                 </div>
             </div>
@@ -213,6 +227,7 @@
     </main>
 
     <script defer src="https://www.gstatic.com/firebasejs/5.7.1/firebase.js"></script>
+    <script defer src="vendor/FileSaver-2.0.0.min.js"></script>
     <script defer src="js/utils.js"></script>
     <script defer src="js/controls.js"></script>
     <script defer src="js/logging.js"></script>
@@ -229,22 +244,14 @@
                 messagingSenderId: "1080138239147"
             });
 
-            var app = new CanvasApp(
-                function() {
-                    var areasElement = document.getElementsByClassName('canvases')[0];
-                    return {
-                        height: areasElement.scrollHeight,
-                        width: areasElement.scrollWidth
-                    };
-                },
+            var desk = new DrawingDesk(
                 imageCanvas,
                 drawingCanvas
             );
 
-            initializeControls();
-            initializePage(app);
+            initializePage(desk);
 
-            window.app = app;
+            window.desk = desk;
         });
     </script>
 </body>

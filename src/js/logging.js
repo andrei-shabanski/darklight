@@ -52,7 +52,7 @@ var Logger = (function() {
 
     function LoggerHandler(format) {
         // format attributes: "{level}", "{date}", "{time}", "{message}"
-        this.format = format || '{time} {message}';
+        this.format = format || '[{level}] {time} {message}';
     }
 
     LoggerHandler.prototype.prepareLog = function(level, message) {

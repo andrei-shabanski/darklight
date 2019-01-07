@@ -253,8 +253,8 @@ span ~ * {
 
 
 
-/* DRAWING AREA */
-.drawing-area {
+/* DESK */
+.desk {
     width: 100vw;
     height: 100vh;
     display: flex;
@@ -338,22 +338,6 @@ span ~ * {
 }
 
 
-#textSizeOption .dropdown-toggle input,
-#sizeOption .dropdown-toggle input,
-#zoomOption .dropdown-toggle input {
-    width: 40px;
-    padding-right: 2px;
-    text-align: right;
-}
-
-#zoomSlider {
-    appearance: slider-vertical;
-    -moz-appearance: slider-vertical;
-    -webkit-appearance: slider-vertical;
-    width: 50px;
-}
-
-
 @media (max-width: 768px) {
     .options {
         justify-content: flex-end;
@@ -408,5 +392,8 @@ span ~ * {
 }
 
 .canvases canvas {
+    transition: width 0.25s ease-in-out;
     position: absolute;
+    width: auto;
+    height: auto;
 }

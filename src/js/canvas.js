@@ -1,28 +1,7 @@
 'use strict';
 
-window.CanvasApp = (function() {
-    function getRectPoints(x0, y0, x1, y1) {
-        if (x0 > x1) {
-            var tmpX = x0;
-            x0 = x1;
-            x1 = tmpX;
-        }
-        if (y0 > y1) {
-            var tmpY = y0;
-            y0 = y1;
-            y1 = tmpY;
-        }
-
-        return [{
-            x: x0, y: y0
-        }, {
-            x: x1, y: y1
-        }];
-    }
-
-    var logger = new Logger(Logger.ERROR, new Logger.ConsoleHandler());
-
-
+window.DrawingDesk = (function() {
+    var logger = new Logger(Logger.DEBUG, new Logger.ConsoleHandler());
 
     var EVENT_TYPES = {
         IMAGE_LOADING: 'image-loading',
@@ -45,31 +24,102 @@ window.CanvasApp = (function() {
     };
 
 
-
-    function Options(options) {
-        var defaultOptions = {
-            size: 5,
-            textSize: 18,
-            color: '#ff0000',
-            originalScale: 1,
-            scale: 1
-        };
-
-        Object.assign(this, defaultOptions, options);
+    function Point(x, y) {
+        this.x = x;
+        this.y = y;
     }
 
-    Options.prototype.zoom = function(scale) {
-        this.scale = scale;
+    Point.fromEvent = function(event, options) {
+        return new Point(
+            options.zoomOut(event.offsetX),
+            options.zoomOut(event.offsetY)
+        );
+    };
+
+    Point.getRectPoints = function(point1, point2) {
+        var xs = [point1.x, point2.x].sort();
+        var ys = [point1.y, point2.y].sort();
+
+        return {
+            topLeftPoint: new Point(xs[0], ys[0]),
+            bottomRightPoint: new Point(xs[1], ys[1])
+        };
+    };
+
+    Point.getRectMeasure = function(point1, point2) {
+        return {
+            point: new Point(
+                Math.min(point1.x, point2.x),
+                Math.min(point1.y, point2.y)
+            ),
+            width: Math.abs(point1.x - point2.x),
+            height: Math.abs(point1.y - point2.y)
+        };
+    };
+
+    Point.prototype.clone = function() {
+        return new Point(this.x, this.y);
     };
 
 
+    var Options = function Options(parent) {
+        var self = this;
 
-    function Application(getWindowSizeCallback, imageCanvas, drawingCanvas) {
+        this._parent = parent;
+
+        if (!!parent) {
+            this._globalOptions = parent._globalOptions;
+            this._localOptions = Object.assign({}, parent._localOptions);
+        } else {
+            this._globalOptions = {
+                scale: 1
+            };
+            this._localOptions = {
+                size: 5,
+                textSize: 18,
+                color: '#ff0000',
+            };
+        }
+
+        Object.defineProperties(this, {
+            scale: {
+                get: function() { return self._globalOptions.scale; },
+                set: function(value) { self._globalOptions.scale = value}
+            },
+            size: {
+                get: function() { return self._localOptions.size; },
+                set: function(value) { self._localOptions.size = value}
+            },
+            textSize: {
+                get: function() { return self._localOptions.textSize; },
+                set: function(value) { self._localOptions.textSize = value}
+            },
+            color: {
+                get: function() { return self._localOptions.color; },
+                set: function(value) { self._localOptions.color = value}
+            },
+        })
+    };
+
+    Options.prototype.clone = function() {
+        var parent = this._parent || this;
+        return new Options(parent);
+    };
+
+    Options.prototype.zoomIn = function(value) {
+        return value * this.scale;
+    };
+
+    Options.prototype.zoomOut = function(value) {
+        return value / this.scale;
+    };
+
+
+    function Application(imageCanvas, drawingCanvas) {
         Application.super.constructor.apply(this, arguments);
 
         this.state = STATE_TYPES.INITIALIZED;
 
-        this.getWindowSizeCallback = getWindowSizeCallback;
         this.imageCanvas = imageCanvas;
         this.imageCanvasCtx = imageCanvas.getContext('2d');
         this.drawingCanvas = drawingCanvas;
@@ -78,39 +128,27 @@ window.CanvasApp = (function() {
         this.tools = {
             text: {
                 shape: Text,
-                cursor: 'text',
-                beforeCommit: null,
-                afterCommit: null,
+                cursor: 'text'
             },
             pen: {
                 shape: Pen,
-                cursor: 'crosshair',
-                beforeCommit: null,
-                afterCommit: null,
+                cursor: 'crosshair'
             },
             rectangle: {
                 shape: Rectangle,
-                cursor: 'crosshair',
-                beforeCommit: null,
-                afterCommit: null,
+                cursor: 'crosshair'
             },
             ellipse: {
                 shape: Ellipse,
-                cursor: 'crosshair',
-                beforeCommit: null,
-                afterCommit: null,
+                cursor: 'crosshair'
             },
             line: {
                 shape: Line,
-                cursor: 'crosshair',
-                beforeCommit: null,
-                afterCommit: null,
+                cursor: 'crosshair'
             },
             arrow: {
                 shape: Arrow,
-                cursor: 'crosshair',
-                beforeCommit: null,
-                afterCommit: null,
+                cursor: 'crosshair'
             },
             crop: {
                 shape: Crop,
@@ -118,13 +156,8 @@ window.CanvasApp = (function() {
                 beforeCommit: null,
                 afterCommit: function(shape) {
                     if (shape.needCrop) {
-                        var points = getRectPoints(
-                            shape.zp(shape.x0, 1),
-                            shape.zp(shape.y0, 1),
-                            shape.zp(shape.x1, 1),
-                            shape.zp(shape.y1, 1)
-                        );
-                        this.crop(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y);
+                        var rect = Point.getRectMeasure(shape.startPoint, shape.endPoint);
+                        this.crop(rect.point.x, rect.point.y, rect.width, rect.height);
                     }
                 }
             }
@@ -133,10 +166,8 @@ window.CanvasApp = (function() {
         this.activeTool = null;
 
         this.options = new Options();
-
         this.image = null;
         this.shapes = [];
-        this.currentShapeClass = null;
         this.currentShape = null;
 
         this.drawingCanvas.addEventListener('mousedown', this.onDrawingCanvasMouseDown.bind(this), false);
@@ -148,7 +179,7 @@ window.CanvasApp = (function() {
         logger.debug('Application is handling "mousedown" event');
 
         if (event.button === 0) {
-            this.createShape(event.offsetX, event.offsetY);
+            this.createShape(Point.fromEvent(event, this.options));
         }
     };
 
@@ -226,7 +257,6 @@ window.CanvasApp = (function() {
         this.shapes = [];
         this.currentShape = null;
 
-        this.zoom();
         this.resizeCanvas();
         this.draw();
 
@@ -237,8 +267,7 @@ window.CanvasApp = (function() {
         this.options[name] = value;
 
         if (this.currentShape) {
-            this.currentShape.options = this.options;
-            this.currentShape.draw();
+            this.currentShape.update({options: this.options});
         }
 
         this.emit(EVENT_TYPES.OPTION_CHANGED, {optionName: name, value: value});
@@ -249,7 +278,6 @@ window.CanvasApp = (function() {
 
         var tool = this.tools[toolName];
         if (!tool) {
-            logger.warn("Unknown tool '", toolName, "'");
             return;
         }
 
@@ -257,25 +285,30 @@ window.CanvasApp = (function() {
             this.currentShape.commit();
         }
 
-        this.activeTool = tool;
-        this.currentShapeClass = tool.shape;
-        self.drawingCanvas.style.cursor = tool.cursor;
+        if (tool !== this.activeTool) {
+            this.activeTool = tool;
+            self.drawingCanvas.style.cursor = tool.cursor;
+        } else {
+            this.activeTool = null;
+            self.drawingCanvas.style.cursor = 'default';
+        }
+
+
     };
 
-    Application.prototype.createShape = function(x, y) {
-        if (!this.currentShapeClass || this.currentShape) {
+    Application.prototype.createShape = function(point) {
+        if (!this.activeTool || this.currentShape) {
             return
         }
 
-        this.currentShape = new this.currentShapeClass(
+        this.currentShape = new this.activeTool.shape(
             this.drawingCanvasCtx,
-            x,
-            y,
+            point,
             this.options,
             this.commitShape.bind(this)
         );
 
-        logger.debug('Application is creating a new "', this.currentShape.constructor.name, '"');
+        logger.debug(`Application is creating a new ${this.currentShape.constructor.name} ${point}`);
     };
 
     Application.prototype.commitShape = function() {
@@ -287,7 +320,7 @@ window.CanvasApp = (function() {
 
         this.drawingCanvasCtx.clearRect(0, 0, this.drawingCanvas.width, this.drawingCanvas.height);
 
-        if (this.activeTool.beforeCommit) {
+        if (!!this.activeTool.beforeCommit) {
             this.activeTool.beforeCommit.call(this, this.currentShape);
         }
 
@@ -302,7 +335,7 @@ window.CanvasApp = (function() {
         var currentShape = this.currentShape;
         this.currentShape = null;
 
-        if (this.activeTool.afterCommit) {
+        if (!!this.activeTool.afterCommit) {
             this.activeTool.afterCommit.call(this, currentShape);
         }
 
@@ -324,13 +357,8 @@ window.CanvasApp = (function() {
     Application.prototype.resizeCanvas = function() {
         logger.info('Application is resizing canvases');
 
-        var width = 0;
-        var height = 0;
-
-        if (this.image) {
-            width = this.image.width / this.options.scale;
-            height = this.image.height / this.options.scale;
-        }
+        var width = this.image.width;
+        var height = this.image.height;
 
         this.imageCanvas.width = width;
         this.imageCanvas.height = height;
@@ -339,41 +367,11 @@ window.CanvasApp = (function() {
         this.drawingCanvas.height = height;
     };
 
-    Application.prototype.zoom = function(scale) {
-        logger.info('Application is zooming canvases to ', scale);
-
-        if (!scale && this.image) {
-            var windowSize = this.getWindowSizeCallback();
-
-            var scaleX = this.image.width / windowSize.width;
-            var scaleY = this.image.height / windowSize.height;
-            scale = Math.max(scaleX, scaleY, 1);
-
-            this.options.originalScale = scale;
-
-            if (scale < 1) {
-                scale = 1;
-            }
-        } else if (!scale) {
-            scale = 1;
-        }
-
-        this.options.zoom(scale);
-    };
-
     Application.prototype.crop = function(x, y, width, height) {
         logger.info('Application is cropping the image (', [x, y, width, height].join(' ,'), ')');
 
-        this.zoom(1);
-        this.resizeCanvas();
-        this.draw();
-
         var croppedImageData = this.imageCanvasCtx.getImageData(x, y, width, height);
         this.loadImage(croppedImageData);
-
-        // in order to convert ImageData to Image we load the image again huh
-        // var croppedImageBase64 = this.toDataURL();
-        // this.loadImageFromUrl(croppedImageBase64);
     };
 
     Application.prototype.draw = function() {
@@ -382,105 +380,64 @@ window.CanvasApp = (function() {
         this.imageCanvasCtx.clearRect(0, 0, this.imageCanvas.width, this.imageCanvas.height);
         if (this.image) {
             if (this.image.constructor === ImageData) {
-                this.imageCanvasCtx.putImageData(this.image, 0, 0, 0, 0, this.image.width / this.options.scale, this.image.height / this.options.scale);
+                this.imageCanvasCtx.putImageData(this.image, 0, 0, 0, 0, this.image.width, this.image.height);
             } else {
-                this.imageCanvasCtx.drawImage(this.image, 0, 0, this.image.width / this.options.scale, this.image.height / this.options.scale);
+                this.imageCanvasCtx.drawImage(this.image, 0, 0, this.image.width, this.image.height);
             }
         }
 
         this.shapes.forEach(function(shape) {
-            shape.draw(this.options.scale);
-        }.bind(this));
+            shape.draw();
+        });
 
         if (this.currentShape) {
-            this.currentShape.draw(this.options.scale);
+            this.currentShape.draw();
         }
     };
 
     Application.prototype.toDataURL = function() {
-        if (this.currentShape) {
-            this.currentShape.commit();
-        }
-
-        var preScale = this.options.scale;
-
-        this.zoom(1);
-        this.resizeCanvas();
-        this.draw();
-
-        var data = this.imageCanvas.toDataURL('image/png');
-
-        this.zoom(preScale);
-        this.resizeCanvas();
-        this.draw();
-
-        return data;
+        return this.imageCanvas.toDataURL('image/png');
     };
 
     Application.prototype.toBlob = function(callback) {
-        if (this.currentShape) {
-            this.currentShape.commit();
-        }
-
-        var preScale = this.options.scale;
-
-        this.zoom(1);
-        this.resizeCanvas();
-        this.draw();
-
         this.imageCanvas.toBlob(callback);
-
-        this.zoom(preScale);
-        this.resizeCanvas();
-        this.draw();
     };
 
 
-
-    function Shape(canvasContext, x0, y0, options, commitCallback) {
+    function Shape(canvasContext, point, options, commitCallback) {
         this.canvasCtx = canvasContext;
         this.commitCallback = commitCallback;
 
-        this.x0 = x0;
-        this.y0 = y0;
-        this.options = Object.assign({}, options);
-
         this.committed = false;
+
+        this.startPoint = point;
+        this.options = options.clone();
     }
-
-    Shape.prototype.zp = function(value, scale) {
-        // zoom a point
-        if (!!scale) {
-            return value * this.options.scale / scale;
-        }
-        return value;
-    };
-
-    Shape.prototype.zo = function(value, scale) {
-        // zoom an option
-        //   ___
-        //  (o O)
-        // /( - )\
-        //  -----
-        scale = scale || this.options.scale;
-        return value * this.options.originalScale / scale;
-    };
 
     Shape.prototype.isEmpty = function() {
         return false;
     };
 
     Shape.prototype.update = function(data) {
-        logger.debug('Updating "', this.constructor.name, '"');
+        logger.debug(`Updating ${this.constructor.name}`);
 
-        this.x0 = data.x0 || this.x0;
-        this.y0 = data.y0 || this.y0;
-        this.options = data.options ? Object.assign({}, data.options) : this.options;
+        Object
+            .keys(data)
+            .forEach(function(key) {
+                var value = data[key];
+
+                if (key === 'options') {
+                    this.options = value.clone();
+                } else {
+                    this[key] = value;
+                }
+
+            }.bind(this));
 
         this.draw();
     };
 
-    Shape.prototype.draw = function(scale) {
+    Shape.prototype.draw = function() {
         logger.debug('Drawing "', this.constructor.name, '" (', this.committed ? 'committed' : 'not committed', ')');
 
         this.canvasCtx.restore();
@@ -499,13 +456,10 @@ window.CanvasApp = (function() {
     };
 
 
-
-
-    function MouseDrawableShape(canvasContext, x0, y0, options, commitCallback) {
+    function MouseDrawableShape(canvasContext, point, options, commitCallback) {
         MouseDrawableShape.super.constructor.apply(this, arguments);
 
-        this.x1 = this.x0;
-        this.y1 = this.y0;
+        this.endPoint = point.clone();
 
         this._onMouseDownBinded = this.onMouseDown.bind(this);
         this._onMouseMoveBinded = this.onMouseMove.bind(this);
@@ -518,13 +472,6 @@ window.CanvasApp = (function() {
 
     inherit(MouseDrawableShape, Shape);
 
-    MouseDrawableShape.prototype.update = function(data) {
-        this.x1 = data.x1 || this.x1;
-        this.y1 = data.y1 || this.y1;
-
-        MouseDrawableShape.super.update.apply(this, arguments);
-    };
-
     MouseDrawableShape.prototype.onMouseDown = function(event) {
         if (event.button !== 0) {
             return
@@ -536,8 +483,7 @@ window.CanvasApp = (function() {
         logger.debug('"', this.constructor.name, '" is handling "mousemove"');
 
         this.update({
-            x1: event.offsetX,
-            y1: event.offsetY
+            endPoint: Point.fromEvent(event, this.options)
         });
     };
 
@@ -560,9 +506,7 @@ window.CanvasApp = (function() {
     };
 
 
-
-
-    function Pen(canvasContext, x0, y0, options, commitCallback) {
+    function Pen(canvasContext, point, options, commitCallback) {
         Pen.super.constructor.apply(this, arguments);
 
         this.points = [];
@@ -571,12 +515,10 @@ window.CanvasApp = (function() {
     inherit(Pen, MouseDrawableShape);
 
     Pen.prototype.onMouseMove = function(event) {
-        this.points.push({
-            x: event.offsetX,
-            y: event.offsetY
-        });
+        var points = this.points.slice();
+        points.push(Point.fromEvent(event, this.options));
 
-        this.draw();
+        this.update({points: points});
     };
 
     Pen.prototype.draw = function(scale) {
@@ -585,20 +527,18 @@ window.CanvasApp = (function() {
         this.canvasCtx.lineCap = 'round';
         this.canvasCtx.lineJoin = 'round';
         this.canvasCtx.strokeStyle = this.options.color;
-        this.canvasCtx.lineWidth = this.zo(this.options.size, scale);
+        this.canvasCtx.lineWidth = this.options.size;
 
         this.canvasCtx.beginPath();
-        this.canvasCtx.moveTo(this.zp(this.x0, scale), this.zp(this.y0, scale));
+        this.canvasCtx.moveTo(this.startPoint.x, this.endPoint.y);
         this.points.forEach(function(point) {
-            this.canvasCtx.lineTo(this.zp(point.x, scale), this.zp(point.y, scale));
+            this.canvasCtx.lineTo(point.x, point.y);
         }.bind(this));
         this.canvasCtx.stroke();
     };
 
 
-
-
-    function Line(canvasContext, x0, y0, options, commitCallback) {
+    function Line(canvasContext, point,options, commitCallback) {
         Line.super.constructor.apply(this, arguments);
     }
 
@@ -609,17 +549,16 @@ window.CanvasApp = (function() {
 
         this.canvasCtx.lineCap = 'round';
         this.canvasCtx.strokeStyle = this.options.color;
-        this.canvasCtx.lineWidth = this.zo(this.options.size, scale);
+        this.canvasCtx.lineWidth = this.options.size;
 
         this.canvasCtx.beginPath();
-        this.canvasCtx.moveTo(this.zp(this.x0, scale), this.zp(this.y0, scale));
-        this.canvasCtx.lineTo(this.zp(this.x1, scale), this.zp(this.y1, scale));
+        this.canvasCtx.moveTo(this.startPoint.x, this.startPoint.y);
+        this.canvasCtx.lineTo(this.endPoint.x, this.endPoint.y);
         this.canvasCtx.stroke();
     };
 
 
-
-    function Rectangle(canvasContext, x0, y0, options, commitCallback) {
+    function Rectangle(canvasContext, point,options, commitCallback) {
         Rectangle.super.constructor.apply(this, arguments);
     }
 
@@ -630,20 +569,18 @@ window.CanvasApp = (function() {
 
         this.canvasCtx.strokeStyle = this.options.color;
         this.canvasCtx.lineJoin = 'round';
-        this.canvasCtx.lineWidth = this.zo(this.options.size, scale);
+        this.canvasCtx.lineWidth = this.options.size;
 
         this.canvasCtx.strokeRect(
-            this.zp(this.x0, scale),
-            this.zp(this.y0, scale),
-            this.zp(this.x1 - this.x0, scale),
-            this.zp(this.y1 - this.y0, scale)
+            this.startPoint.x,
+            this.startPoint.y,
+            this.endPoint.x - this.startPoint.x,
+            this.endPoint.y - this.startPoint.y
         );
     };
 
 
-
-
-    function Ellipse(canvasContext, x0, y0, options, commitCallback) {
+    function Ellipse(canvasContext, point,options, commitCallback) {
         Rectangle.super.constructor.apply(this, arguments);
     }
 
@@ -652,30 +589,22 @@ window.CanvasApp = (function() {
     Ellipse.prototype.draw = function(scale) {
         Ellipse.super.draw.apply(this, arguments);
 
-        var points = getRectPoints(
-            this.zp(this.x0, scale),
-            this.zp(this.y0, scale),
-            this.zp(this.x1, scale),
-            this.zp(this.y1, scale)
-        );
-        var pointTopLeft = points[0];
-        var pointBottomRight = points[1];
+        var rect = Point.getRectMeasure(this.startPoint, this.endPoint);
 
         this.canvasCtx.strokeStyle = this.options.color;
-        this.canvasCtx.lineWidth = this.zo(this.options.size, scale);
+        this.canvasCtx.lineWidth = this.options.size;
 
         this.canvasCtx.beginPath();
         this.canvasCtx.ellipse(
-            pointTopLeft.x + (pointBottomRight.x - pointTopLeft.x) / 2, pointTopLeft.y + (pointBottomRight.y - pointTopLeft.y) / 2,
-            (pointBottomRight.x - pointTopLeft.x) / 2, (pointBottomRight.y - pointTopLeft.y) / 2,
+            rect.point.x + rect.width / 2, rect.point.y + rect.height / 2,
+            rect.width / 2, rect.height / 2,
             0, 0, 2 * Math.PI
         );
         this.canvasCtx.stroke();
     };
 
 
-
-    function Arrow(canvasContext, x0, y0, options, commitCallback) {
+    function Arrow(canvasContext, point,options, commitCallback) {
         Arrow.super.constructor.apply(this, arguments);
     }
 
@@ -684,12 +613,12 @@ window.CanvasApp = (function() {
     Arrow.prototype.draw = function(scale) {
         Arrow.super.draw.apply(this, arguments);
 
-        var x0 = this.zp(this.x0, scale);
-        var y0 = this.zp(this.y0, scale);
-        var x1 = this.zp(this.x1, scale);
-        var y1 = this.zp(this.y1, scale);
+        var x0 = this.startPoint.x;
+        var y0 = this.startPoint.y;
+        var x1 = this.endPoint.x;
+        var y1 = this.endPoint.y;
 
-        var arrowLineLength = this.zo(Math.max(this.options.size, 5), scale) * 5;
+        var arrowLineLength = this.options.zoomIn(Math.max(this.options.size, 10)) * 5;
 
         var alpha = Math.atan((y1 - y0) / (x1 - x0)) - Math.PI / 4;
         var dX0 = arrowLineLength * Math.cos(alpha);
@@ -714,10 +643,7 @@ window.CanvasApp = (function() {
     };
 
 
-
-
-
-    function Text(canvasContext, x0, y0, options, commitCallback) {
+    function Text(canvasContext, point,options, commitCallback) {
         Text.super.constructor.apply(this, arguments);
 
         this.text = '';
@@ -756,8 +682,7 @@ window.CanvasApp = (function() {
             case 46:
             case 8:
                 if (this.text.length) {
-                    this.text = this.text.slice(0, this.text.length - 1);
-                    this.draw();
+                    this.update({text: this.text.slice(0, this.text.length - 1)});
                 }
                 break;
             default:
@@ -779,8 +704,7 @@ window.CanvasApp = (function() {
         }
 
         if (char) {
-            this.text += char;
-            this.draw();
+            this.update({text: this.text + char});
         }
 
         event.preventDefault();
@@ -818,10 +742,10 @@ window.CanvasApp = (function() {
 
         this.canvasCtx.textBaseline = 'top';
         this.canvasCtx.fillStyle = this.options.color;
-        this.canvasCtx.font = Math.round(this.zo(this.options.textSize, scale)) + 'px arial';
+        this.canvasCtx.font = Math.round(this.options.textSize) + 'px arial';
 
         lines.forEach(function(line, index) {
-            this.canvasCtx.fillText(line, this.zp(this.x0, scale), this.zp(this.y0 + textHeight * index, scale));
+            this.canvasCtx.fillText(line, this.startPoint.x, this.startPoint.y + textHeight * index);
         }.bind(this));
 
         // draw a border
@@ -833,10 +757,10 @@ window.CanvasApp = (function() {
             this.canvasCtx.lineWidth = 1;
             this.canvasCtx.strokeStyle = this.options.color;
             this.canvasCtx.strokeRect(
-                this.zp(this.x0 - 4),
-                this.zp(this.y0 - 4),
+                this.startPoint.x - 4,
+                this.startPoint.y - 4,
                 textWith + 8,
-                this.zo(this.options.textSize * lines.length + 8, scale)
+                this.options.zoomIn(this.options.textSize * lines.length + 8)
             );
         }
     };
@@ -850,14 +774,12 @@ window.CanvasApp = (function() {
     };
 
 
-
-
-
-    function Crop(canvasContext, x0, y0, options, commitCallback) {
+    function Crop(canvasContext, point,options, commitCallback) {
         Crop.super.constructor.apply(this, arguments);
 
         this.needCrop = false;
 
+        this._borders = {};
         this._onKeyPressedBinded = this.onKeyPressed.bind(this);
 
         window.addEventListener('keydown', this._onKeyPressedBinded, false);
@@ -879,10 +801,8 @@ window.CanvasApp = (function() {
         this.canvasCtx.canvas.addEventListener('mousemove', this._onMouseMoveBinded, false);
 
         this.update({
-            x0: event.offsetX,
-            y0: event.offsetY,
-            x1: event.offsetX,
-            y1: event.offsetY
+            startPoint: Point.fromEvent(event, this.options),
+            endPoint: Point.fromEvent(event, this.options)
         });
     };
 
@@ -896,7 +816,7 @@ window.CanvasApp = (function() {
     };
 
     Crop.prototype.onKeyPressed = function(event) {
-        logger.debug('"Crop " is handling "keydown"')
+        logger.debug('"Crop " is handling "keydown"');
 
         var code = event.keyCode;
 
@@ -919,30 +839,64 @@ window.CanvasApp = (function() {
     Crop.prototype.draw = function(scale) {
         Crop.super.draw.apply(this, arguments);
 
-        this.canvasCtx.globalAlpha = 0.5;
-        this.canvasCtx.fillStyle = '#111111';
-        this.canvasCtx.fillRect(0, 0, this.canvasCtx.canvas.width, this.canvasCtx.canvas.height);
+        if (this.committed) {
+            return;
+        }
 
-        this.canvasCtx.clearRect(this.x0, this.y0, this.x1 - this.x0, this.y1 - this.y0);
+        var rect = Point.getRectMeasure(this.startPoint, this.endPoint);
+
+        this.canvasCtx.globalAlpha = 0.6;
+        this.canvasCtx.fillStyle = '#000000';
+        this.canvasCtx.fillRect(0, 0, this.canvasCtx.canvas.width, this.canvasCtx.canvas.height);
+        this.canvasCtx.clearRect(rect.point.x, rect.point.y, rect.width, rect.height);
+
+        this.canvasCtx.globalAlpha = 1;
+        this.canvasCtx.strokeStyle = '#aaaaaa';
+        this.canvasCtx.lineWidth = 4;
+
+        this._borders = {};
+        this._borders.left = new Path2D();
+        this._borders.left.moveTo(rect.point.x, rect.point.y);
+        this._borders.left.lineTo(rect.point.x, rect.point.y + rect.height);
+        this._borders.right = new Path2D();
+        this._borders.right.moveTo(rect.point.x + rect.width, rect.point.y);
+        this._borders.right.lineTo(rect.point.x + rect.width, rect.point.y + rect.height);
+        this._borders.top = new Path2D();
+        this._borders.top.moveTo(rect.point.x, rect.point.y);
+        this._borders.top.lineTo(rect.point.x + rect.width, rect.point.y);
+        this._borders.bottom = new Path2D();
+        this._borders.bottom.moveTo(rect.point.x, rect.point.y + rect.height);
+        this._borders.bottom.lineTo(rect.point.x + rect.width, rect.point.y + rect.height);
+
+        Object.values(this._borders).forEach(this.canvasCtx.stroke.bind(this.canvasCtx));
+
+        this.canvasCtx.beginPath();
+        this.canvasCtx.lineWidth = 2;
+        for (var i=1; i <= 3; i++) {
+            this.canvasCtx.moveTo(rect.point.x + rect.width * i / 3, rect.point.y);
+            this.canvasCtx.lineTo(rect.point.x + rect.width * i / 3, rect.point.y + rect.height);
+            this.canvasCtx.moveTo(rect.point.x, rect.point.y + rect.height * i / 3);
+            this.canvasCtx.lineTo(rect.point.x + rect.width, rect.point.y + rect.height * i / 3);
+        }
+        this.canvasCtx.stroke();
 
         var text = 'Hit to Enter';
         var textHeight;
-        var points = getRectPoints(this.x0, this.y0, this.x1, this.y1);
 
-        if ((points[1].y - points[0].y - 20) < 64) {
-            textHeight = Math.round(points[1].y - points[0].y - 20);
+        if ((rect.height - 20) < 64) {
+            textHeight = Math.round(rect.height - 20);
         } else {
             textHeight = 64;
         }
 
         this.canvasCtx.font = textHeight + 'px arial';
         this.canvasCtx.textBaseline = 'top';
-        this.canvasCtx.fillStyle = '#111111';
+        this.canvasCtx.fillStyle = '#000000';
 
         var textWidth = this.canvasCtx.measureText(text).width;
 
-        if ((points[1].x - points[0].x - 10) < textWidth) {
-            var textScale = textWidth / (points[1].x - points[0].x - 10);
+        if ((rect.width - 10) < textWidth) {
+            var textScale = textWidth / (rect.width - 10);
             textHeight = Math.max(Math.round(textHeight / textScale), 1);
             this.canvasCtx.font = textHeight + 'px arial';
             textWidth = this.canvasCtx.measureText(text).width;
@@ -950,8 +904,8 @@ window.CanvasApp = (function() {
 
         this.canvasCtx.fillText(
             text,
-            points[0].x + (points[1].x - points[0].x - textWidth) / 2,
-            points[0].y + (points[1].y - points[0].y - textHeight) / 2
+            rect.point.x + (rect.width - textWidth) / 2,
+            rect.point.y + (rect.height - textHeight) / 2
         );
     };
 
@@ -960,8 +914,6 @@ window.CanvasApp = (function() {
 
         Crop.super.commit.apply(this, arguments);
     };
-
-
 
 
     return Application;
