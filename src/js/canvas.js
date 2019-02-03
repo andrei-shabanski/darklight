@@ -1,7 +1,7 @@
 'use strict';
 
 window.DrawingDesk = (function() {
-    var logger = new Logger(Logger.DEBUG, new Logger.ConsoleHandler());
+    var logger = new Logger(Logger.INFO, new Logger.ConsoleHandler());
 
     var EVENT_TYPES = {
         IMAGE_LOADING: 'image-loading',
@@ -36,9 +36,13 @@ window.DrawingDesk = (function() {
         );
     };
 
-    Point.getRectPoints = function(point1, point2) {
-        var xs = [point1.x, point2.x].sort();
-        var ys = [point1.y, point2.y].sort();
+    Point.getRectCoords = function(point1, point2) {
+        function compareNumbers(a, b) {
+            return a - b;
+        }
+
+        var xs = [point1.x, point2.x].sort(compareNumbers);
+        var ys = [point1.y, point2.y].sort(compareNumbers);
 
         return {
             topLeftPoint: new Point(xs[0], ys[0]),
@@ -55,6 +59,10 @@ window.DrawingDesk = (function() {
             width: Math.abs(point1.x - point2.x),
             height: Math.abs(point1.y - point2.y)
         };
+    };
+
+    Point.prototype.toString = function() {
+        return `(${Math.round(this.x)}, ${Math.round(this.y)})`;
     };
 
     Point.prototype.clone = function() {
@@ -456,65 +464,208 @@ window.DrawingDesk = (function() {
     };
 
 
-    function MouseDrawableShape(canvasContext, point, options, commitCallback) {
-        MouseDrawableShape.super.constructor.apply(this, arguments);
+    function InteractiveShape(canvasContext, point, options, commitCallback) {
+        InteractiveShape.super.constructor.apply(this, arguments);
 
-        this.endPoint = point.clone();
+        // this.pathes = {
+        //     'border': {
+        //         path: new Path2D(),
+        //         onMouseEnter: function (event) {...},
+        //         onMouseLeave: function (event) {...},
+        //         onMouseDown: function (event) {...},
+        //         onMouseMove: function (event) {...},
+        //         onMouseUp: function (event) {...}
+        //     }
+        // };
+        this.pathes = {};
+        this.activePath = null;
 
+        // this.keybindings = [{
+        //     code: 'KeyF',
+        //     shift: true,
+        //     alt: false,
+        //     ctrl: false,
+        //     callback: function(event) {...}
+        // }, {
+        //     keyRegex: '.*',
+        //     shift: true,
+        //     alt: false,
+        //     ctrl: false,
+        //     callback: function(event) {...}
+        // }];
+        this.keybindings = [];
+
+        this._pathUnderMouse = null;
+
+        this._onKeyDownBinded = this.onKeyDown.bind(this);
+        this._onMouseOverBinded = this.onMouseOver.bind(this);
         this._onMouseDownBinded = this.onMouseDown.bind(this);
         this._onMouseMoveBinded = this.onMouseMove.bind(this);
         this._onMouseUpBinded = this.onMouseUp.bind(this);
 
+        window.addEventListener('keydown', this._onKeyDownBinded, false);
         this.canvasCtx.canvas.addEventListener('mousedown', this._onMouseDownBinded, false);
         this.canvasCtx.canvas.addEventListener('mousemove', this._onMouseMoveBinded, false);
         this.canvasCtx.canvas.addEventListener('mouseup', this._onMouseUpBinded, false);
     }
 
-    inherit(MouseDrawableShape, Shape);
+    inherit(InteractiveShape, Shape);
 
-    MouseDrawableShape.prototype.onMouseDown = function(event) {
-        if (event.button !== 0) {
-            return
-        }
-        logger.debug('"', this.constructor.name, '" is handling "mousedown"');
+    InteractiveShape.prototype.onKeyDown = function(event) {
+        this.keybindings.forEach(function(keybinding) {
+            if (keybinding.shift && !event.shiftKey) { return; }
+            if (keybinding.ctrl && !event.ctrlKey) { return; }
+            if (keybinding.alt && !event.altKey) { return; }
+            if (keybinding.code && event.code !== keybinding.code) { return; }
+            if (keybinding.key && event.key !== keybinding.key) { return; }
+            if (keybinding.keyRegex && event.key.match(keybinding.keyRegex)) { return; }
+            if (keybinding.codeRegex && event.code.match(keybinding.codeRegex)) { return; }
+            keybinding.callback(event);
+        });
+        event.preventDefault();
     };
 
-    MouseDrawableShape.prototype.onMouseMove = function(event) {
-        logger.debug('"', this.constructor.name, '" is handling "mousemove"');
+    InteractiveShape.prototype.onMouseOver = function(event) {
+        var point = Point.fromEvent(event, this.options);
+        var path = this._getPathByPoint(point);
+
+        if (path === this._pathUnderMouse) {
+            return;
+        }
+        if (this._pathUnderMouse) {
+            call(this._pathUnderMouse.onMouseLeave, this._pathUnderMouse, [event]);
+        }
+        if (path) {
+            call(path.onMouseEnter, path, [event]);
+        }
+        this._pathUnderMouse = path;
+    };
+
+    InteractiveShape.prototype.onMouseDown = function(event) {
+        if (event.button !== 0) {
+            return;
+        }
+
+        var point = Point.fromEvent(event, this.options);
+
+        this.activePath = this._getPathByPoint(point);
+
+        if (!!this.activePath) {
+            call(this.activePath.onMouseDown, this.activePath, [event]);
+        } else {
+            this.onCanvasMouseDown(event);
+        }
+
+        this.canvasCtx.canvas.addEventListener('mousemove', this._onMouseMoveBinded, false);
+        this.canvasCtx.canvas.removeEventListener('mousemove', this._onMouseOverBinded);
+    };
+
+    InteractiveShape.prototype.onMouseMove = function(event) {
+        if (!!this.activePath) {
+            call(this.activePath.onMouseMove, this.activePath, [event]);
+        } else {
+            this.onCanvasMouseMove(event);
+        }
+    };
+
+    InteractiveShape.prototype.onMouseUp = function(event) {
+        if (event.button !== 0) {
+            return;
+        }
+
+        if (!!this.activePath) {
+            call(this.activePath.onMouseUp, this.activePath, [event]);
+        } else {
+            this.onCanvasMouseUp(event);
+        }
+
+        this.activePath = null;
+
+        this.canvasCtx.canvas.removeEventListener('mousemove', this._onMouseMoveBinded);
+        this.canvasCtx.canvas.addEventListener('mousemove', this._onMouseOverBinded);
+    };
+
+    InteractiveShape.prototype.onCanvasMouseDown = function(event) {};
+
+    InteractiveShape.prototype.onCanvasMouseMove = function(event) {};
+
+    InteractiveShape.prototype.onCanvasMouseUp = function(event) {};
+
+    InteractiveShape.prototype.commit = function() {
+        window.removeEventListener('keydown', this._onKeyDownBinded);
+        this.canvasCtx.canvas.removeEventListener('mousemove', this._onMouseOverBinded);
+        this.canvasCtx.canvas.removeEventListener('mousedown', this._onMouseDownBinded);
+        this.canvasCtx.canvas.removeEventListener('mousemove', this._onMouseMoveBinded);
+        this.canvasCtx.canvas.removeEventListener('mouseup', this._onMouseUpBinded);
+
+        this.activePath = null;
+
+        InteractiveShape.super.commit.apply(this, arguments);
+    };
+
+    InteractiveShape.prototype._getPathByPoint = function (point) {
+        var region;
+
+        for (var i in this.pathes) {
+            region = this.pathes[i];
+            if (!region.path) {
+                continue;
+            }
+            if (this.canvasCtx.isPointInPath(region.path, point.x, point.y)) {
+                return region;
+            }
+            if (this.canvasCtx.isPointInStroke(region.path, point.x, point.y)) {
+                return region;
+            }
+        }
+
+        return null;
+    };
+
+
+    function SimpleShape(canvasContext, point, options, commitCallback) {
+        SimpleShape.super.constructor.apply(this, arguments);
+
+        this.endPoint = point.clone();
+    }
+
+    inherit(SimpleShape, InteractiveShape);
+
+    SimpleShape.prototype.onCanvasMouseDown = function(event) {
+        SimpleShape.super.onCanvasMouseDown.apply(this, arguments);
+
+        this.update({
+            startPoint: Point.fromEvent(event, this.options),
+            endPoint: Point.fromEvent(event, this.options)
+        });
+    };
+
+    SimpleShape.prototype.onCanvasMouseMove = function(event) {
+        SimpleShape.super.onCanvasMouseMove.apply(this, arguments);
 
         this.update({
             endPoint: Point.fromEvent(event, this.options)
         });
     };
 
-    MouseDrawableShape.prototype.onMouseUp = function(event) {
-        if (event.button !== 0) {
-            return
-        }
-
-        logger.debug('"', this.constructor.name, '" is handling "mouseup"');
+    SimpleShape.prototype.onCanvasMouseUp = function(event) {
+        SimpleShape.super.onCanvasMouseUp.apply(this, arguments);
 
         this.commit();
-    };
-
-    MouseDrawableShape.prototype.commit = function() {
-        this.canvasCtx.canvas.removeEventListener('mousedown', this._onMouseDownBinded);
-        this.canvasCtx.canvas.removeEventListener('mousemove', this._onMouseMoveBinded);
-        this.canvasCtx.canvas.removeEventListener('mouseup', this._onMouseUpBinded);
-
-        MouseDrawableShape.super.commit.apply(this, arguments);
     };
 
 
     function Pen(canvasContext, point, options, commitCallback) {
         Pen.super.constructor.apply(this, arguments);
 
-        this.points = [];
+        this.points = [point];
     }
 
-    inherit(Pen, MouseDrawableShape);
+    inherit(Pen, SimpleShape);
 
-    Pen.prototype.onMouseMove = function(event) {
+    Pen.prototype.onCanvasMouseMove = function(event) {
+        Pen.super.onCanvasMouseMove.apply(this, arguments);
+
         var points = this.points.slice();
         points.push(Point.fromEvent(event, this.options));
 
@@ -530,7 +681,7 @@ window.DrawingDesk = (function() {
         this.canvasCtx.lineWidth = this.options.size;
 
         this.canvasCtx.beginPath();
-        this.canvasCtx.moveTo(this.startPoint.x, this.endPoint.y);
+        this.canvasCtx.moveTo(this.startPoint.x, this.startPoint.y);
         this.points.forEach(function(point) {
             this.canvasCtx.lineTo(point.x, point.y);
         }.bind(this));
@@ -542,7 +693,7 @@ window.DrawingDesk = (function() {
         Line.super.constructor.apply(this, arguments);
     }
 
-    inherit(Line, MouseDrawableShape);
+    inherit(Line, SimpleShape);
 
     Line.prototype.draw = function(scale) {
         Line.super.draw.apply(this, arguments);
@@ -562,7 +713,7 @@ window.DrawingDesk = (function() {
         Rectangle.super.constructor.apply(this, arguments);
     }
 
-    inherit(Rectangle, MouseDrawableShape);
+    inherit(Rectangle, SimpleShape);
 
     Rectangle.prototype.draw = function(scale) {
         Rectangle.super.draw.apply(this, arguments);
@@ -584,7 +735,7 @@ window.DrawingDesk = (function() {
         Rectangle.super.constructor.apply(this, arguments);
     }
 
-    inherit(Ellipse, MouseDrawableShape);
+    inherit(Ellipse, SimpleShape);
 
     Ellipse.prototype.draw = function(scale) {
         Ellipse.super.draw.apply(this, arguments);
@@ -646,92 +797,52 @@ window.DrawingDesk = (function() {
     function Text(canvasContext, point,options, commitCallback) {
         Text.super.constructor.apply(this, arguments);
 
+        var self = this;
         this.text = '';
 
-        this._onMouseDownBinded = this.onMouseDown.bind(this);
-        this._onKeyDownBinded = this.onKeyDown.bind(this);
-        this._onKeyPressedBinded = this.onKeyPressed.bind(this);
+        this.keybindings = [{
+            code: 'Enter',
+            ctrl: true,
+            callback: this.commit.bind(this)
+        }, {
+            code: 'Escape',
+            callback: this.commit.bind(this)
+        }, {
+            code: 'Backspace',
+            callback: function(event) {
+                if (self.text.length) {
+                    self.update({text: self.text.slice(0, self.text.length - 1)});
+                }
+            }
+        }, {
+            callback: function(event) {
+                var char;
 
-        this.canvasCtx.canvas.addEventListener('mousedown', this._onMouseDownBinded, false);
-        window.addEventListener('keypress', this._onKeyPressedBinded, false);
-        window.addEventListener('keydown', this._onKeyDownBinded, false);
+                if (event.which === 13) {
+                    char = '\n';
+                } else if (event.which < 32) {
+                    return;
+                } else {
+                    char = event.key;
+                }
+
+                if (char.length) {
+                    self.update({text: self.text + char});
+                }
+            }
+        }];
+
         this.draw(); // draw the border
     }
 
-    inherit(Text, Shape);
-
-    Text.prototype.onMouseDown = function(event) {
-        logger.debug('"Text" is handing "mousedown" event');
-
-        this.commit();
-    };
-
-    Text.prototype.onKeyDown = function(event) {
-        logger.debug('"Text" is handing "keydown" event');
-
-        switch (event.keyCode) {
-            case 13:
-                if (!event.ctrlKey) {
-                    return
-                }
-                this.commit();
-                break;
-            case 27:
-                this.commit();
-                break;
-            case 46:
-            case 8:
-                if (this.text.length) {
-                    this.update({text: this.text.slice(0, this.text.length - 1)});
-                }
-                break;
-            default:
-                return
-        }
-
-        event.preventDefault();
-    };
-
-    Text.prototype.onKeyPressed = function(event) {
-        logger.debug('"Text" is handing "keypress" event');
-
-        var char;
-
-        if (event.code) {
-            char = this._getChar(event);
-        } else {
-            logger.warn("Don't parse key");
-        }
-
-        if (char) {
-            this.update({text: this.text + char});
-        }
-
-        event.preventDefault();
-    };
-
-    Text.prototype._getChar = function(event) {
-        if (event.which == null) { // IE
-            if (event.keyCode < 32) {
-                return null;
-            }
-            return String.fromCharCode(event.keyCode)
-        }
-
-        if (event.which !== 0 && event.charCode !== 0) {
-            if (event.which === 13) {
-                return '\n';
-            } else if (event.which < 32) {
-                return null;
-            }
-            return String.fromCharCode(event.which);
-        }
-
-        return null;
-    };
+    inherit(Text, InteractiveShape);
 
     Text.prototype.isEmpty = function() {
         return !this.text.length;
+    };
+
+    Text.prototype.onCanvasMouseDown = function(event) {
+        this.commit();
     };
 
     Text.prototype.draw = function(scale) {
@@ -765,40 +876,127 @@ window.DrawingDesk = (function() {
         }
     };
 
-    Text.prototype.commit = function() {
-        this.canvasCtx.canvas.removeEventListener('mousedown', this._onMouseDownBinded);
-        window.removeEventListener('keypress', this._onKeyPressedBinded);
-        window.removeEventListener('keydown', this._onKeyDownBinded);
-
-        Text.super.commit.apply(this, arguments);
-    };
-
 
     function Crop(canvasContext, point,options, commitCallback) {
         Crop.super.constructor.apply(this, arguments);
 
+        var self = this;
+
         this.needCrop = false;
 
-        this._borders = {};
-        this._onKeyPressedBinded = this.onKeyPressed.bind(this);
+        function setDefaultCursor() {
+            self.changeCursor('crosshair');
+        }
 
-        window.addEventListener('keydown', this._onKeyPressedBinded, false);
+        function setPathCursor() {
+            self.changeCursor(this.cursor);
+        }
+
+        this.pathes = {
+            leftBorder: {
+                path: null,
+                cursor: 'ew-resize',
+                onMouseEnter: setPathCursor,
+                onMouseLeave: setDefaultCursor,
+                onMouseDown: setPathCursor,
+                onMouseMove: function(event) { self.updateRectCoords(event, { left: true }); },
+                onMouseUp: setDefaultCursor
+            },
+            rightBorder: {
+                path: null,
+                cursor: 'ew-resize',
+                onMouseEnter: setPathCursor,
+                onMouseLeave: setDefaultCursor,
+                onMouseDown: setPathCursor,
+                onMouseMove: function(event) { self.updateRectCoords(event, { right: true }); },
+                onMouseUp: setDefaultCursor
+            },
+            topBorder: {
+                path: null,
+                cursor: 'ns-resize',
+                onMouseEnter: setPathCursor,
+                onMouseLeave: setDefaultCursor,
+                onMouseDown: setPathCursor,
+                onMouseMove: function(event) { self.updateRectCoords(event, { top: true }); },
+                onMouseUp: setDefaultCursor
+            },
+            bottomBorder: {
+                path: null,
+                cursor: 'ns-resize',
+                onMouseEnter: setPathCursor,
+                onMouseLeave: setDefaultCursor,
+                onMouseDown: setPathCursor,
+                onMouseMove: function(event) { self.updateRectCoords(event, { bottom: true }); },
+                onMouseUp: setDefaultCursor
+            },
+            topLeftPoint: {
+                path: null,
+                cursor: 'nwse-resize',
+                onMouseEnter: setPathCursor,
+                onMouseLeave: setDefaultCursor,
+                onMouseDown: setPathCursor,
+                onMouseMove: function(event) { self.updateRectCoords(event, { top: true, left: true }); },
+                onMouseUp: setDefaultCursor
+            },
+            topRightPoint: {
+                path: null,
+                cursor: 'nesw-resize',
+                onMouseEnter: setPathCursor,
+                onMouseLeave: setDefaultCursor,
+                onMouseDown: setPathCursor,
+                onMouseMove: function(event) { self.updateRectCoords(event, { top: true, right: true }); },
+                onMouseUp: setDefaultCursor
+            },
+            bottomLeftPoint: {
+                path: null,
+                cursor: 'nesw-resize',
+                onMouseEnter: setPathCursor,
+                onMouseLeave: setDefaultCursor,
+                onMouseDown: setPathCursor,
+                onMouseMove: function(event) { self.updateRectCoords(event, { bottom: true, left: true }); },
+                onMouseUp: setDefaultCursor
+            },
+            bottomRightPoint: {
+                path: null,
+                cursor: 'nwse-resize',
+                onMouseEnter: setPathCursor,
+                onMouseLeave: setDefaultCursor,
+                onMouseDown: setPathCursor,
+                onMouseMove: function(event) { self.updateRectCoords(event, { bottom: true, right: true }); },
+                onMouseUp: setDefaultCursor
+            },
+            body: {
+                path: null,
+                cursor: 'move',
+                onMouseEnter: setPathCursor,
+                onMouseLeave: setDefaultCursor,
+                onMouseDown: function (event) {
+                    setPathCursor.call(this);
+                    self._movingStartPoint = Point.fromEvent(event, self.options);
+                    self._movingRectCoords = Point.getRectCoords(self.startPoint, self.endPoint);
+                },
+                onMouseMove: function(event) { self.move(event); },
+                onMouseUp: setDefaultCursor
+            },
+        };
+
+        this.keybindings = [{
+            code: 'Enter',
+            callback: this.crop.bind(this)
+        }, {
+            code: 'Escape',
+            callback: this.commit.bind(this)
+        }];
     }
 
-    inherit(Crop, MouseDrawableShape);
+    inherit(Crop, InteractiveShape);
 
     Crop.prototype.isEmpty = function() {
         return true;
     };
 
-    Crop.prototype.onMouseDown = function(event) {
-        if (event.button !== 0) {
-            return
-        }
-
-        logger.debug('"Crop" is handling "mousedown"');
-
-        this.canvasCtx.canvas.addEventListener('mousemove', this._onMouseMoveBinded, false);
+    Crop.prototype.onCanvasMouseDown = function(event) {
+        Crop.super.onCanvasMouseDown.apply(this, arguments);
 
         this.update({
             startPoint: Point.fromEvent(event, this.options),
@@ -806,34 +1004,72 @@ window.DrawingDesk = (function() {
         });
     };
 
-    Crop.prototype.onMouseUp = function(event) {
-        if (event.button !== 0) {
-            return
-        }
+    Crop.prototype.onCanvasMouseMove = function(event) {
+        Crop.super.onCanvasMouseMove.apply(this, arguments);
 
-        logger.debug('"Crop" is handling "mouseup"');
-        this.canvasCtx.canvas.removeEventListener('mousemove', this._onMouseMoveBinded);
+        this.update({
+            endPoint: Point.fromEvent(event, this.options)
+        });
     };
 
-    Crop.prototype.onKeyPressed = function(event) {
-        logger.debug('"Crop " is handling "keydown"');
+    Crop.prototype.onCanvasMouseUp = function(event) {
+        Crop.super.onCanvasMouseUp.apply(this, arguments);
 
-        var code = event.keyCode;
+        var rectCoords = Point.getRectCoords(
+            this.startPoint,
+            this.endPoint
+        );
 
-        switch (code) {
-            case 13:
-                this.crop();
-                this.commit();
-                break;
-            case 27:
-                this.commit();  // don't crop an image
-                break;
-        }
+        this.update({
+            startPoint: rectCoords.topLeftPoint,
+            endPoint: rectCoords.bottomRightPoint
+        });
     };
 
-    Crop.prototype.crop = function() {
-        logger.debug('Set a flag to crop the image');
-        this.needCrop = true;
+    Crop.prototype.updateRectCoords = function(event, borders) {
+        var point = Point.fromEvent(event, this.options);
+        var rectCoords = Point.getRectCoords(this.startPoint, this.endPoint);
+
+        if (borders.left) {
+            rectCoords.topLeftPoint.x = Math.min(point.x, rectCoords.bottomRightPoint.x);
+        }
+        if (borders.top) {
+            rectCoords.topLeftPoint.y = Math.min(point.y, rectCoords.bottomRightPoint.y);
+        }
+        if (borders.right) {
+            rectCoords.bottomRightPoint.x = Math.max(point.x, rectCoords.topLeftPoint.x);
+        }
+        if (borders.bottom) {
+            rectCoords.bottomRightPoint.y = Math.max(point.y, rectCoords.topLeftPoint.y);
+        }
+
+        this.update({
+            startPoint: rectCoords.topLeftPoint,
+            endPoint: rectCoords.bottomRightPoint
+        });
+    };
+
+    Crop.prototype.move = function(event) {
+        var point = Point.fromEvent(event, this.options);
+        var topLeftPoint = this._movingRectCoords.topLeftPoint.clone();
+        var bottomRightPoint = this._movingRectCoords.bottomRightPoint.clone();
+
+        var deltaX = point.x - this._movingStartPoint.x;
+        var deltaY = point.y - this._movingStartPoint.y;
+
+        topLeftPoint.x += deltaX;
+        topLeftPoint.y += deltaY;
+        bottomRightPoint.x += deltaX;
+        bottomRightPoint.y += deltaY ;
+
+        this.update({
+            startPoint: topLeftPoint,
+            endPoint: bottomRightPoint
+        });
+    };
+
+    Crop.prototype.changeCursor = function(cursorType) {
+        this.canvasCtx.canvas.style.cursor = cursorType;
     };
 
     Crop.prototype.draw = function(scale) {
@@ -844,34 +1080,28 @@ window.DrawingDesk = (function() {
         }
 
         var rect = Point.getRectMeasure(this.startPoint, this.endPoint);
+        var pointSize = this.options.zoomOut(6);
+        var borderSize = this.options.zoomOut(1);
 
-        this.canvasCtx.globalAlpha = 0.6;
+        this.canvasCtx.globalAlpha = 0.8;
         this.canvasCtx.fillStyle = '#000000';
         this.canvasCtx.fillRect(0, 0, this.canvasCtx.canvas.width, this.canvasCtx.canvas.height);
         this.canvasCtx.clearRect(rect.point.x, rect.point.y, rect.width, rect.height);
 
         this.canvasCtx.globalAlpha = 1;
-        this.canvasCtx.strokeStyle = '#aaaaaa';
-        this.canvasCtx.lineWidth = 4;
+        this.canvasCtx.lineWidth = borderSize;
+        this.canvasCtx.strokeStyle = '#e2e2e2';
+        this.canvasCtx.fillStyle = '#e2e2e2';
 
-        this._borders = {};
-        this._borders.left = new Path2D();
-        this._borders.left.moveTo(rect.point.x, rect.point.y);
-        this._borders.left.lineTo(rect.point.x, rect.point.y + rect.height);
-        this._borders.right = new Path2D();
-        this._borders.right.moveTo(rect.point.x + rect.width, rect.point.y);
-        this._borders.right.lineTo(rect.point.x + rect.width, rect.point.y + rect.height);
-        this._borders.top = new Path2D();
-        this._borders.top.moveTo(rect.point.x, rect.point.y);
-        this._borders.top.lineTo(rect.point.x + rect.width, rect.point.y);
-        this._borders.bottom = new Path2D();
-        this._borders.bottom.moveTo(rect.point.x, rect.point.y + rect.height);
-        this._borders.bottom.lineTo(rect.point.x + rect.width, rect.point.y + rect.height);
+        // drawing borders and points
+        this.canvasCtx.strokeRect(rect.point.x, rect.point.y, rect.width, rect.height);
+        this.canvasCtx.fillRect(rect.point.x - pointSize / 2, rect.point.y - pointSize / 2, pointSize, pointSize);
+        this.canvasCtx.fillRect(rect.point.x + rect.width - pointSize / 2, rect.point.y - pointSize / 2, pointSize, pointSize);
+        this.canvasCtx.fillRect(rect.point.x - pointSize / 2, rect.point.y + rect.height - pointSize / 2, pointSize, pointSize);
+        this.canvasCtx.fillRect(rect.point.x + rect.width - pointSize / 2, rect.point.y + rect.height - pointSize / 2, pointSize, pointSize);
 
-        Object.values(this._borders).forEach(this.canvasCtx.stroke.bind(this.canvasCtx));
-
+        // drawing a grid
         this.canvasCtx.beginPath();
-        this.canvasCtx.lineWidth = 2;
         for (var i=1; i <= 3; i++) {
             this.canvasCtx.moveTo(rect.point.x + rect.width * i / 3, rect.point.y);
             this.canvasCtx.lineTo(rect.point.x + rect.width * i / 3, rect.point.y + rect.height);
@@ -880,39 +1110,46 @@ window.DrawingDesk = (function() {
         }
         this.canvasCtx.stroke();
 
-        var text = 'Hit to Enter';
-        var textHeight;
+        // drawing interactive borders and points
+        this.canvasCtx.globalAlpha = 0;
+        this.canvasCtx.lineWidth = this.options.zoomOut(4);
+        this.pathes.body.path = new Path2D();
+        this.pathes.body.path.rect(rect.point.x, rect.point.y, rect.width, rect.height);
+        this.pathes.leftBorder.path = new Path2D();
+        this.pathes.leftBorder.path.moveTo(rect.point.x, rect.point.y);
+        this.pathes.leftBorder.path.lineTo(rect.point.x, rect.point.y + rect.height);
+        this.pathes.rightBorder.path = new Path2D();
+        this.pathes.rightBorder.path.moveTo(rect.point.x + rect.width, rect.point.y);
+        this.pathes.rightBorder.path.lineTo(rect.point.x + rect.width, rect.point.y + rect.height);
+        this.pathes.topBorder.path = new Path2D();
+        this.pathes.topBorder.path.moveTo(rect.point.x, rect.point.y);
+        this.pathes.topBorder.path.lineTo(rect.point.x + rect.width, rect.point.y);
+        this.pathes.bottomBorder.path = new Path2D();
+        this.pathes.bottomBorder.path.moveTo(rect.point.x, rect.point.y + rect.height);
+        this.pathes.bottomBorder.path.lineTo(rect.point.x + rect.width, rect.point.y + rect.height);
+        this.pathes.topLeftPoint.path = new Path2D();
+        this.pathes.topLeftPoint.path.rect(rect.point.x - pointSize / 2, rect.point.y - pointSize / 2, pointSize, pointSize);
+        this.pathes.topRightPoint.path = new Path2D();
+        this.pathes.topRightPoint.path.rect(rect.point.x + rect.width - pointSize / 2, rect.point.y - pointSize / 2, pointSize, pointSize);
+        this.pathes.bottomLeftPoint.path = new Path2D();
+        this.pathes.bottomLeftPoint.path.rect(rect.point.x - pointSize / 2, rect.point.y + rect.height - pointSize / 2, pointSize, pointSize);
+        this.pathes.bottomRightPoint.path = new Path2D();
+        this.pathes.bottomRightPoint.path.rect(rect.point.x + rect.width - pointSize / 2, rect.point.y + rect.height - pointSize / 2, pointSize, pointSize);
 
-        if ((rect.height - 20) < 64) {
-            textHeight = Math.round(rect.height - 20);
-        } else {
-            textHeight = 64;
-        }
-
-        this.canvasCtx.font = textHeight + 'px arial';
-        this.canvasCtx.textBaseline = 'top';
-        this.canvasCtx.fillStyle = '#000000';
-
-        var textWidth = this.canvasCtx.measureText(text).width;
-
-        if ((rect.width - 10) < textWidth) {
-            var textScale = textWidth / (rect.width - 10);
-            textHeight = Math.max(Math.round(textHeight / textScale), 1);
-            this.canvasCtx.font = textHeight + 'px arial';
-            textWidth = this.canvasCtx.measureText(text).width;
-        }
-
-        this.canvasCtx.fillText(
-            text,
-            rect.point.x + (rect.width - textWidth) / 2,
-            rect.point.y + (rect.height - textHeight) / 2
-        );
+        this.canvasCtx.stroke(this.pathes.body.path);
+        this.canvasCtx.stroke(this.pathes.topLeftPoint.path);
+        this.canvasCtx.stroke(this.pathes.topRightPoint.path);
+        this.canvasCtx.stroke(this.pathes.bottomLeftPoint.path);
+        this.canvasCtx.stroke(this.pathes.bottomRightPoint.path);
+        this.canvasCtx.stroke(this.pathes.leftBorder.path);
+        this.canvasCtx.stroke(this.pathes.rightBorder.path);
+        this.canvasCtx.stroke(this.pathes.topBorder.path);
+        this.canvasCtx.stroke(this.pathes.bottomBorder.path);
     };
 
-    Crop.prototype.commit = function() {
-        window.removeEventListener('keydown', this._onKeyPressedBinded);
-
-        Crop.super.commit.apply(this, arguments);
+    Crop.prototype.crop = function() {
+        this.needCrop = true;
+        this.commit();
     };
 
 

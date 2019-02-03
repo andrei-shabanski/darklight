@@ -6,6 +6,13 @@ function inherit(klass, parent) {
     klass.super = parent.prototype;
 }
 
+function call(func, context, args) {
+    if (!!func) {
+        return func.apply(context, args);
+    }
+    return undefined;
+}
+
 function dateToString(date, format) {
     format = format || 'dd-mm-yyyy_H:M:S';
     return format
