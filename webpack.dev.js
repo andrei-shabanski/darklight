@@ -9,7 +9,14 @@ module.exports = {
     path: path.resolve(__dirname, "dist")
   },
   devServer: {
-    contentBase: "./dist"
+    contentBase: "./dist",
+    historyApiFallback: {
+      rewrites: [
+        { from: /^\/policy/, to: '/policy.html' },
+        { from: /^\/terms/, to: '/terms.html' },
+        { from: /./, to: '/index.html' }
+      ]
+    }
   },
   module: {
     rules: [
@@ -31,6 +38,14 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: "index.html",
       template: "src/index.html"
-    })
+    }),
+    new HtmlWebpackPlugin({
+      filename: "policy.html",
+      template: "src/policy.html"
+    }),
+    new HtmlWebpackPlugin({
+      filename: "terms.html",
+      template: "src/terms.html"
+    }),
   ]
 };
