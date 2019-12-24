@@ -19,7 +19,10 @@
     "url": "https://github.com/andrei-shabanski/darklight/issues"
   },
   "homepage": "https://github.com/andrei-shabanski/darklight#readme",
-  "dependencies": {},
+  "dependencies": {
+    "file-saver": "^2.0.2",
+    "firebase": "^7.6.1"
+  },
   "devDependencies": {
     "@babel/cli": "^7.7.7",
     "@babel/core": "^7.7.7",

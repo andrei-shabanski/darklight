@@ -1,19 +1,17 @@
-'use strict';
-
-function inherit(klass, parent) {
+export function inherit(klass, parent) {
     klass.prototype = Object.create(parent.prototype);
     klass.prototype.constructor = klass;
     klass.super = parent.prototype;
 }
 
-function call(func, context, args) {
+export function call(func, context, args) {
     if (!!func) {
         return func.apply(context, args);
     }
     return undefined;
 }
 
-function dateToString(date, format) {
+export function dateToString(date, format) {
     format = format || 'dd-mm-yyyy_H:M:S';
     return format
         .replace('dd', date.getDate().toString().padStart(2, '0'))
@@ -24,7 +22,7 @@ function dateToString(date, format) {
         .replace('S', date.getSeconds().toString().padStart(2, '0'));
 }
 
-function copyToClipboard(text) {
+export function copyToClipboard(text) {
     var textarea = document.createElement('textarea');
     textarea.value = text;
     textarea.setAttribute('readonly', '');
@@ -38,12 +36,12 @@ function copyToClipboard(text) {
     document.body.removeChild(textarea);
 }
 
-function randomString() {
+export function randomString() {
     return Math.floor(new Date().getTime() * Math.random()).toString(16);
 }
 
 
-function Eventable() {
+export function Eventable() {
     this._events = {};
 }
 
