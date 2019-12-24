@@ -9,6 +9,12 @@
     "rewrites": [{
       "source": "**",
       "destination": "/index.html"
+    }, {
+      "source": "/policy",
+      "destination": "/policy.html"
+    }, {
+      "source": "/terms",
+      "destination": "/terms.html"
     }],
     "cleanUrls": true,
     "trailingSlash": false
