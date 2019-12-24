@@ -9,6 +9,8 @@ import "firebase/storage";
 import { DrawingDesk } from "./canvas";
 import { initializePage } from "./drawing-page";
 
+window.firebase = firebase;
+
 window.addEventListener('load', function () {
   firebase.initializeApp({
     apiKey: "AIzaSyCiqM8QiC3rZImR3kY7MPscYxxUqDB0gbQ",
