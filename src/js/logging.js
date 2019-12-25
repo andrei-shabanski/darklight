@@ -1,5 +1,3 @@
-import { inherit } from './utils';
-
 export const DEBUG = 1;
 export const INFO = 2;
 export const WARNING = 3;
@@ -13,74 +11,82 @@ const LEVEL_NAMES = {
 };
 
 
-export function Logger(level, handler) {
+export class Logger {
+  constructor(level=INFO, handler=null) {
     this.level = level;
-    this.handler = handler;
-}
+    this.handler = handler || new ConsoleHandler();
+  }
 
-Logger.prototype.log = function(level, args) {
+  log(level, ...message) {
     if (level < this.level) {
-        return
+      return
     }
 
-    var text = [].join.bind(args)('');
+    message = message.join('');
 
-    this.handler.write(level, text);
-};
+    this.handler.write(level, message);
+  }
 
-Logger.prototype.debug = function() {
-    return this.log(DEBUG, arguments);
-};
+  debug(...message) {
+    return this.log(DEBUG, message);
+  }
 
-Logger.prototype.info = function() {
-    return this.log(INFO, arguments);
-};
+  info(...message) {
+    return this.log(INFO, message);
+  }
 
-Logger.prototype.warn = function() {
-    return this.log(WARNING, arguments);
-};
+  warn(...message) {
+    return this.log(WARNING, message);
+  }
 
-Logger.prototype.error = function() {
-    return this.log(ERROR, arguments);
-};
-
-
-export function LoggerHandler(format) {
-    // format attributes: "{level}", "{date}", "{time}", "{message}"
-    this.format = format || '[{level}] {time} {message}';
+  error(...message) {
+    return this.log(ERROR, message);
+  }
 }
 
-LoggerHandler.prototype.prepareLog = function(level, message) {
-    var now = new Date();
-    var date = now.toLocaleDateString();
-    var time = now.toLocaleTimeString();
 
-    return this.format
-        .replace('{level}', LEVEL_NAMES[level])
-        .replace('{date}', date)
-        .replace('{time}', time)
-        .replace('{message}', message);
-};
+class Handler {
+  prepareRecord(level, message) {
+    throw new TypeError("Function is not implemented");
+  }
 
-LoggerHandler.prototype.write = function(level, message) {}
-
-
-export function ConsoleHandler(format) {
-    ConsoleHandler.super.constructor.apply(this, arguments);
+  write(level, message) {
+    throw new TypeError("Function is not implemented");
+  }
 }
 
-ConsoleHandler.LOG_FUNCTIONS = {
+
+export class ConsoleHandler extends Handler {
+  static LOG_FUNCTIONS = {
     [DEBUG]: console.debug.bind(console),
     [INFO]: console.info.bind(console),
     [WARNING]: console.warn.bind(console),
     [ERROR]: console.error.bind(console)
-};
+  };
 
-inherit(ConsoleHandler, LoggerHandler);
+  constructor(format) {
+    super();
 
-ConsoleHandler.prototype.write = function(level, message) {
-    var log = this.prepareLog(level, message);
+    // format options: "{level}", "{date}", "{time}", "{message}"
+    this.format = format || '{time} [{level}] {message}';
+  }
+
+  prepareRecord(level, message) {
+    const now = new Date();
+    const date = now.toLocaleDateString();
+    const time = now.toLocaleTimeString();
+
+    return this.format
+      .replace('{level}', LEVEL_NAMES[level])
+      .replace('{date}', date)
+      .replace('{time}', time)
+      .replace('{message}', message);
+  }
+
+  write(level, message) {
+    var log = this.prepareRecord(level, message);
     var logFunc = ConsoleHandler.LOG_FUNCTIONS[level];
 
     logFunc(log);
-};
+  }
+}
