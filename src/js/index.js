@@ -1,6 +1,7 @@
 import "../css/normalize.css";
 import "../css/controls.css";
 import "../css/style.css";
+import "../img/icons.svg";
 
 import * as firebase from "firebase/app";
 import "firebase/auth";
@@ -11,7 +12,7 @@ import { initializePage } from "./drawing-page";
 
 window.firebase = firebase;
 
-window.addEventListener('load', function () {
+window.addEventListener("load", function() {
   firebase.initializeApp({
     apiKey: "AIzaSyCiqM8QiC3rZImR3kY7MPscYxxUqDB0gbQ",
     authDomain: "darklight-image-editor.firebaseapp.com",
@@ -21,10 +22,7 @@ window.addEventListener('load', function () {
     messagingSenderId: "1080138239147"
   });
 
-  var desk = new DrawingDesk(
-    imageCanvas,
-    drawingCanvas
-  );
+  var desk = new DrawingDesk(imageCanvas, drawingCanvas);
 
   initializePage(desk);
 

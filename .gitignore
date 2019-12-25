@@ -1,5 +1,6 @@
 .firebase/
 .idea/
 node_modules/
+dist/
 
 *.log

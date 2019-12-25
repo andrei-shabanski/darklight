@@ -5,16 +5,16 @@ module.exports = {
   mode: "development",
   entry: "./src/js/index.js",
   output: {
-    filename: "app.bundle.js",
+    filename: "js/app.bundle.js",
     path: path.resolve(__dirname, "dist")
   },
   devServer: {
     contentBase: "./dist",
     historyApiFallback: {
       rewrites: [
-        { from: /^\/policy/, to: '/policy.html' },
-        { from: /^\/terms/, to: '/terms.html' },
-        { from: /./, to: '/index.html' }
+        { from: /^\/policy/, to: "/policy.html" },
+        { from: /^\/terms/, to: "/terms.html" },
+        { from: /./, to: "/index.html" }
       ]
     }
   },
@@ -31,6 +31,41 @@ module.exports = {
       {
         test: /\.css$/i,
         use: ["style-loader", "css-loader"]
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        use: [
+          {
+            loader: "file-loader",
+            options: {
+              name: "[name].[ext]",
+              outputPath: "images/"
+            }
+          },
+          {
+            loader: "image-webpack-loader",
+            options: {
+              disable: true,
+              mozjpeg: {
+                progressive: true,
+                quality: 65
+              },
+              optipng: {
+                enabled: true
+              },
+              pngquant: {
+                quality: [0.65, 0.9],
+                speed: 4
+              },
+              gifsicle: {
+                interlaced: false
+              },
+              webp: {
+                quality: 75
+              }
+            }
+          }
+        ]
       }
     ]
   },
@@ -46,6 +81,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: "terms.html",
       template: "src/terms.html"
-    }),
+    })
   ]
 };

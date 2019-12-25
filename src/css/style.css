@@ -333,7 +333,7 @@ span ~ * {
   align-items: center;
   justify-content: center;
   overflow-y: auto;
-  /* background-image: url("../img/bg.png"); */
+  background-image: url("../img/bg.png");
 }
 
 .canvases canvas {
