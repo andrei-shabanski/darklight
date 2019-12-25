@@ -90,3 +90,6 @@ export class ConsoleHandler extends Handler {
     logFunc(log);
   }
 }
+
+
+export const globalLogger = new Logger(DEBUG, new ConsoleHandler());

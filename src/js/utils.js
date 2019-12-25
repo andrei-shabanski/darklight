@@ -43,7 +43,7 @@ export function randomString(length=16) {
 
 export class Eventable {
   constructor() {
-    this._eventsCallbacks = {};
+    this._events = {};  // mapping eventType -> callbacks
   }
 
   on(eventType, callback) {

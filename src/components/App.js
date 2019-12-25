@@ -7,8 +7,8 @@ import {
   NumericInputDropdown,
   ScreenBlock
 } from "../js/controls.js";
-import { DrawingDesk } from "../js/canvas.js";
-import { initializePage } from "../js/drawing-page.js";
+import { DrawingDesk } from "../js/desk";
+import { initializePage } from "../js/drawing-page";
 
 import "../css/normalize.css";
 import "../css/controls.css";
