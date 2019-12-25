@@ -13,6 +13,7 @@ import { initializePage } from "../js/drawing-page";
 import "../css/normalize.css";
 import "../css/controls.css";
 import "../css/style.css";
+import "../img/icons.svg";
 
 function App() {
   useEffect(() => {
