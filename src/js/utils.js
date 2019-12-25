@@ -9,6 +9,7 @@ export function call(func, context, args) {
         return func.apply(context, args);
     }
     return undefined;
+
 }
 
 export function dateToString(date, format) {
@@ -23,7 +24,7 @@ export function dateToString(date, format) {
 }
 
 export function copyToClipboard(text) {
-    var textarea = document.createElement('textarea');
+    const textarea = document.createElement('textarea');
     textarea.value = text;
     textarea.setAttribute('readonly', '');
     textarea.style.position = 'absolute';
@@ -36,42 +37,43 @@ export function copyToClipboard(text) {
     document.body.removeChild(textarea);
 }
 
-export function randomString() {
-    return Math.floor(new Date().getTime() * Math.random()).toString(16);
+export function randomString(length=16) {
+    return Math.floor(new Date().getTime() * Math.random()).toString(length);
 }
 
+export class Eventable {
+  constructor() {
+    this._eventsCallbacks = {};
+  }
 
-export function Eventable() {
-    this._events = {};
-}
-
-Eventable.prototype.on = function(eventType, callback) {
+  on(eventType, callback) {
     if (!this._events.hasOwnProperty(eventType)) {
-        this._events[eventType] = [];
+      this._events[eventType] = [];
     }
 
     this._events[eventType].push(callback);
-};
+  }
 
-Eventable.prototype.off = function(eventType, callback) {
-    var events = this._events[eventType];
+  off(eventType, callback) {
+    const events = this._events[eventType];
     if (!events) {
-        return
+      return;
     }
 
-    var callbackIndex = events.indexOf(callback);
+    const callbackIndex = events.indexOf(callback);
     events.splice(callbackIndex, 1);
-};
+  }
 
-Eventable.prototype.emit = function(eventType, details) {
-    var events = this._events[eventType];
+  emit(eventType, details) {
+    const events = this._events[eventType];
     if (!events) {
-        return
+      return;
     }
 
     details = details || [];
 
     events.slice(0).forEach(function(callback) {
-        callback.apply(this, details);
+      callback.apply(this, details);
     });
-};
+  }
+}
