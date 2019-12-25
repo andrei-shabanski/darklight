@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   mode: "development",
-  entry: "./src/js/index.js",
+  entry: "./src/index.js",
   output: {
     filename: "js/app.bundle.js",
     path: path.resolve(__dirname, "dist")
@@ -23,13 +23,7 @@ module.exports = {
       {
         test: /\.js$/i,
         exclude: /node_modules/,
-        loader: "babel-loader",
-        options: {
-          presets: [
-            "@babel/preset-env", {
-              'plugins': ['@babel/plugin-proposal-class-properties']
-          }]
-        }
+        loader: "babel-loader"
       },
       {
         test: /\.css$/i,
@@ -75,15 +69,15 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       filename: "index.html",
-      template: "src/index.html"
+      template: "public/index.html"
     }),
     new HtmlWebpackPlugin({
       filename: "policy.html",
-      template: "src/policy.html"
+      template: "public/policy.html"
     }),
     new HtmlWebpackPlugin({
       filename: "terms.html",
-      template: "src/terms.html"
+      template: "public/terms.html"
     })
   ]
 };
