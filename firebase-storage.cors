@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["*"],
+    "origin": ["darklight-image-editor.firebaseapp.com", "darklight-image-editor.web.app"],
     "method": ["GET"],
     "maxAgeSeconds": 3600
   }
