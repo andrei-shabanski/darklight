@@ -1,5 +1,6 @@
 .firebase/
 .idea/
+.vscode/
 node_modules/
 dist/
 
