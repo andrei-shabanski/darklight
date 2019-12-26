@@ -4,8 +4,8 @@
     "browser": true,
     "node": true
   },
-  "extends": ["airbnb", "prettier", "prettier/babel", "prettier/react"],
-  "plugins": ["babel", "import", "jsx-a11y", "react", "prettier"],
+  "extends": ["airbnb", "airbnb/hooks", "prettier", "prettier/babel", "prettier/react"],
+  "plugins": ["babel", "import", "jsx-a11y", "react", "react-hooks", "prettier"],
   "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 6,
