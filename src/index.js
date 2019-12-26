@@ -8,6 +8,9 @@ import "firebase/storage";
 import store from "./store";
 import App from "./components/App.js";
 
+import "normalize.css";
+import "./root.scss";
+
 ReactDOM.render(
   <Provider store={store}>
     <App />

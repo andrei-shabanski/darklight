@@ -1,5 +1,7 @@
 import React from "react";
 
+import "./spinner.scss";
+
 const Spinner = () => (
   <div id="spinner" className="screen-block">
     <div className="screen-content">

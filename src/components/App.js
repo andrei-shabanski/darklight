@@ -15,10 +15,8 @@ import Toolbar from "./Toolbar";
 import Canvases from "./Canvases";
 import WelcomeModalContainer from "../containers/WelcomeModalContainer";
 
-import "../css/normalize.css";
-import "../css/controls.css";
-import "../css/style.css";
 import "../img/icons.svg";
+import "./app.scss";
 
 function App() {
   useEffect(() => {
