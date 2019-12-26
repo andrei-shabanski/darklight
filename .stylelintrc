@@ -1,0 +1,36 @@
+{
+  "extends": ["stylelint-config-hudochenkov"],
+  "rules": {
+    "order/order": [
+      "custom-properties",
+      "dollar-variables",
+      "at-rules",
+      "declarations",
+      {
+        "type": "at-rule",
+        "name": "keyframes"
+      },
+      {
+        "type": "at-rule",
+        "name": "media"
+      },
+      "rules"
+    ],
+    "rule-empty-line-before": [
+      "always",
+      {
+        "except": ["first-nested"],
+        "ignore": ["after-comment"]
+      }
+    ],
+    "at-rule-empty-line-before": [
+      "always",
+      {
+        "except": ["first-nested"],
+        "ignore": ["after-comment"]
+      }
+    ],
+    "selector-max-universal": 1
+  },
+  "ignoreFiles": ["**/*.js"]
+}
