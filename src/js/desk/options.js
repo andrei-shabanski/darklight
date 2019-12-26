@@ -1,61 +1,19 @@
+const DEFAULT_OPTIONS = {
+  scale: 1,
+  size: 5,
+  textSize: 18,
+  color: '#ff0000',
+};
+
 export default class Options {
-  constructor(parent) {
-    const self = this;
+  constructor(parent = null) {
+    this.parent = parent;
 
-    this._parent = parent;
-
-    if (!!parent) {
-      this._globalOptions = parent._globalOptions;
-      this._localOptions = { ...parent._localOptions};
-    } else {
-      this._globalOptions = {
-        scale: 1,
-      };
-      this._localOptions = {
-        size: 5,
-        textSize: 18,
-        color: '#ff0000',
-      };
-    }
-
-    Object.defineProperties(this, {
-      scale: {
-        get: function() {
-          return self._globalOptions.scale;
-        },
-        set: function(value) {
-          self._globalOptions.scale = value;
-        },
-      },
-      size: {
-        get: function() {
-          return self._localOptions.size;
-        },
-        set: function(value) {
-          self._localOptions.size = value;
-        },
-      },
-      textSize: {
-        get: function() {
-          return self._localOptions.textSize;
-        },
-        set: function(value) {
-          self._localOptions.textSize = value;
-        },
-      },
-      color: {
-        get: function() {
-          return self._localOptions.color;
-        },
-        set: function(value) {
-          self._localOptions.color = value;
-        },
-      },
-    });
+    this.options = parent ? { ...parent.options } : DEFAULT_OPTIONS;
   }
 
   clone() {
-    const parent = this._parent || this;
+    const parent = this.parent || this;
     return new Options(parent);
   }
 
@@ -65,5 +23,41 @@ export default class Options {
 
   zoomOut(value) {
     return value / this.scale;
+  }
+
+  get scale() {
+    return this.parent ? this.parent.scale : this.options.scale;
+  }
+
+  set scale(value) {
+    if (this.parent) {
+      this.parent.scale = value;
+    } else {
+      this.options.scale = value;
+    }
+  }
+
+  get size() {
+    return this.options.size;
+  }
+
+  set size(value) {
+    this.options.size = value;
+  }
+
+  get textSize() {
+    return this.options.textSize;
+  }
+
+  set textSize(value) {
+    this.options.textSize = value;
+  }
+
+  get color() {
+    return this.options.color;
+  }
+
+  set color(value) {
+    this.options.color = value;
   }
 }

@@ -24,7 +24,7 @@ export default class Text extends InteractiveShape {
         },
       }, {
         callback: function (event) {
-          var char;
+          let char;
 
           if (event.which === 13) {
             char = '\n';

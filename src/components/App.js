@@ -1,22 +1,22 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 
 import {
   Modal,
   Dropdown,
   InputDropdown,
   NumericInputDropdown,
-  ScreenBlock
-} from "../js/controls.js";
-import { DrawingDesk } from "../js/desk";
-import { initializePage } from "../js/drawing-page";
+  ScreenBlock,
+} from '../js/controls';
+import DrawingDesk from '../js/desk';
+import { initializePage } from '../js/drawing-page';
 
-import Spinner from "./Spinner";
-import Toolbar from "./Toolbar";
-import Canvases from "./Canvases";
-import WelcomeModalContainer from "../containers/WelcomeModalContainer";
+import Spinner from './Spinner';
+import Toolbar from './Toolbar';
+import Canvases from './Canvases';
+import WelcomeModalContainer from '../containers/WelcomeModalContainer';
 
-import "../img/icons.svg";
-import "./app.scss";
+import '../img/icons.svg';
+import './app.scss';
 
 function App() {
   useEffect(() => {
@@ -26,19 +26,13 @@ function App() {
     window.NumericInputDropdown = NumericInputDropdown;
     window.ScreenBlock = ScreenBlock;
 
-    document.querySelectorAll(".dropdown").forEach(function(dropdown) {
-      new Dropdown(dropdown);
-    });
+    document.querySelectorAll('.dropdown').forEach(dropdown => new Dropdown(dropdown));
 
-    document.querySelectorAll(".modal").forEach(function(modal) {
-      new Modal(modal);
-    });
+    document.querySelectorAll('.modal').forEach(modal => new Modal(modal));
 
-    document.querySelectorAll(".screen-block").forEach(function(element) {
-      new ScreenBlock(element);
-    });
+    document.querySelectorAll('.screen-block').forEach(element => new ScreenBlock(element));
 
-    var desk = new DrawingDesk(imageCanvas, drawingCanvas);
+    const desk = new DrawingDesk(imageCanvas, drawingCanvas);
     initializePage(desk);
     window.desk = desk;
   }, []);

@@ -1,3 +1,7 @@
+function compareNumbers(a, b) {
+  return a - b;
+}
+
 export default class Point {
   constructor(x, y) {
     this.x = x;
@@ -9,10 +13,6 @@ export default class Point {
   }
 
   static getRectCoords(point1, point2) {
-    function compareNumbers(a, b) {
-      return a - b;
-    }
-
     const xs = [point1.x, point2.x].sort(compareNumbers);
     const ys = [point1.y, point2.y].sort(compareNumbers);
 
@@ -23,8 +23,11 @@ export default class Point {
   }
 
   static getRectMeasure(point1, point2) {
+    const xs = [point1.x, point2.x].sort(compareNumbers);
+    const ys = [point1.y, point2.y].sort(compareNumbers);
+
     return {
-      point: new Point(Math.min(point1.x, point2.x), Math.min(point1.y, point2.y)),
+      point: new Point(xs[0], ys[0]),
       width: Math.abs(point1.x - point2.x),
       height: Math.abs(point1.y - point2.y),
     };

@@ -1,61 +1,72 @@
 export function inherit(klass, parent) {
-    klass.prototype = Object.create(parent.prototype);
-    klass.prototype.constructor = klass;
-    klass.super = parent.prototype;
+  klass.prototype = Object.create(parent.prototype);
+  klass.prototype.constructor = klass;
+  klass.super = parent.prototype;
 }
 
 export function call(func, context, args) {
-    if (!!func) {
-        return func.apply(context, args);
-    }
-    return undefined;
-
+  if (func) {
+    return func.apply(context, args);
+  }
+  return undefined;
 }
 
 export function dateToString(date, format) {
-    format = format || 'dd-mm-yyyy_H:M:S';
-    return format
-        .replace('dd', date.getDate().toString().padStart(2, '0'))
-        .replace('mm', date.getMonth().toString().padStart(2, '0'))
-        .replace('yyyy', date.getFullYear().toString())
-        .replace('H', date.getHours().toString().padStart(2, '0'))
-        .replace('M', date.getMinutes().toString().padStart(2, '0'))
-        .replace('S', date.getSeconds().toString().padStart(2, '0'));
+  const numberToString = (x, pad = 2) => x.toString().padStart(pad, '0');
+
+  format = format || 'dd-mm-yyyy_H:M:S';
+  return format
+    .replace('dd', numberToString(date.getDate()))
+    .replace('mm', numberToString(date.getMonth()))
+    .replace('yyyy', numberToString(date.getFullYear(), 4))
+    .replace('H', numberToString(date.getHours()))
+    .replace('M', numberToString(date.getMinutes()))
+    .replace('S', numberToString(date.getSeconds()));
 }
 
 export function copyToClipboard(text) {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.setAttribute('readonly', '');
-    textarea.style.position = 'absolute';
-    textarea.style.left = '-9999px';
-    document.body.appendChild(textarea);
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'absolute';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
 
-    textarea.select();
-    document.execCommand('copy');
+  textarea.select();
+  document.execCommand('copy');
 
-    document.body.removeChild(textarea);
+  document.body.removeChild(textarea);
 }
 
-export function randomString(length=16) {
-    return Math.floor(new Date().getTime() * Math.random()).toString(length);
+export function randomString(radix = 16) {
+  return Math.floor(new Date().getTime() * Math.random()).toString(radix);
+}
+
+export function loadImageFromUrl(url) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.onload = () => resolve(image);
+    image.onerror = () => reject();
+    image.src = url;
+  });
 }
 
 export class Eventable {
   constructor() {
-    this._events = {};  // mapping eventType -> callbacks
+    this.registeredEvents = {}; // mapping eventType -> callbacks
   }
 
   on(eventType, callback) {
-    if (!this._events.hasOwnProperty(eventType)) {
-      this._events[eventType] = [];
+    if (!(eventType in this.registeredEvents)) {
+      this.registeredEvents[eventType] = [];
     }
 
-    this._events[eventType].push(callback);
+    this.registeredEvents[eventType].push(callback);
   }
 
   off(eventType, callback) {
-    const events = this._events[eventType];
+    const events = this.registeredEvents[eventType];
     if (!events) {
       return;
     }
@@ -65,15 +76,13 @@ export class Eventable {
   }
 
   emit(eventType, details) {
-    const events = this._events[eventType];
+    const events = this.registeredEvents[eventType];
     if (!events) {
       return;
     }
 
     details = details || [];
 
-    events.slice(0).forEach(function(callback) {
-      callback.apply(this, details);
-    });
+    events.slice(0).forEach(callback => callback(details));
   }
 }
