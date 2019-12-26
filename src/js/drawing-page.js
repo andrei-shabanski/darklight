@@ -389,7 +389,7 @@ export const initializePage = function(desk) {
 
     ScaleInputDropdown.super.constructor.call(this, element, valueConfig);
 
-    window.addEventListener("wheel", this._wheelWindow.bind(this), false);
+    document.getElementById('root').addEventListener("mousewheel", this._wheelWindow.bind(this), false);
     window.addEventListener("resize", this._resizeWindow.bind(this), false);
   }
 
