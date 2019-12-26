@@ -1,7 +1,6 @@
-import { SimpleShape } from "./base";
+import { SimpleShape } from './base';
 
 export default class Rectangle extends SimpleShape {
-
   draw(scale) {
     super.draw(scale);
 
@@ -16,5 +15,4 @@ export default class Rectangle extends SimpleShape {
       this.endPoint.y - this.startPoint.y
     );
   }
-
 }

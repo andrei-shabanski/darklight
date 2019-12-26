@@ -1,15 +1,15 @@
 export default class Options {
   constructor(parent) {
-    var self = this;
+    const self = this;
 
     this._parent = parent;
 
     if (!!parent) {
       this._globalOptions = parent._globalOptions;
-      this._localOptions = Object.assign({}, parent._localOptions);
+      this._localOptions = { ...parent._localOptions};
     } else {
       this._globalOptions = {
-        scale: 1
+        scale: 1,
       };
       this._localOptions = {
         size: 5,
@@ -20,42 +20,42 @@ export default class Options {
 
     Object.defineProperties(this, {
       scale: {
-        get: function () {
+        get: function() {
           return self._globalOptions.scale;
         },
-        set: function (value) {
-          self._globalOptions.scale = value
-        }
+        set: function(value) {
+          self._globalOptions.scale = value;
+        },
       },
       size: {
-        get: function () {
+        get: function() {
           return self._localOptions.size;
         },
-        set: function (value) {
-          self._localOptions.size = value
-        }
+        set: function(value) {
+          self._localOptions.size = value;
+        },
       },
       textSize: {
-        get: function () {
+        get: function() {
           return self._localOptions.textSize;
         },
-        set: function (value) {
-          self._localOptions.textSize = value
-        }
+        set: function(value) {
+          self._localOptions.textSize = value;
+        },
       },
       color: {
-        get: function () {
+        get: function() {
           return self._localOptions.color;
         },
-        set: function (value) {
-          self._localOptions.color = value
-        }
+        set: function(value) {
+          self._localOptions.color = value;
+        },
       },
-    })
+    });
   }
 
   clone() {
-    var parent = this._parent || this;
+    const parent = this._parent || this;
     return new Options(parent);
   }
 
@@ -66,5 +66,4 @@ export default class Options {
   zoomOut(value) {
     return value / this.scale;
   }
-
 }

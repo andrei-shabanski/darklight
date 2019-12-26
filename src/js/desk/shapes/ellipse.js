@@ -1,8 +1,7 @@
-import { SimpleShape } from "./base";
-import Point from "../point";
+import { SimpleShape } from './base';
+import Point from '../point';
 
 export default class Ellipse extends SimpleShape {
-
   draw(scale) {
     super.draw(scale);
 
@@ -13,11 +12,14 @@ export default class Ellipse extends SimpleShape {
 
     this.canvasCtx.beginPath();
     this.canvasCtx.ellipse(
-      rect.point.x + rect.width / 2, rect.point.y + rect.height / 2,
-      rect.width / 2, rect.height / 2,
-      0, 0, 2 * Math.PI
+      rect.point.x + rect.width / 2,
+      rect.point.y + rect.height / 2,
+      rect.width / 2,
+      rect.height / 2,
+      0,
+      0,
+      2 * Math.PI
     );
     this.canvasCtx.stroke();
   }
-
 }

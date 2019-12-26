@@ -1,5 +1,5 @@
-import { SimpleShape } from "./base";
-import Point from "../point";
+import { SimpleShape } from './base';
+import Point from '../point';
 
 export default class Pen extends SimpleShape {
   constructor(canvasContext, point, options, commitCallback) {
@@ -14,7 +14,7 @@ export default class Pen extends SimpleShape {
     const points = this.points.slice();
     points.push(Point.fromEvent(event, this.options));
 
-    this.update({points: points});
+    this.update({ points: points });
   }
 
   draw(scale) {
@@ -27,9 +27,11 @@ export default class Pen extends SimpleShape {
 
     this.canvasCtx.beginPath();
     this.canvasCtx.moveTo(this.startPoint.x, this.startPoint.y);
-    this.points.forEach(function (point) {
-      this.canvasCtx.lineTo(point.x, point.y);
-    }.bind(this));
+    this.points.forEach(
+      function(point) {
+        this.canvasCtx.lineTo(point.x, point.y);
+      }.bind(this)
+    );
     this.canvasCtx.stroke();
   }
 }

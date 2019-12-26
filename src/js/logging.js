@@ -4,22 +4,21 @@ export const WARNING = 3;
 export const ERROR = 4;
 
 const LEVEL_NAMES = {
-    [DEBUG]: 'debug',
-    [INFO]: 'info',
-    [WARNING]: 'warning',
-    [ERROR]: 'error'
+  [DEBUG]: 'debug',
+  [INFO]: 'info',
+  [WARNING]: 'warning',
+  [ERROR]: 'error',
 };
 
-
 export class Logger {
-  constructor(level=INFO, handler=null) {
+  constructor(level = INFO, handler = null) {
     this.level = level;
     this.handler = handler || new ConsoleHandler();
   }
 
   log(level, ...message) {
     if (level < this.level) {
-      return
+      return;
     }
 
     message = message.join('');
@@ -44,25 +43,27 @@ export class Logger {
   }
 }
 
-
 class Handler {
+  // eslint-disable-next-line no-unused-vars,class-methods-use-this
   prepareRecord(level, message) {
-    throw new TypeError("Function is not implemented");
+    throw new TypeError('Function is not implemented');
   }
 
+  // eslint-disable-next-line no-unused-vars,class-methods-use-this
   write(level, message) {
-    throw new TypeError("Function is not implemented");
+    throw new TypeError('Function is not implemented');
   }
 }
 
-
 export class ConsoleHandler extends Handler {
+  /* eslint-disable no-console */
   static LOG_FUNCTIONS = {
     [DEBUG]: console.debug.bind(console),
     [INFO]: console.info.bind(console),
     [WARNING]: console.warn.bind(console),
-    [ERROR]: console.error.bind(console)
+    [ERROR]: console.error.bind(console),
   };
+  /* eslint-enable no-console */
 
   constructor(format) {
     super();
@@ -84,12 +85,11 @@ export class ConsoleHandler extends Handler {
   }
 
   write(level, message) {
-    var log = this.prepareRecord(level, message);
-    var logFunc = ConsoleHandler.LOG_FUNCTIONS[level];
+    const record = this.prepareRecord(level, message);
+    const logFunc = ConsoleHandler.LOG_FUNCTIONS[level];
 
-    logFunc(log);
+    logFunc(record);
   }
 }
-
 
 export const globalLogger = new Logger(DEBUG, new ConsoleHandler());

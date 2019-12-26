@@ -1,7 +1,6 @@
-import { call } from "../../utils";
-import { globalLogger as logger } from "../../logging";
-import Point from "../point";
-
+import { call } from '../../utils';
+import { globalLogger as logger } from '../../logging';
+import Point from '../point';
 
 export class Shape {
   constructor(canvasContext, point, options, commitCallback) {
@@ -21,9 +20,8 @@ export class Shape {
   update(data) {
     logger.debug(`Updating ${this.constructor.name}`);
 
-    Object
-      .keys(data)
-      .forEach(function (key) {
+    Object.keys(data).forEach(
+      function(key) {
         const value = data[key];
 
         if (key === 'options') {
@@ -31,8 +29,8 @@ export class Shape {
         } else {
           this[key] = value;
         }
-
-      }.bind(this));
+      }.bind(this)
+    );
 
     this.draw();
   }
@@ -57,7 +55,6 @@ export class Shape {
     this.commitCallback();
   }
 }
-
 
 export class InteractiveShape extends Shape {
   constructor(canvasContext, point, options, commitCallback) {
@@ -106,7 +103,7 @@ export class InteractiveShape extends Shape {
   }
 
   onKeyDown(event) {
-    this.keybindings.forEach(function (keybinding) {
+    this.keybindings.forEach(function(keybinding) {
       if (keybinding.shift && !event.shiftKey) {
         return;
       }
@@ -193,14 +190,11 @@ export class InteractiveShape extends Shape {
     this.canvasCtx.canvas.addEventListener('mousemove', this._onMouseOverBinded);
   }
 
-  onCanvasMouseDown(event) {
-  }
+  onCanvasMouseDown(event) {}
 
-  onCanvasMouseMove(event) {
-  }
+  onCanvasMouseMove(event) {}
 
-  onCanvasMouseUp(event) {
-  }
+  onCanvasMouseUp(event) {}
 
   commit() {
     window.removeEventListener('keydown', this._onKeyDownBinded);
@@ -234,7 +228,6 @@ export class InteractiveShape extends Shape {
   }
 }
 
-
 export class SimpleShape extends InteractiveShape {
   constructor(canvasContext, point, options, commitCallback) {
     super(canvasContext, point, options, commitCallback);
@@ -247,7 +240,7 @@ export class SimpleShape extends InteractiveShape {
 
     this.update({
       startPoint: Point.fromEvent(event, this.options),
-      endPoint: Point.fromEvent(event, this.options)
+      endPoint: Point.fromEvent(event, this.options),
     });
   }
 
@@ -255,7 +248,7 @@ export class SimpleShape extends InteractiveShape {
     super.onCanvasMouseMove(event);
 
     this.update({
-      endPoint: Point.fromEvent(event, this.options)
+      endPoint: Point.fromEvent(event, this.options),
     });
   }
 

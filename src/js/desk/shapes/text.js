@@ -1,5 +1,4 @@
-import {InteractiveShape} from "./base";
-
+import { InteractiveShape } from './base';
 
 export default class Text extends InteractiveShape {
   constructor(canvasContext, point, options, commitCallback) {
@@ -8,37 +7,38 @@ export default class Text extends InteractiveShape {
     var self = this;
     this.text = '';
 
-    this.keybindings = [{
-      code: 'Enter',
-      ctrl: true,
-      callback: this.commit.bind(this)
-    }, {
-      code: 'Escape',
-      callback: this.commit.bind(this)
-    }, {
-      code: 'Backspace',
-      callback: function (event) {
-        if (self.text.length) {
-          self.update({text: self.text.slice(0, self.text.length - 1)});
-        }
-      }
-    }, {
-      callback: function (event) {
-        var char;
+    this.keybindings = [
+      {
+        code: 'Enter',
+        ctrl: true,
+        callback: this.commit.bind(this),
+      }, {
+        code: 'Escape',
+        callback: this.commit.bind(this),
+      }, {
+        code: 'Backspace',
+        callback: function (event) {
+          if (self.text.length) {
+            self.update({ text: self.text.slice(0, self.text.length - 1) });
+          }
+        },
+      }, {
+        callback: function (event) {
+          var char;
 
-        if (event.which === 13) {
-          char = '\n';
-        } else if (event.which < 32) {
-          return;
-        } else {
-          char = event.key;
-        }
+          if (event.which === 13) {
+            char = '\n';
+          } else if (event.which < 32) {
+            return;
+          } else {
+            char = event.key;
+          }
 
-        if (char.length) {
-          self.update({text: self.text + char});
-        }
-      }
-    }];
+          if (char.length) {
+            self.update({ text: self.text + char });
+          }
+        },
+      }];
 
     this.draw(); // draw the border
   }
@@ -68,7 +68,7 @@ export default class Text extends InteractiveShape {
     // draw a border
     if (!this.committed) {
       var maxLine = lines.sort(function (line1, line2) {
-        return line2.length - line1.length
+        return line2.length - line1.length;
       })[0];
       var textWith = this.canvasCtx.measureText(maxLine).width;
       this.canvasCtx.setLineDash([3]);
@@ -79,7 +79,7 @@ export default class Text extends InteractiveShape {
         this.startPoint.x - 4,
         this.startPoint.y - 4,
         textWith + 8,
-        this.options.zoomIn(this.options.textSize * lines.length + 8)
+        this.options.zoomIn(this.options.textSize * lines.length + 8),
       );
     }
   }

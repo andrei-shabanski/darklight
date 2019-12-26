@@ -1,6 +1,6 @@
-import { SET_STATUS } from "../constants/actionType";
+import { SET_STATUS } from '../constants/actionType';
 
-const status = (state = "", { type, text }) => {
+const status = (state = '', { type, text }) => {
   switch (type) {
     case SET_STATUS:
       return text;

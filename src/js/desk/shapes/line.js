@@ -1,7 +1,6 @@
-import { SimpleShape } from "./base";
+import { SimpleShape } from './base';
 
 export default class Line extends SimpleShape {
-
   draw(scale) {
     super.draw(scale);
 
@@ -14,5 +13,4 @@ export default class Line extends SimpleShape {
     this.canvasCtx.lineTo(this.endPoint.x, this.endPoint.y);
     this.canvasCtx.stroke();
   }
-
 }

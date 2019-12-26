@@ -5,10 +5,7 @@ export default class Point {
   }
 
   static fromEvent(event, options) {
-    return new Point(
-      options.zoomOut(event.offsetX),
-      options.zoomOut(event.offsetY)
-    );
+    return new Point(options.zoomOut(event.offsetX), options.zoomOut(event.offsetY));
   }
 
   static getRectCoords(point1, point2) {
@@ -21,18 +18,15 @@ export default class Point {
 
     return {
       topLeftPoint: new Point(xs[0], ys[0]),
-      bottomRightPoint: new Point(xs[1], ys[1])
+      bottomRightPoint: new Point(xs[1], ys[1]),
     };
   }
 
   static getRectMeasure(point1, point2) {
     return {
-      point: new Point(
-        Math.min(point1.x, point2.x),
-        Math.min(point1.y, point2.y)
-      ),
+      point: new Point(Math.min(point1.x, point2.x), Math.min(point1.y, point2.y)),
       width: Math.abs(point1.x - point2.x),
-      height: Math.abs(point1.y - point2.y)
+      height: Math.abs(point1.y - point2.y),
     };
   }
 
@@ -43,6 +37,4 @@ export default class Point {
   clone() {
     return new Point(this.x, this.y);
   }
-
 }
-

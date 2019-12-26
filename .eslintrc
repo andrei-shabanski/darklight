@@ -19,7 +19,8 @@
     "react/state-in-constructor": "off",
     "react/jsx-props-no-spreading": "off",
     "no-param-reassign": "off",
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "max-classes-per-file": "off"
   },
   "settings": {
     "import/resolver": {
