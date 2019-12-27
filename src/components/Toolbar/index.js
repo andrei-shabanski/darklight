@@ -1,305 +1,204 @@
-import React from "react";
+import React from 'react';
 
-const Toolbar = () => (
-  <nav className="toolbar">
-    <div className="tools">
-      <button
-        className="btn btn-flat btn-dark flex-stretch"
-        data-tool="text"
-        data-options="color textSize"
-      >
-        <svg className="icon">
-          <use xlinkHref="images/icons.svg#text"></use>
-        </svg>
-      </button>
-      <button
-        className="btn btn-flat btn-dark flex-stretch"
-        data-tool="pen"
-        data-options="color size"
-      >
-        <svg className="icon">
-          <use xlinkHref="images/icons.svg#pen"></use>
-        </svg>
-      </button>
-      <button
-        className="btn btn-flat btn-dark flex-stretch"
-        data-tool="line"
-        data-options="color size"
-      >
-        <svg className="icon">
-          <use xlinkHref="images/icons.svg#line"></use>
-        </svg>
-      </button>
-      <button
-        className="btn btn-flat btn-dark flex-stretch"
-        data-tool="rectangle"
-        data-options="color size"
-      >
-        <svg className="icon">
-          <use xlinkHref="images/icons.svg#rectangle"></use>
-        </svg>
-      </button>
-      <button
-        className="btn btn-flat btn-dark flex-stretch"
-        data-tool="ellipse"
-        data-options="color size"
-      >
-        <svg className="icon">
-          <use xlinkHref="images/icons.svg#ellipse"></use>
-        </svg>
-      </button>
-      <button
-        className="btn btn-flat btn-dark flex-stretch"
-        data-tool="arrow"
-        data-options="color size"
-      >
-        <svg className="icon">
-          <use xlinkHref="images/icons.svg#arrow"></use>
-        </svg>
-      </button>
-      <button id="cropBtn" className="btn btn-flat btn-dark flex-stretch" data-tool="crop">
-        <svg className="icon">
-          <use xlinkHref="images/icons.svg#crop"></use>
-        </svg>
-      </button>
-    </div>
+import Icon from '../Icon';
+import Button from '../Button';
 
-    <div className="options">
-      <div id="sizeOption" className="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
-        <button className="dropdown-toggle btn btn-flat btn-dark">
-          <input id="sizeOptionInput" type="text" defaultValue="5px" />
-          <svg className="icon icon-small round-180">
-            <use xlinkHref="images/icons.svg#chevron-down"></use>
-          </svg>
-        </button>
-        <div className="dropdown-menu">
-          <div className="dropdown-group">
-            <button
-              className="btn btn-flat btn-dark"
-              data-dropdown-noclose
-              data-option-action="decrease"
-            >
-              <svg className="icon">
-                <use xlinkHref="images/icons.svg#minus"></use>
-              </svg>
-            </button>
-            <button
-              className="btn btn-flat btn-dark"
-              data-dropdown-noclose
-              data-option-action="increase"
-            >
-              <svg className="icon">
-                <use xlinkHref="images/icons.svg#plus"></use>
-              </svg>
-            </button>
+const Toolbar = () => {
+  const colorPatterns = [
+    [
+      { color: 'ff0000', isActive: true },
+      { color: '00ff00', isActive: false },
+      { color: '0000ff', isActive: false },
+    ],
+    [
+      { color: 'ffffff', isActive: false },
+      { color: 'ffff00', isActive: false },
+      { color: '000000', isActive: false },
+    ],
+  ];
+
+  const lineSizePatterns = [2, 5, 8, 14, 24, 36, 72];
+  const fontSizePatterns = [10, 14, 18, 24, 36, 72];
+  const scalePatterns = [0.5, 1, 2];
+
+  return (
+    <nav className="toolbar">
+      <div className="tools">
+        <Button
+          isDark
+          isFlat
+          className="flex-stretch"
+          data-tool="text"
+          data-options="color textSize"
+        >
+          <Icon name="text" />
+        </Button>
+        <Button isDark isFlat className="flex-stretch" data-tool="pen" data-options="color size">
+          <Icon name="pen" />
+        </Button>
+        <Button isDark isFlat className="flex-stretch" data-tool="line" data-options="color size">
+          <Icon name="line" />
+        </Button>
+        <Button
+          isDark
+          isFlat
+          className="flex-stretch"
+          data-tool="rectangle"
+          data-options="color size"
+        >
+          <Icon name="rectangle" />
+        </Button>
+        <Button
+          isDark
+          isFlat
+          className="flex-stretch"
+          data-tool="ellipse"
+          data-options="color size"
+        >
+          <Icon name="ellipse" />
+        </Button>
+        <Button isDark isFlat className="flex-stretch" data-tool="arrow" data-options="color size">
+          <Icon name="arrow" />
+        </Button>
+        <Button isDark isFlat id="cropBtn" className="flex-stretch" data-tool="crop">
+          <Icon name="crop" />
+        </Button>
+      </div>
+
+      <div className="options">
+        <div id="sizeOption" className="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
+          <Button isDark isFlat className="dropdown-toggle">
+            <input id="sizeOptionInput" type="text" defaultValue="5px" />
+            <Icon name="chevron-down" className="round-180" isSmall />
+          </Button>
+          <div className="dropdown-menu">
+            <div className="dropdown-group">
+              <Button isDark isFlat data-dropdown-noclose data-option-action="decrease">
+                <Icon name="minus" />
+              </Button>
+              <Button isDark isFlat data-dropdown-noclose data-option-action="increase">
+                <Icon name="plus" />
+              </Button>
+            </div>
+            {lineSizePatterns.map(size => (
+              <Button key={size} isDark isFlat data-option-value={size}>
+                {`${size}px`}
+              </Button>
+            ))}
           </div>
-          <button className="btn btn-flat btn-dark" data-option-value="2">
-            2px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="5">
-            5px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="8">
-            8px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="14">
-            14px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="24">
-            24px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="36">
-            36px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="72">
-            72px
-          </button>
+        </div>
+
+        <div
+          id="textSizeOption"
+          className="dropdown dropdown-dark dropdown-flat flex-stretch hidden"
+        >
+          <Button isDark isFlat className="dropdown-toggle">
+            <input id="textSizeOptionInput" type="text" defaultValue="18px" />
+            <Icon name="chevron-down" className="round-180" isSmall />
+          </Button>
+          <div className="dropdown-menu">
+            <div className="dropdown-group">
+              <Button isDark isFlat data-option-action="decrease">
+                <Icon name="minus" />
+              </Button>
+              <Button isDark isFlat data-option-action="increase">
+                <Icon name="plus" />
+              </Button>
+            </div>
+            {fontSizePatterns.map(size => (
+              <Button key={size} isDark isFlat data-option-value={size}>
+                {`${size}px`}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div id="colorOption" className="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
+          <Button isDark isFlat className="dropdown-toggle">
+            <Icon name="rectangle" style={{ fill: '#ff0000', stroke: '#ff0000' }} />
+          </Button>
+          <div className="dropdown-menu">
+            {colorPatterns.map(colorGroupPatterns => (
+              <div className="dropdown-group">
+                {colorGroupPatterns.map(({ color, isActive }) => (
+                  <Button
+                    key={color}
+                    isDark
+                    isFlat
+                    isActive={isActive}
+                    data-color-set={`#${color}`}
+                  >
+                    <Icon name="rectangle" style={{ fill: color, strokeWidth: 0 }} />
+                  </Button>
+                ))}
+              </div>
+            ))}
+            <Button isDark isFlat className="picker-button" dataColorPicker>
+              <Icon name="rectangle" />
+              Other
+            </Button>
+          </div>
+        </div>
+        <input id="colorPicker" className="hidden" type="color" />
+
+        <div id="scaleOption" className="dropdown dropdown-dark dropdown-flat flex-stretch">
+          <Button className="dropdown-toggle" isDark isFlat>
+            <input id="scaleOptionInput" type="text" defaultValue="100%" />
+            <Icon name="chevron-down" isSmall className="round-180" />
+          </Button>
+          <div className="dropdown-menu">
+            <div className="dropdown-group">
+              <Button isDark isFlat data-dropdown-noclose data-option-action="decrease">
+                <Icon name="minus" />
+              </Button>
+              <Button isDark isFlat data-option-action="fillIn">
+                <Icon name="maximize" />
+              </Button>
+              <Button isDark isFlat data-dropdown-noclose data-option-action="increase">
+                <Icon name="plus" />
+              </Button>
+            </div>
+            {scalePatterns.map(scale => (
+              <Button key={scale} isDark isFlat data-option-value={scale}>
+                {`${scale * 100}%`}
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div id="textSizeOption" className="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
-        <button className="dropdown-toggle btn btn-flat btn-dark">
-          <input id="textSizeOptionInput" type="text" defaultValue="18px" />
-          <svg className="icon icon-small round-180">
-            <use xlinkHref="images/icons.svg#chevron-down"></use>
-          </svg>
-        </button>
-        <div className="dropdown-menu">
-          <div className="dropdown-group">
-            <button className="btn btn-flat btn-dark" data-option-action="decrease">
-              <svg className="icon">
-                <use xlinkHref="images/icons.svg#minus"></use>
-              </svg>
-            </button>
-            <button className="btn btn-flat btn-dark" data-option-action="increase">
-              <svg className="icon">
-                <use xlinkHref="images/icons.svg#plus"></use>
-              </svg>
-            </button>
+      <Button id="menu-toggle" className="flex-stretch" isDark isFlat>
+        <Icon name="menu" />
+      </Button>
+
+      <div className="menu">
+        <Button id="saveBtn" className="flex-stretch" isDark isFlat>
+          <span className="light light-green" />
+          <span id="savingStatus">Saved</span>
+        </Button>
+
+        <div className="dropdown dropdown-dark dropdown-flat flex-stretch">
+          <Button isDark isFlat className="dropdown-toggle">
+            <Icon name="save" />
+          </Button>
+          <div className="dropdown-menu dropdown-menu--right">
+            <Button id="imageEditLinkBtn" isDark isFlat>
+              <Icon name="link" isSmall />
+              <span>Copy a link</span>
+            </Button>
+            <Button id="imageDirectLinkBtn" isDark isFlat>
+              <Icon name="link" isSmall />
+              <span>Copy a direct link</span>
+            </Button>
+            <Button id="downloadBtn" isDark isFlat>
+              <Icon name="download" isSmall />
+              <span>Download</span>
+            </Button>
           </div>
-          <button className="btn btn-flat btn-dark" data-option-value="6">
-            6px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="10">
-            10px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="14">
-            14px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="18">
-            18px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="24">
-            24px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="36">
-            36px
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="72">
-            72px
-          </button>
         </div>
       </div>
-
-      <div id="colorOption" className="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
-        <button className="dropdown-toggle btn btn-flat btn-dark">
-          <svg className="icon" style={{ fill: "#ff0000", stroke: "#ff0000" }}>
-            <use xlinkHref="images/icons.svg#rectangle"></use>
-          </svg>
-        </button>
-        <div className="dropdown-menu">
-          <div className="dropdown-group">
-            <button className="btn btn-flat btn-dark active" data-color-set="#ff0000">
-              <svg className="icon icon-red">
-                <use xlinkHref="images/icons.svg#rectangle"></use>
-              </svg>
-            </button>
-            <button className="btn btn-flat btn-dark" data-color-set="#00ff00">
-              <svg className="icon icon-green">
-                <use xlinkHref="images/icons.svg#rectangle"></use>
-              </svg>
-            </button>
-            <button className="btn btn-flat btn-dark" data-color-set="#0000ff">
-              <svg className="icon icon-blue">
-                <use xlinkHref="images/icons.svg#rectangle"></use>
-              </svg>
-            </button>
-          </div>
-          <div className="dropdown-group">
-            <button className="btn btn-flat btn-dark" data-color-set="#ffffff">
-              <svg className="icon icon-white">
-                <use xlinkHref="images/icons.svg#rectangle"></use>
-              </svg>
-            </button>
-            <button className="btn btn-flat btn-dark" data-color-set="#ffff00">
-              <svg className="icon icon-yellow">
-                <use xlinkHref="images/icons.svg#rectangle"></use>
-              </svg>
-            </button>
-            <button className="btn btn-flat btn-dark" data-color-set="#000000">
-              <svg className="icon icon-black">
-                <use xlinkHref="images/icons.svg#rectangle"></use>
-              </svg>
-            </button>
-          </div>
-          <button className="btn btn-flat btn-dark picker-button" data-color-picker>
-            <svg className="icon">
-              <use xlinkHref="images/icons.svg#rectangle"></use>
-            </svg>
-            Other
-          </button>
-        </div>
-      </div>
-      <input id="colorPicker" className="hidden" type="color" />
-
-      <div id="scaleOption" className="dropdown dropdown-dark dropdown-flat flex-stretch">
-        <button className="dropdown-toggle btn btn-flat btn-dark">
-          <input id="scaleOptionInput" type="text" defaultValue="100%" />
-          <svg className="icon icon-small round-180">
-            <use xlinkHref="images/icons.svg#chevron-down"></use>
-          </svg>
-        </button>
-        <div className="dropdown-menu">
-          <div className="dropdown-group">
-            <button
-              className="btn btn-flat btn-dark"
-              data-dropdown-noclose
-              data-option-action="decrease"
-            >
-              <svg className="icon">
-                <use xlinkHref="images/icons.svg#minus"></use>
-              </svg>
-            </button>
-            <button className="btn btn-flat btn-dark" data-option-action="fillIn">
-              <svg className="icon">
-                <use xlinkHref="images/icons.svg#maximize"></use>
-              </svg>
-            </button>
-            <button
-              className="btn btn-flat btn-dark"
-              data-dropdown-noclose
-              data-option-action="increase"
-            >
-              <svg className="icon">
-                <use xlinkHref="images/icons.svg#plus"></use>
-              </svg>
-            </button>
-          </div>
-
-          <button className="btn btn-flat btn-dark" data-option-value="0.5">
-            50%
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="1">
-            100%
-          </button>
-          <button className="btn btn-flat btn-dark" data-option-value="2">
-            200%
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <button id="menu-toggle" className="btn btn-dark btn-flat flex-stretch">
-      <svg className="icon">
-        <use xlinkHref="images/icons.svg#menu"></use>
-      </svg>
-    </button>
-
-    <div className="menu">
-      <button id="saveBtn" className="btn btn-dark btn-flat flex-stretch">
-        <span className="light light-green"></span>
-        <span id="savingStatus">Saved</span>
-      </button>
-
-      <div className="dropdown dropdown-dark dropdown-flat flex-stretch">
-        <button className="dropdown-toggle btn btn-dark btn-flat">
-          <svg className="icon">
-            <use xlinkHref="images/icons.svg#save"></use>
-          </svg>
-        </button>
-        <div className="dropdown-menu dropdown-menu--right">
-          <button id="imageEditLinkBtn" className="btn btn-dark btn-flat">
-            <svg className="icon icon-small">
-              <use xlinkHref="images/icons.svg#link"></use>
-            </svg>
-            <span>Copy a link</span>
-          </button>
-          <button id="imageDirectLinkBtn" className="btn btn-dark btn-flat">
-            <svg className="icon icon-small">
-              <use xlinkHref="images/icons.svg#link"></use>
-            </svg>
-            <span>Copy a direct link</span>
-          </button>
-          <button id="downloadBtn" className="btn btn-dark btn-flat">
-            <svg className="icon icon-small">
-              <use xlinkHref="images/icons.svg#download"></use>
-            </svg>
-            <span>Download</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>
-);
+    </nav>
+  );
+};
 
 export default Toolbar;

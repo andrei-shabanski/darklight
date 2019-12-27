@@ -1,5 +1,5 @@
-import { Eventable, loadImageFromUrl } from '../utils';
-import { globalLogger as logger } from '../logging';
+import { globalLogger as logger } from '../../utils/logging';
+import { Eventable, loadImageFromUrl } from '../../utils/other';
 import Point from './point';
 import Arrow from './shapes/arrow';
 import Crop from './shapes/crop';
@@ -118,6 +118,7 @@ export default class DrawingDesk extends Eventable {
     super.emit(eventType, details);
   }
 
+  // TODO: move the function to actions
   loadImageFromDataTransfer(dataTransfer) {
     for (let index in dataTransfer.types) {
       if (dataTransfer.types[index] !== 'Files') {
@@ -135,6 +136,7 @@ export default class DrawingDesk extends Eventable {
     }
   }
 
+  // TODO: move the function to actions
   loadImageFromUrl(url) {
     logger.info(
       'Application is loading a new image from ',
@@ -156,6 +158,7 @@ export default class DrawingDesk extends Eventable {
       });
   }
 
+  // TODO: move the function to actions
   loadImageFromFileObject(file) {
     logger.info('Application is loading a new image from a file ');
 

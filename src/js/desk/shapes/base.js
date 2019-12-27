@@ -1,5 +1,5 @@
-import { call } from '../../utils';
-import { globalLogger as logger } from '../../logging';
+import { call } from '../../../utils/other';
+import { globalLogger as logger } from '../../../utils/logging';
 import Point from '../point';
 
 export class Shape {

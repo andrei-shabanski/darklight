@@ -1,4 +1,4 @@
-import { inherit } from "./utils";
+import { inherit } from "../utils/other";
 
 export function Modal(element) {
   var self = this;
