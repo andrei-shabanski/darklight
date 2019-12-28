@@ -6,9 +6,7 @@ import './icons.scss';
 
 const Icon = ({ name, className, size, ...props }) => {
   const prefix = 'icon';
-  const classes = classNames(className, prefix, {
-    [`${prefix}--${size}`]: size,
-  });
+  const classes = classNames(className, prefix, size && `${prefix}--${size}`);
 
   return (
     <svg className={classes} {...props}>
