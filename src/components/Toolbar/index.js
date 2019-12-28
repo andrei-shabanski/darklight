@@ -118,8 +118,8 @@ const Toolbar = () => {
             <Icon name="rectangle" style={{ fill: '#ff0000', stroke: '#ff0000' }} />
           </Button>
           <div className="dropdown-menu">
-            {colorPatterns.map(colorGroupPatterns => (
-              <div className="dropdown-group">
+            {colorPatterns.map((colorGroupPatterns, index) => (
+              <div key={index} className="dropdown-group">
                 {colorGroupPatterns.map(({ color, isActive }) => (
                   <Button
                     key={color}
@@ -133,7 +133,7 @@ const Toolbar = () => {
                 ))}
               </div>
             ))}
-            <Button isDark isFlat className="picker-button" dataColorPicker>
+            <Button isDark isFlat className="picker-button" data-color-picker>
               <Icon name="rectangle" />
               Other
             </Button>

@@ -19,7 +19,7 @@ const Button = ({ children, isActive, isFlat, isDark, className, ...props }) => 
 };
 
 Button.propTypes = {
-  children: PropTypes.oneOfType(PropTypes.elementType, PropTypes.arrayOf(PropTypes.elementType)),
+  children: PropTypes.oneOfType([PropTypes.elementType, PropTypes.object]),
   className: PropTypes.string,
   isActive: PropTypes.bool,
   isFlat: PropTypes.bool,
