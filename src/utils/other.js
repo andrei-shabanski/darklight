@@ -42,16 +42,6 @@ export function randomString(radix = 16) {
   return Math.floor(new Date().getTime() * Math.random()).toString(radix);
 }
 
-export function loadImageFromUrl(url) {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.crossOrigin = 'anonymous';
-    image.onload = () => resolve(image);
-    image.onerror = () => reject();
-    image.src = url;
-  });
-}
-
 export class Eventable {
   constructor() {
     this.registeredEvents = {}; // mapping eventType -> callbacks

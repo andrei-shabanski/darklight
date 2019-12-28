@@ -7,7 +7,7 @@ import {
   NumericInputDropdown,
   ScreenBlock,
 } from '../js/controls';
-import DrawingDesk from '../js/desk';
+import DrawingDesk from '../services/desk';
 import { initializePage } from '../js/drawing-page';
 
 import Spinner from './Spinner';

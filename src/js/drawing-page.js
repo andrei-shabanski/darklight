@@ -1,31 +1,15 @@
-import * as firebase from 'firebase/app';
 import { saveAs } from 'file-saver';
 
 import { globalLogger as logger } from '../utils/logging';
 import { inherit, dateToString, copyToClipboard, randomString } from '../utils/other';
 import { NumericInputDropdown } from './controls';
+import getBucket from '../services/buckets';
+
+const buildImagePath = imageId => `images/${imageId}`;
 
 export const initializePage = function(desk) {
-  function FirebaseImageStorage(imageId) {
-    this.imageId = imageId;
-    this.url = `https://firebasestorage.googleapis.com/v0/b/darklight-image-editor.appspot.com/o/images%2F${imageId}?alt=media`;
-    this._refFile = firebase.storage().ref(`images/${imageId}`);
-  }
-
-  FirebaseImageStorage.prototype.load = function() {
-    return this._refFile.getDownloadURL();
-  };
-
-  FirebaseImageStorage.prototype.save = function(blob) {
-    return this._refFile.put(blob);
-  };
-
-  FirebaseImageStorage.prototype.delete = function() {
-    return this._refFile.delete();
-  };
-
   const imageManager = {
-    imageStorage: null,
+    imageStorage: getBucket(),
     loadingImageFromUrl: false,
 
     saveBtn: document.getElementById('saveBtn'),
@@ -49,7 +33,7 @@ export const initializePage = function(desk) {
       this.imageDirectLinkBtn.addEventListener(
         'focus',
         function(event) {
-          copyToClipboard(self.imageStorage.url);
+          self.imageStorage.getUrl(buildImagePath(self.imageId)).then(copyToClipboard);
           event.preventDefault();
         },
         false
@@ -83,17 +67,12 @@ export const initializePage = function(desk) {
     },
 
     loadImageFromStorage(imageId) {
-      const self = this;
-
       this.createImageStorage(imageId);
       this.loadingImageFromUrl = true;
-      // this.imageStorage
-      //     .load()
-      //     .then(desk.loadImageFromUrl.bind(desk))
-      //     .catch(function(error) {
-      //         self.onLoadFailure(error);
-      //     });
-      desk.loadImageFromUrl(this.imageStorage.url);
+
+      this.imageStorage
+        .read(buildImagePath(this.imageId))
+        .then(file => desk.loadImageFromFileObject(file));
     },
 
     setImageIdToLocation(imageId) {
@@ -114,8 +93,7 @@ export const initializePage = function(desk) {
         imageId = `${randomString()}.png`;
         this.setImageIdToLocation(imageId);
       }
-
-      this.imageStorage = new FirebaseImageStorage(imageId);
+      this.imageId = imageId;;
     },
 
     save(force) {
@@ -134,7 +112,7 @@ export const initializePage = function(desk) {
 
       return desk.toBlob(function(blob) {
         self.imageStorage
-          .save(blob)
+          .write(buildImagePath(self.imageId), blob)
           .then(function(snapshot) {
             saveButton.changeState('saved');
           })
@@ -167,7 +145,7 @@ export const initializePage = function(desk) {
       }
 
       return this.imageStorage
-        .delete()
+        .delete(buildImagePath(this.imageId))
         .then(function() {
           console.log('IMAGE WAS DELETED');
         })

@@ -1,5 +1,6 @@
 import { globalLogger as logger } from '../../utils/logging';
-import { Eventable, loadImageFromUrl } from '../../utils/other';
+import { loadImageFromUrl } from '../../utils/files';
+import { Eventable } from '../../utils/other';
 import Point from './point';
 import Arrow from './shapes/arrow';
 import Crop from './shapes/crop';
@@ -149,11 +150,11 @@ export default class DrawingDesk extends Eventable {
 
     loadImageFromUrl(url)
       .then(image => {
-        logger.warn('Image was been loaded from url');
+        logger.info('Image was been loaded from url');
         this.loadImage(image);
       })
       .catch(() => {
-        logger.warn("Image wasn't been loaded from url");
+        logger.info("Image wasn't been loaded from url");
         this.emit(EVENT_TYPES.IMAGE_NOT_LOADED);
       });
   }
