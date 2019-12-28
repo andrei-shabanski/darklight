@@ -69,7 +69,7 @@ const Toolbar = () => {
         <div id="sizeOption" className="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
           <Button isDark isFlat className="dropdown-toggle">
             <input id="sizeOptionInput" type="text" defaultValue="5px" />
-            <Icon name="chevron-down" className="round-180" isSmall />
+            <Icon name="chevron-down" className="round-180" size="small" />
           </Button>
           <div className="dropdown-menu">
             <div className="dropdown-group">
@@ -94,7 +94,7 @@ const Toolbar = () => {
         >
           <Button isDark isFlat className="dropdown-toggle">
             <input id="textSizeOptionInput" type="text" defaultValue="18px" />
-            <Icon name="chevron-down" className="round-180" isSmall />
+            <Icon name="chevron-down" className="round-180" size="small" />
           </Button>
           <div className="dropdown-menu">
             <div className="dropdown-group">
@@ -144,7 +144,7 @@ const Toolbar = () => {
         <div id="scaleOption" className="dropdown dropdown-dark dropdown-flat flex-stretch">
           <Button className="dropdown-toggle" isDark isFlat>
             <input id="scaleOptionInput" type="text" defaultValue="100%" />
-            <Icon name="chevron-down" isSmall className="round-180" />
+            <Icon name="chevron-down" size="small" className="round-180" />
           </Button>
           <div className="dropdown-menu">
             <div className="dropdown-group">
@@ -183,15 +183,15 @@ const Toolbar = () => {
           </Button>
           <div className="dropdown-menu dropdown-menu--right">
             <Button id="imageEditLinkBtn" isDark isFlat>
-              <Icon name="link" isSmall />
+              <Icon name="link" size="small" />
               <span>Copy a link</span>
             </Button>
             <Button id="imageDirectLinkBtn" isDark isFlat>
-              <Icon name="link" isSmall />
+              <Icon name="link" size="small" />
               <span>Copy a direct link</span>
             </Button>
             <Button id="downloadBtn" isDark isFlat>
-              <Icon name="download" isSmall />
+              <Icon name="download" size="small" />
               <span>Download</span>
             </Button>
           </div>

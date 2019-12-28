@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import classNames from '../../utils/classNames';
 import './icons.scss';
 
-const Icon = ({ name, className, isSmall, style }) => {
-  const classes = classNames('icon', className, {
-    'icon-small': isSmall,
+const Icon = ({ name, className, size, style }) => {
+  const prefix = 'icon';
+  const classes = classNames(className, prefix, {
+    [`${prefix}--${size}`]: size,
   });
 
   return (
@@ -19,7 +20,7 @@ const Icon = ({ name, className, isSmall, style }) => {
 Icon.propTypes = {
   name: PropTypes.string.isRequired,
   className: PropTypes.string,
-  isSmall: PropTypes.bool,
+  size: PropTypes.oneOf(['small', 'large', 'huge']),
   style: PropTypes.shape({
     fill: PropTypes.string,
     stroke: PropTypes.string,
@@ -29,7 +30,7 @@ Icon.propTypes = {
 
 Icon.defaultProps = {
   className: '',
-  isSmall: false,
+  size: null,
   style: null,
 };
 

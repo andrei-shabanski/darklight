@@ -40,7 +40,7 @@ function App() {
   return (
     <>
       <Spinner />
-      <WelcomeModalContainer />
+      {<WelcomeModalContainer />}
       <main className="desk">
         <Toolbar />
         <Canvases />
