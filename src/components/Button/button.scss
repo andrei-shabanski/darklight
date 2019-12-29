@@ -1,77 +1,72 @@
-.btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: .45em .75em;
-  outline: 0;
-  border: none;
-  border-radius: 9998px;
-  background-color: #00b89c;
-  color: #fff;
-  text-align: center;
-  font-size: .8em;
-  cursor: pointer;
+.button {
+	display: inline-block;
+	padding: .45rem .75rem;
+	outline: 0;
+	border: 0;
+	border-radius: var(--border-radius-large);
+	background-color: transparent;
+	color: var(--black-color);
+	vertical-align: middle;
+	text-align: center;
+	text-decoration: none;
+	font-size: var(--font-size-small);
+	cursor: pointer;
+	transition: .2s;
+
+	&__content {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	&--primary {
+		background-color: var(--primary-color);
+		color: var(--white-color);
+
+		&:hover:not(.button--active),
+		&:focus:not(.button--active) {
+			background-color: var(--primary-dark-color);
+		}
+	}
+
+	&--secondary {
+		background-color: var(--secondary-color);
+		color: var(--white-color);
+
+		&:hover:not(.button--active),
+		&:focus:not(.button--active) {
+			background-color: var(--secondary-dark-color);
+		}
+	}
+
+	&--active {
+		background-color: var(--primary-color);
+		color: var(--secondary-color);
+	}
+
+	&--rounded-0 {
+		border-radius: 0;
+	}
+
+	&--light {
+		background-color: transparent;
+		color: #12212f;
+
+		&:focus,
+		&:hover {
+			background-color: #f9f9f9;
+		}
+
+		&:active,
+		&.active {
+			background-color: #f2f2f2;
+		}
+	}
 }
 
-.btn:focus {
-  background-color: #00c4a7;
-  transition: all .3s;
-}
-
-.btn:hover {
-  background-color: #00c4a7;
-  transition: all .3s;
-}
-
-.btn.active,
-.btn:active {
-  background-color: #00b89c;
-  transition: all .3s;
-}
-
-.btn-light {
-  background-color: transparent;
-  color: #12212f;
-}
-
-.btn-light:focus,
-.btn-light:hover {
-  background-color: #f9f9f9;
-  transition: all .2s;
-}
-
-.btn-light:active,
-.btn-light.active {
-  background-color: #f2f2f2;
-  transition: all .2s;
-}
-
-.btn-dark {
-  background-color: #34495e;
-}
-
-.btn-dark:focus,
-.btn-dark:hover {
-  background-color: #12212f;
-  transition: all .2s;
-}
-
-.btn-dark:active,
-.btn-dark.active {
-  background-color: #00b89c;
-  color: #12212f;
-  transition: all .2s;
-}
-
-.btn-flat {
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.btn input {
-  outline: 0;
-  border: 0;
-  background: none;
-  color: inherit;
+.button input {
+	outline: 0;
+	border: 0;
+	background: none;
+	color: inherit;
 }

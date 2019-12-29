@@ -178,7 +178,7 @@ export const initializePage = function(desk) {
       }
 
       if (this.enabledToolButton) {
-        this.enabledToolButton.classList.toggle('active');
+        this.enabledToolButton.classList.toggle('button--active');
         this.enabledOptions.forEach(
           function(optionName) {
             this.options[optionName].classList.add('hidden');
@@ -187,7 +187,7 @@ export const initializePage = function(desk) {
       }
 
       if (button !== this.enabledToolButton) {
-        button.classList.toggle('active');
+        button.classList.toggle('button--active');
 
         options.forEach(
           function(optionName) {
@@ -293,10 +293,10 @@ export const initializePage = function(desk) {
         .addEventListener('click', this._handleColorAction.bind(this), false);
     },
     setColor(button, color) {
-      this.colorDropdown.querySelectorAll('.active').forEach(function(element) {
-        element.classList.remove('active');
+      this.colorDropdown.querySelectorAll('.button--active').forEach(function(element) {
+        element.classList.remove('button--active');
       });
-      button.classList.add('active');
+      button.classList.add('button--active');
 
       const svgRect = this.colorDropdownToggle.querySelector('svg');
 

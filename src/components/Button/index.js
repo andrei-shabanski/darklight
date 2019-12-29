@@ -4,34 +4,37 @@ import PropTypes from 'prop-types';
 import classNames from '../../utils/classNames';
 import './button.scss';
 
-const Button = ({ children, isActive, isFlat, isDark, className, ...props }) => {
-  const classes = classNames(className, 'btn', {
-    active: isActive,
-    'btn-dark': isDark,
-    'btn-flat': isFlat,
-  });
+const Button = ({ children, className, variant, rounded, isActive, ...props }) => {
+  const prefix = 'button';
+  const classes = classNames(
+    className,
+    prefix,
+    variant && `${prefix}--${variant}`,
+    rounded && `${prefix}--rounded-${rounded}`,
+    isActive && `${prefix}--active`
+  );
 
   return (
     <button type="button" className={classes} {...props}>
-      {children}
+      <div className={`${prefix}__content`}>{children}</div>
     </button>
   );
 };
 
 Button.propTypes = {
-  children: PropTypes.oneOfType([PropTypes.elementType, PropTypes.object]),
+  children: PropTypes.node,
   className: PropTypes.string,
+  variant: PropTypes.oneOf(['primary', 'secondary']),
+  rounded: PropTypes.string,
   isActive: PropTypes.bool,
-  isFlat: PropTypes.bool,
-  isDark: PropTypes.bool,
 };
 
 Button.defaultProps = {
   children: '',
-  className: [],
+  className: '',
+  variant: null,
+  rounded: null,
   isActive: false,
-  isFlat: true,
-  isDark: true,
 };
 
 export default Button;

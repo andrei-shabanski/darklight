@@ -25,63 +25,60 @@ const Toolbar = () => {
     <nav className="toolbar">
       <div className="tools">
         <Button
-          isDark
-          isFlat
-          className="flex-stretch"
+          variant="secondary"
+          rounded="0"
           data-tool="text"
           data-options="color textSize"
         >
           <Icon name="text" />
         </Button>
-        <Button isDark isFlat className="flex-stretch" data-tool="pen" data-options="color size">
+        <Button variant="secondary" rounded="0" data-tool="pen" data-options="color size">
           <Icon name="pen" />
         </Button>
-        <Button isDark isFlat className="flex-stretch" data-tool="line" data-options="color size">
+        <Button variant="secondary" rounded="0" data-tool="line" data-options="color size">
           <Icon name="line" />
         </Button>
         <Button
-          isDark
-          isFlat
-          className="flex-stretch"
+          variant="secondary"
+          rounded="0"
           data-tool="rectangle"
           data-options="color size"
         >
           <Icon name="rectangle" />
         </Button>
         <Button
-          isDark
-          isFlat
-          className="flex-stretch"
+          variant="secondary"
+          rounded="0"
           data-tool="ellipse"
           data-options="color size"
         >
           <Icon name="ellipse" />
         </Button>
-        <Button isDark isFlat className="flex-stretch" data-tool="arrow" data-options="color size">
+        <Button variant="secondary" rounded="0" data-tool="arrow" data-options="color size">
           <Icon name="arrow" />
         </Button>
-        <Button isDark isFlat id="cropBtn" className="flex-stretch" data-tool="crop">
+        <Button id="cropBtn" variant="secondary" rounded="0" data-tool="crop">
           <Icon name="crop" />
         </Button>
       </div>
 
       <div className="options">
         <div id="sizeOption" className="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
-          <Button isDark isFlat className="dropdown-toggle">
+          <Button className="dropdown-toggle" variant="secondary" rounded="0">
             <input id="sizeOptionInput" type="text" defaultValue="5px" />
             <Icon name="chevron-down" className="round-180" size="small" />
           </Button>
           <div className="dropdown-menu">
             <div className="dropdown-group">
-              <Button isDark isFlat data-dropdown-noclose data-option-action="decrease">
+              <Button variant="secondary" rounded="0" data-dropdown-noclose data-option-action="decrease">
                 <Icon name="minus" />
               </Button>
-              <Button isDark isFlat data-dropdown-noclose data-option-action="increase">
+              <Button variant="secondary" rounded="0" data-dropdown-noclose data-option-action="increase">
                 <Icon name="plus" />
               </Button>
             </div>
             {lineSizePatterns.map(size => (
-              <Button key={size} isDark isFlat data-option-value={size}>
+              <Button key={size} variant="secondary" rounded="0" data-option-value={size}>
                 {`${size}px`}
               </Button>
             ))}
@@ -92,21 +89,21 @@ const Toolbar = () => {
           id="textSizeOption"
           className="dropdown dropdown-dark dropdown-flat flex-stretch hidden"
         >
-          <Button isDark isFlat className="dropdown-toggle">
+          <Button className="dropdown-toggle" variant="secondary" rounded="0">
             <input id="textSizeOptionInput" type="text" defaultValue="18px" />
             <Icon name="chevron-down" className="round-180" size="small" />
           </Button>
           <div className="dropdown-menu">
             <div className="dropdown-group">
-              <Button isDark isFlat data-option-action="decrease">
+              <Button variant="secondary" rounded="0" data-option-action="decrease">
                 <Icon name="minus" />
               </Button>
-              <Button isDark isFlat data-option-action="increase">
+              <Button variant="secondary" rounded="0" data-option-action="increase">
                 <Icon name="plus" />
               </Button>
             </div>
             {fontSizePatterns.map(size => (
-              <Button key={size} isDark isFlat data-option-value={size}>
+              <Button key={size} variant="secondary" rounded="0" data-option-value={size}>
                 {`${size}px`}
               </Button>
             ))}
@@ -114,7 +111,7 @@ const Toolbar = () => {
         </div>
 
         <div id="colorOption" className="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
-          <Button isDark isFlat className="dropdown-toggle">
+          <Button className="dropdown-toggle" variant="secondary" rounded="0">
             <Icon name="rectangle" style={{ fill: '#ff0000', stroke: '#ff0000' }} />
           </Button>
           <div className="dropdown-menu">
@@ -123,8 +120,8 @@ const Toolbar = () => {
                 {colorGroupPatterns.map(({ color, isActive }) => (
                   <Button
                     key={color}
-                    isDark
-                    isFlat
+                    variant="secondary"
+                    rounded="0"
                     isActive={isActive}
                     data-color-set={`#${color}`}
                   >
@@ -133,7 +130,7 @@ const Toolbar = () => {
                 ))}
               </div>
             ))}
-            <Button isDark isFlat className="picker-button" data-color-picker>
+            <Button className="picker-button" variant="secondary" rounded="0" data-color-picker>
               <Icon name="rectangle" />
               Other
             </Button>
@@ -142,24 +139,24 @@ const Toolbar = () => {
         <input id="colorPicker" className="hidden" type="color" />
 
         <div id="scaleOption" className="dropdown dropdown-dark dropdown-flat flex-stretch">
-          <Button className="dropdown-toggle" isDark isFlat>
+          <Button className="dropdown-toggle" variant="secondary" rounded="0">
             <input id="scaleOptionInput" type="text" defaultValue="100%" />
             <Icon name="chevron-down" size="small" className="round-180" />
           </Button>
           <div className="dropdown-menu">
             <div className="dropdown-group">
-              <Button isDark isFlat data-dropdown-noclose data-option-action="decrease">
+              <Button variant="secondary" rounded="0" data-dropdown-noclose data-option-action="decrease">
                 <Icon name="minus" />
               </Button>
-              <Button isDark isFlat data-option-action="fillIn">
+              <Button variant="secondary" rounded="0" data-option-action="fillIn">
                 <Icon name="maximize" />
               </Button>
-              <Button isDark isFlat data-dropdown-noclose data-option-action="increase">
+              <Button variant="secondary" rounded="0" data-dropdown-noclose data-option-action="increase">
                 <Icon name="plus" />
               </Button>
             </div>
             {scalePatterns.map(scale => (
-              <Button key={scale} isDark isFlat data-option-value={scale}>
+              <Button key={scale} variant="secondary" rounded="0" data-option-value={scale}>
                 {`${scale * 100}%`}
               </Button>
             ))}
@@ -167,30 +164,30 @@ const Toolbar = () => {
         </div>
       </div>
 
-      <Button id="menu-toggle" className="flex-stretch" isDark isFlat>
+      <Button id="menu-toggle" className="flex-stretch" variant="secondary" rounded="0">
         <Icon name="menu" />
       </Button>
 
       <div className="menu">
-        <Button id="saveBtn" className="flex-stretch" isDark isFlat>
+        <Button id="saveBtn" className="flex-stretch" variant="secondary" rounded="0">
           <span className="light light-green" />
           <span id="savingStatus">Saved</span>
         </Button>
 
         <div className="dropdown dropdown-dark dropdown-flat flex-stretch">
-          <Button isDark isFlat className="dropdown-toggle">
+          <Button className="dropdown-toggle" variant="secondary" rounded="0">
             <Icon name="save" />
           </Button>
           <div className="dropdown-menu dropdown-menu--right">
-            <Button id="imageEditLinkBtn" isDark isFlat>
+            <Button id="imageEditLinkBtn" variant="secondary" rounded="0">
               <Icon name="link" size="small" />
               <span>Copy a link</span>
             </Button>
-            <Button id="imageDirectLinkBtn" isDark isFlat>
+            <Button id="imageDirectLinkBtn" variant="secondary" rounded="0">
               <Icon name="link" size="small" />
               <span>Copy a direct link</span>
             </Button>
-            <Button id="downloadBtn" isDark isFlat>
+            <Button id="downloadBtn" variant="secondary" rounded="0">
               <Icon name="download" size="small" />
               <span>Download</span>
             </Button>
