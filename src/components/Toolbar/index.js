@@ -1,9 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import Icon from '../Icon';
 import Button from '../Button';
 
-const Toolbar = () => {
+const Toolbar = ({ user, signIn, signOut }) => {
   const colorPatterns = [
     [
       { color: 'ff0000', isActive: true },
@@ -24,12 +25,7 @@ const Toolbar = () => {
   return (
     <nav className="toolbar">
       <div className="tools">
-        <Button
-          variant="secondary"
-          rounded="0"
-          data-tool="text"
-          data-options="color textSize"
-        >
+        <Button variant="secondary" rounded="0" data-tool="text" data-options="color textSize">
           <Icon name="text" />
         </Button>
         <Button variant="secondary" rounded="0" data-tool="pen" data-options="color size">
@@ -38,20 +34,10 @@ const Toolbar = () => {
         <Button variant="secondary" rounded="0" data-tool="line" data-options="color size">
           <Icon name="line" />
         </Button>
-        <Button
-          variant="secondary"
-          rounded="0"
-          data-tool="rectangle"
-          data-options="color size"
-        >
+        <Button variant="secondary" rounded="0" data-tool="rectangle" data-options="color size">
           <Icon name="rectangle" />
         </Button>
-        <Button
-          variant="secondary"
-          rounded="0"
-          data-tool="ellipse"
-          data-options="color size"
-        >
+        <Button variant="secondary" rounded="0" data-tool="ellipse" data-options="color size">
           <Icon name="ellipse" />
         </Button>
         <Button variant="secondary" rounded="0" data-tool="arrow" data-options="color size">
@@ -70,10 +56,20 @@ const Toolbar = () => {
           </Button>
           <div className="dropdown-menu">
             <div className="dropdown-group">
-              <Button variant="secondary" rounded="0" data-dropdown-noclose data-option-action="decrease">
+              <Button
+                variant="secondary"
+                rounded="0"
+                data-dropdown-noclose
+                data-option-action="decrease"
+              >
                 <Icon name="minus" />
               </Button>
-              <Button variant="secondary" rounded="0" data-dropdown-noclose data-option-action="increase">
+              <Button
+                variant="secondary"
+                rounded="0"
+                data-dropdown-noclose
+                data-option-action="increase"
+              >
                 <Icon name="plus" />
               </Button>
             </div>
@@ -145,13 +141,23 @@ const Toolbar = () => {
           </Button>
           <div className="dropdown-menu">
             <div className="dropdown-group">
-              <Button variant="secondary" rounded="0" data-dropdown-noclose data-option-action="decrease">
+              <Button
+                variant="secondary"
+                rounded="0"
+                data-dropdown-noclose
+                data-option-action="decrease"
+              >
                 <Icon name="minus" />
               </Button>
               <Button variant="secondary" rounded="0" data-option-action="fillIn">
                 <Icon name="maximize" />
               </Button>
-              <Button variant="secondary" rounded="0" data-dropdown-noclose data-option-action="increase">
+              <Button
+                variant="secondary"
+                rounded="0"
+                data-dropdown-noclose
+                data-option-action="increase"
+              >
                 <Icon name="plus" />
               </Button>
             </div>
@@ -193,9 +199,43 @@ const Toolbar = () => {
             </Button>
           </div>
         </div>
+
+        <div
+          className="dropdown dropdown-dark dropdown-flat flex-stretch"
+          style={{ display: (!user || user.isAnonymous) && 'none' }}
+        >
+          <Button className="dropdown-toggle" variant="secondary" rounded="0">
+            {user && user.displayName}
+          </Button>
+          <div className="dropdown-menu dropdown-menu--right">
+            <Button variant="secondary" rounded="0">
+              My pictures
+            </Button>
+            <hr />
+            <Button variant="secondary" rounded="0" onClick={signOut}>
+              Sign out
+            </Button>
+          </div>
+        </div>
+
+        <Button
+          className="flex-stretch"
+          variant="secondary"
+          rounded="0"
+          onClick={signIn}
+          style={{ display: user && !user.isAnonymous && 'none' }}
+        >
+          Sign in
+        </Button>
       </div>
     </nav>
   );
+};
+
+Toolbar.propTypes = {
+  user: PropTypes.shape([]).isRequired,
+  signIn: PropTypes.func.isRequired,
+  signOut: PropTypes.func.isRequired,
 };
 
 export default Toolbar;

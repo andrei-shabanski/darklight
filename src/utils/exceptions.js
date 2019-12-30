@@ -1,5 +1,9 @@
 export class AppError extends Error {}
 
+/* Auth error */
+export class AuthError extends AppError {}
+
+/* File Storage errors */
 export class UnavailableFileStorageError extends AppError {}
 
 export class FileAccessError extends AppError {

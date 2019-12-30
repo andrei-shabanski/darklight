@@ -1,6 +1,3 @@
-// TODO: use `app` instance created during firebase initialization
-import * as firebase from 'firebase/app';
-
 import Bucket from './base';
 import {
   FileAccessError,
@@ -10,12 +7,13 @@ import {
 } from '../../utils/exceptions';
 import { globalLogger as logger } from '../../utils/logging';
 import { loadFileFromUrl } from '../../utils/files';
+import { firebaseApp } from '../../config';
 
 export default class FirebaseBucket extends Bucket {
   constructor() {
     super();
 
-    this.storage = firebase.storage();
+    this.storage = firebaseApp.storage();
   }
 
   async read(path) {
@@ -51,10 +49,6 @@ export default class FirebaseBucket extends Bucket {
   }
 
   async getUrl(path) {
-    // const bucket = this.storage.app.options.storageBucket;
-    // const encodedPath = encodeURIComponent(path);
-    // return `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodedPath}?alt=media`;
-
     const ref = this.storage.ref(path);
     try {
       return await ref.getDownloadURL();

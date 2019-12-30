@@ -11,9 +11,9 @@ import DrawingDesk from '../services/desk';
 import { initializePage } from '../js/drawing-page';
 
 import Spinner from './Spinner';
-import Toolbar from './Toolbar';
 import Canvases from './Canvases';
 import WelcomeModalContainer from '../containers/WelcomeModalContainer';
+import ToolbarContainer from '../containers/ToolbarContainer';
 
 import '../img/icons.svg';
 import './app.scss';
@@ -40,9 +40,9 @@ function App() {
   return (
     <>
       <Spinner />
-      {<WelcomeModalContainer />}
+      <WelcomeModalContainer />
       <main className="desk">
-        <Toolbar />
+        <ToolbarContainer />
         <Canvases />
       </main>
     </>

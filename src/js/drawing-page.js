@@ -3,13 +3,13 @@ import { saveAs } from 'file-saver';
 import { globalLogger as logger } from '../utils/logging';
 import { inherit, dateToString, copyToClipboard, randomString } from '../utils/other';
 import { NumericInputDropdown } from './controls';
-import getBucket from '../services/buckets';
+import getFileBucket from '../services/buckets';
 
 const buildImagePath = imageId => `images/${imageId}`;
 
 export const initializePage = function(desk) {
   const imageManager = {
-    imageStorage: getBucket(),
+    imageStorage: getFileBucket(),
     loadingImageFromUrl: false,
 
     saveBtn: document.getElementById('saveBtn'),

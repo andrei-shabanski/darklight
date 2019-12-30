@@ -18,6 +18,14 @@
 	transition: transform .3s;
 }
 
+.dropdown hr {
+  border-right-width: 0;
+  border-left-width: 0;
+  border-bottom-width: 0;
+  border-top: 1px solid var(--secondary-dark-color);
+  width: 80%;
+}
+
 .dropdown-toggle input {
 	padding-right: 2px;
 	width: 40px;
@@ -52,6 +60,7 @@
 
 .dropdown[data-open] .dropdown-menu {
 	display: flex;
+  min-width: 100%;
 }
 
 .dropdown-menu > * {
