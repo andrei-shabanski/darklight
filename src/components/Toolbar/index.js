@@ -17,6 +17,8 @@ import {
 import Icon from '../Icon';
 import Button from '../Button';
 
+const SIZE_VALUE_REGEXP = /^(\d{0,2})?px$/;
+
 const Toolbar = props => {
   const {
     user,
@@ -47,6 +49,28 @@ const Toolbar = props => {
   const fontSizeOptionEnabled = activeOptions.includes(FONT_SIZE_OPTION);
 
   const scalePatterns = [0.5, 1, 2];
+
+  function onFontSizeChanged(event) {
+    event.preventDefault();
+
+    const { value: rawValue } = event.target;
+    const matchedValue = rawValue.match(SIZE_VALUE_REGEXP);
+    if (matchedValue) {
+      const value = matchedValue[1];
+      setDeskOption(FONT_SIZE_OPTION, parseInt(value, 10));
+    }
+  }
+
+  function onLineSizeChanged(event) {
+    event.preventDefault();
+
+    const { value: rawValue } = event.target;
+    const matchedValue = rawValue.match(SIZE_VALUE_REGEXP);
+    if (matchedValue) {
+      const value = matchedValue[1];
+      setDeskOption(LINE_SIZE_OPTION, parseInt(value, 10));
+    }
+  }
 
   return (
     <nav className="toolbar">
@@ -112,12 +136,11 @@ const Toolbar = props => {
 
       <div className="options">
         <div
-          id="sizeOption"
           className="dropdown dropdown-dark dropdown-flat flex-stretch"
           style={{ display: lineSizeOptionEnabled || 'none' }}
         >
           <Button className="dropdown-toggle" variant="secondary" rounded="0">
-            <input id="sizeOptionInput" type="text" defaultValue="5px" />
+            <input type="text" value={`${activeLineSize}px`} onChange={onLineSizeChanged} />
             <Icon name="chevron-down" className="round-180" size="small" />
           </Button>
           <div className="dropdown-menu">
@@ -125,22 +148,27 @@ const Toolbar = props => {
               <Button
                 variant="secondary"
                 rounded="0"
+                onClick={() => setDeskOption(LINE_SIZE_OPTION, Math.max(1, activeLineSize - 2))}
                 data-dropdown-noclose
-                data-option-action="decrease"
               >
                 <Icon name="minus" />
               </Button>
               <Button
                 variant="secondary"
                 rounded="0"
+                onClick={() => setDeskOption(LINE_SIZE_OPTION, Math.min(99, activeLineSize + 2))}
                 data-dropdown-noclose
-                data-option-action="increase"
               >
                 <Icon name="plus" />
               </Button>
             </div>
             {lineSizePatterns.map(size => (
-              <Button key={size} variant="secondary" rounded="0" data-option-value={size}>
+              <Button
+                key={size}
+                variant="secondary"
+                rounded="0"
+                onClick={() => setDeskOption(LINE_SIZE_OPTION, size)}
+              >
                 {`${size}px`}
               </Button>
             ))}
@@ -148,25 +176,39 @@ const Toolbar = props => {
         </div>
 
         <div
-          id="textSizeOption"
           className="dropdown dropdown-dark dropdown-flat flex-stretch"
           style={{ display: fontSizeOptionEnabled || 'none' }}
         >
           <Button className="dropdown-toggle" variant="secondary" rounded="0">
-            <input id="textSizeOptionInput" type="text" defaultValue="18px" />
+            <input type="text" value={`${activeTextSize}px`} onChange={onFontSizeChanged} />
             <Icon name="chevron-down" className="round-180" size="small" />
           </Button>
           <div className="dropdown-menu">
             <div className="dropdown-group">
-              <Button variant="secondary" rounded="0" data-option-action="decrease">
+              <Button
+                variant="secondary"
+                rounded="0"
+                onClick={() => setDeskOption(FONT_SIZE_OPTION, Math.max(1, activeTextSize - 2))}
+                data-dropdown-noclose
+              >
                 <Icon name="minus" />
               </Button>
-              <Button variant="secondary" rounded="0" data-option-action="increase">
+              <Button
+                variant="secondary"
+                rounded="0"
+                onClick={() => setDeskOption(FONT_SIZE_OPTION, Math.min(99, activeTextSize + 2))}
+                data-dropdown-noclose
+              >
                 <Icon name="plus" />
               </Button>
             </div>
             {fontSizePatterns.map(size => (
-              <Button key={size} variant="secondary" rounded="0" data-option-value={size}>
+              <Button
+                key={size}
+                variant="secondary"
+                rounded="0"
+                onClick={() => setDeskOption(FONT_SIZE_OPTION, size)}
+              >
                 {`${size}px`}
               </Button>
             ))}
@@ -225,7 +267,7 @@ const Toolbar = props => {
                 variant="secondary"
                 rounded="0"
                 data-dropdown-noclose
-                data-option-action="decrease"
+                onClick={() => setDeskOption(LINE_SIZE_OPTION, Math.max(0, activeLineSize - 2))}
               >
                 <Icon name="minus" />
               </Button>
@@ -236,13 +278,18 @@ const Toolbar = props => {
                 variant="secondary"
                 rounded="0"
                 data-dropdown-noclose
-                data-option-action="increase"
+                onClick={() => setDeskOption(LINE_SIZE_OPTION, Math.min(99, activeLineSize + 2))}
               >
                 <Icon name="plus" />
               </Button>
             </div>
             {scalePatterns.map(scale => (
-              <Button key={scale} variant="secondary" rounded="0" data-option-value={scale}>
+              <Button
+                key={scale}
+                variant="secondary"
+                rounded="0"
+                onClick={() => setDeskOption(LINE_SIZE_OPTION, scale)}
+              >
                 {`${scale * 100}%`}
               </Button>
             ))}

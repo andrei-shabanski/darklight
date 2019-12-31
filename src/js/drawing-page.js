@@ -370,8 +370,6 @@ export const initializePage = function(desk) {
     },
   };
 
-  let sizeOption;
-  let textSizeOption;
   let scaleOption;
 
   const dropImageOption = {
@@ -449,29 +447,6 @@ export const initializePage = function(desk) {
 
   function initialize() {
     menuConfigs.init();
-    // colorOption.init();
-
-    sizeOption = new NumericInputDropdown(document.getElementById('sizeOption'), {
-      // inputValuePattern: /^\d{0,2}?px$/,
-      inputValueSuffix: 'px',
-      valueMin: 1,
-      valueMax: 99,
-      valueDelta: 2,
-      changeValue(value) {
-        desk.setOption('size', value);
-      },
-    });
-
-    textSizeOption = new NumericInputDropdown(document.getElementById('textSizeOption'), {
-      // inputValuePattern: /^\d{0,2}?px$/,
-      inputValueSuffix: 'px',
-      valueMin: 1,
-      valueMax: 99,
-      valueDelta: 2,
-      changeValue(value) {
-        desk.setOption('textSize', value);
-      },
-    });
 
     scaleOption = new ScaleInputDropdown(document.getElementById('scaleOption'));
 

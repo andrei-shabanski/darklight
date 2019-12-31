@@ -8,7 +8,7 @@ export const CROP_TOOL = 'crop';
 
 export const COLOR_OPTION = 'color';
 export const FONT_SIZE_OPTION = 'textSize';
-export const LINE_SIZE_OPTION = 'size';
+export const LINE_SIZE_OPTION = 'lineSize';
 
 export const TOOL_OPTIONS_MAP = {
   [TEXT_TOOL]: [COLOR_OPTION, FONT_SIZE_OPTION],

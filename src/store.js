@@ -14,5 +14,6 @@ const store = createStore(
 /* eslint-enable */
 
 store.dispatch(initialize());
+window.store = store;
 
 export default store;
