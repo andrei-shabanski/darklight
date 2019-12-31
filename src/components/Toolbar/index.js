@@ -1,55 +1,121 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import {
+  TEXT_TOOL,
+  PEN_TOOL,
+  LINE_TOOL,
+  RECTANGLE_TOOL,
+  ELLIPSE_TOOL,
+  ARROW_TOOL,
+  CROP_TOOL,
+  COLOR_OPTION,
+  FONT_SIZE_OPTION,
+  LINE_SIZE_OPTION,
+  TOOL_OPTIONS_MAP,
+} from '../../constants/desk';
 import Icon from '../Icon';
 import Button from '../Button';
 
-const Toolbar = ({ user, signIn, signOut }) => {
+const Toolbar = props => {
+  const {
+    user,
+    activeDeskTool,
+    activeColor,
+    activeTextSize,
+    activeLineSize,
+    signIn,
+    signOut,
+    setDeskOption,
+    setDeskTool,
+  } = props;
+
+  const colorPicker = React.createRef();
+
+  const activeOptions = activeDeskTool ? TOOL_OPTIONS_MAP[activeDeskTool] : [];
+
   const colorPatterns = [
-    [
-      { color: 'ff0000', isActive: true },
-      { color: '00ff00', isActive: false },
-      { color: '0000ff', isActive: false },
-    ],
-    [
-      { color: 'ffffff', isActive: false },
-      { color: 'ffff00', isActive: false },
-      { color: '000000', isActive: false },
-    ],
+    ['#ff0000', '#00ff00', '#0000ff'],
+    ['#ffffff', '#ffff00', '#000000'],
   ];
+  const colorOptionEnabled = activeOptions.includes(COLOR_OPTION);
 
   const lineSizePatterns = [2, 5, 8, 14, 24, 36, 72];
+  const lineSizeOptionEnabled = activeOptions.includes(LINE_SIZE_OPTION);
+
   const fontSizePatterns = [10, 14, 18, 24, 36, 72];
+  const fontSizeOptionEnabled = activeOptions.includes(FONT_SIZE_OPTION);
+
   const scalePatterns = [0.5, 1, 2];
 
   return (
     <nav className="toolbar">
       <div className="tools">
-        <Button variant="secondary" rounded="0" data-tool="text" data-options="color textSize">
+        <Button
+          variant="secondary"
+          rounded="0"
+          isActive={activeDeskTool === TEXT_TOOL}
+          onClick={() => setDeskTool(TEXT_TOOL)}
+        >
           <Icon name="text" />
         </Button>
-        <Button variant="secondary" rounded="0" data-tool="pen" data-options="color size">
+        <Button
+          variant="secondary"
+          rounded="0"
+          isActive={activeDeskTool === PEN_TOOL}
+          onClick={() => setDeskTool(PEN_TOOL)}
+        >
           <Icon name="pen" />
         </Button>
-        <Button variant="secondary" rounded="0" data-tool="line" data-options="color size">
+        <Button
+          variant="secondary"
+          rounded="0"
+          isActive={activeDeskTool === LINE_TOOL}
+          onClick={() => setDeskTool(LINE_TOOL)}
+        >
           <Icon name="line" />
         </Button>
-        <Button variant="secondary" rounded="0" data-tool="rectangle" data-options="color size">
+        <Button
+          variant="secondary"
+          rounded="0"
+          isActive={activeDeskTool === RECTANGLE_TOOL}
+          onClick={() => setDeskTool(RECTANGLE_TOOL)}
+        >
           <Icon name="rectangle" />
         </Button>
-        <Button variant="secondary" rounded="0" data-tool="ellipse" data-options="color size">
+        <Button
+          variant="secondary"
+          rounded="0"
+          isActive={activeDeskTool === ELLIPSE_TOOL}
+          onClick={() => setDeskTool(ELLIPSE_TOOL)}
+        >
           <Icon name="ellipse" />
         </Button>
-        <Button variant="secondary" rounded="0" data-tool="arrow" data-options="color size">
+        <Button
+          variant="secondary"
+          rounded="0"
+          isActive={activeDeskTool === ARROW_TOOL}
+          onClick={() => setDeskTool(ARROW_TOOL)}
+        >
           <Icon name="arrow" />
         </Button>
-        <Button id="cropBtn" variant="secondary" rounded="0" data-tool="crop">
+        <Button
+          id="cropBtn"
+          variant="secondary"
+          rounded="0"
+          isActive={activeDeskTool === CROP_TOOL}
+          onClick={() => setDeskTool(CROP_TOOL)}
+        >
           <Icon name="crop" />
         </Button>
       </div>
 
       <div className="options">
-        <div id="sizeOption" className="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
+        <div
+          id="sizeOption"
+          className="dropdown dropdown-dark dropdown-flat flex-stretch"
+          style={{ display: lineSizeOptionEnabled || 'none' }}
+        >
           <Button className="dropdown-toggle" variant="secondary" rounded="0">
             <input id="sizeOptionInput" type="text" defaultValue="5px" />
             <Icon name="chevron-down" className="round-180" size="small" />
@@ -83,7 +149,8 @@ const Toolbar = ({ user, signIn, signOut }) => {
 
         <div
           id="textSizeOption"
-          className="dropdown dropdown-dark dropdown-flat flex-stretch hidden"
+          className="dropdown dropdown-dark dropdown-flat flex-stretch"
+          style={{ display: fontSizeOptionEnabled || 'none' }}
         >
           <Button className="dropdown-toggle" variant="secondary" rounded="0">
             <input id="textSizeOptionInput" type="text" defaultValue="18px" />
@@ -106,33 +173,46 @@ const Toolbar = ({ user, signIn, signOut }) => {
           </div>
         </div>
 
-        <div id="colorOption" className="dropdown dropdown-dark dropdown-flat flex-stretch hidden">
+        <div
+          className="dropdown dropdown-dark dropdown-flat flex-stretch"
+          style={{ display: colorOptionEnabled || 'none' }}
+        >
           <Button className="dropdown-toggle" variant="secondary" rounded="0">
-            <Icon name="rectangle" style={{ fill: '#ff0000', stroke: '#ff0000' }} />
+            <Icon name="rectangle" style={{ fill: activeColor, stroke: activeColor }} />
           </Button>
           <div className="dropdown-menu">
             {colorPatterns.map((colorGroupPatterns, index) => (
               <div key={index} className="dropdown-group">
-                {colorGroupPatterns.map(({ color, isActive }) => (
+                {colorGroupPatterns.map(color => (
                   <Button
                     key={color}
                     variant="secondary"
                     rounded="0"
-                    isActive={isActive}
-                    data-color-set={`#${color}`}
+                    isActive={color === activeColor}
+                    onClick={() => setDeskOption(COLOR_OPTION, color)}
                   >
                     <Icon name="rectangle" style={{ fill: color, strokeWidth: 0 }} />
                   </Button>
                 ))}
               </div>
             ))}
-            <Button className="picker-button" variant="secondary" rounded="0" data-color-picker>
+            <Button
+              className="picker-button"
+              variant="secondary"
+              rounded="0"
+              onClick={() => colorPicker.current.click()}
+            >
               <Icon name="rectangle" />
               Other
             </Button>
           </div>
         </div>
-        <input id="colorPicker" className="hidden" type="color" />
+        <input
+          ref={colorPicker}
+          className="hidden"
+          type="color"
+          onChange={e => setDeskOption(COLOR_OPTION, e.target.value)}
+        />
 
         <div id="scaleOption" className="dropdown dropdown-dark dropdown-flat flex-stretch">
           <Button className="dropdown-toggle" variant="secondary" rounded="0">
@@ -234,8 +314,18 @@ const Toolbar = ({ user, signIn, signOut }) => {
 
 Toolbar.propTypes = {
   user: PropTypes.shape([]).isRequired,
+  activeDeskTool: PropTypes.string,
+  activeColor: PropTypes.string.isRequired,
+  activeTextSize: PropTypes.number.isRequired,
+  activeLineSize: PropTypes.number.isRequired,
   signIn: PropTypes.func.isRequired,
   signOut: PropTypes.func.isRequired,
+  setDeskOption: PropTypes.func.isRequired,
+  setDeskTool: PropTypes.func.isRequired,
+};
+
+Toolbar.defaultProps = {
+  activeDeskTool: null,
 };
 
 export default Toolbar;

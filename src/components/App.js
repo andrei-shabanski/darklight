@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
 
 import {
   Modal,
@@ -17,8 +18,9 @@ import ToolbarContainer from '../containers/ToolbarContainer';
 
 import '../img/icons.svg';
 import './app.scss';
+import { setDrawingDesk } from '../actions/desk';
 
-function App() {
+function App({ setDrawingDesk }) {
   useEffect(() => {
     window.Modal = Modal;
     window.Dropdown = Dropdown;
@@ -35,11 +37,12 @@ function App() {
     const desk = new DrawingDesk(imageCanvas, drawingCanvas);
     initializePage(desk);
     window.desk = desk;
+    setDrawingDesk(desk);
   }, []);
 
   return (
     <>
-      <Spinner />
+      <Spinner message='' iconName='' />
       <WelcomeModalContainer />
       <main className="desk">
         <ToolbarContainer />
@@ -49,4 +52,9 @@ function App() {
   );
 }
 
-export default App;
+// TODO disconnect App from redux after moving DrawingDesk initializating
+const mapDispatchToProps = dispatch => ({
+  setDrawingDesk: desk => dispatch(setDrawingDesk(desk)),
+});
+
+export default connect(null, mapDispatchToProps)(App);

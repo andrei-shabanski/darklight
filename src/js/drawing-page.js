@@ -155,67 +155,6 @@ export const initializePage = function(desk) {
     },
   };
 
-  const toolConfigs = {
-    enabledToolButton: null,
-    enabledOptions: [],
-
-    options: {
-      size: document.getElementById('sizeOption'),
-      textSize: document.getElementById('textSizeOption'),
-      color: document.getElementById('colorOption'),
-    },
-
-    init() {
-      document
-        .querySelector('.tools')
-        .addEventListener('click', this._handleChoosingTool.bind(this), false);
-    },
-    selectTool(button) {
-      const { tool } = button.dataset;
-      const options = button.dataset.options ? button.dataset.options.split(' ') : [];
-      if (!tool) {
-        return;
-      }
-
-      if (this.enabledToolButton) {
-        this.enabledToolButton.classList.toggle('button--active');
-        this.enabledOptions.forEach(
-          function(optionName) {
-            this.options[optionName].classList.add('hidden');
-          }.bind(this)
-        );
-      }
-
-      if (button !== this.enabledToolButton) {
-        button.classList.toggle('button--active');
-
-        options.forEach(
-          function(optionName) {
-            this.options[optionName].classList.remove('hidden');
-          }.bind(this)
-        );
-
-        this.enabledToolButton = button;
-        this.enabledOptions = options;
-      } else {
-        this.enabledToolButton = null;
-        this.enabledOptions = [];
-      }
-
-      desk.selectTool(tool);
-    },
-    _handleChoosingTool(event) {
-      const button = event.target.closest('button');
-      if (!button) {
-        return;
-      }
-
-      this.selectTool(button);
-
-      event.preventDefault();
-    },
-  };
-
   const menuConfigs = {
     menuToggleBtn: document.getElementById('menu-toggle'),
     menuElement: document.getElementsByClassName('menu')[0],
@@ -276,60 +215,6 @@ export const initializePage = function(desk) {
       } else {
         delete this.menuElement.dataset.open;
       }
-    },
-  };
-
-  const colorOption = {
-    colorDropdown: document.getElementById('colorOption'),
-    colorDropdownToggle: document.querySelector('#colorOption .dropdown-toggle'),
-    colorPickerButton: document.querySelector('#colorOption .picker-button'),
-    colorPicker: document.getElementById('colorPicker'),
-
-    init() {
-      this.colorPicker.addEventListener('change', this.changePicker.bind(this), false);
-
-      this.colorDropdown
-        .querySelector('.dropdown-menu')
-        .addEventListener('click', this._handleColorAction.bind(this), false);
-    },
-    setColor(button, color) {
-      this.colorDropdown.querySelectorAll('.button--active').forEach(function(element) {
-        element.classList.remove('button--active');
-      });
-      button.classList.add('button--active');
-
-      const svgRect = this.colorDropdownToggle.querySelector('svg');
-
-      svgRect.style.fill = color;
-      svgRect.style.stroke = color;
-
-      desk.setOption('color', color);
-    },
-    openPicker() {
-      this.colorPicker.value = desk.options.color;
-      this.colorPicker.click();
-    },
-    changePicker() {
-      const svgIcon = this.colorPickerButton.querySelector('svg');
-      svgIcon.style.fill = colorPicker.value;
-      svgIcon.style.stroke = colorPicker.value;
-
-      this.setColor(this.colorPickerButton, this.colorPicker.value);
-    },
-    _handleColorAction(event) {
-      const button = event.target.closest('button');
-      if (!button) {
-        return;
-      }
-
-      if (button.dataset.colorSet) {
-        const color = button.dataset.colorSet;
-        this.setColor(button, color);
-      } else if (button.dataset.colorPicker !== null) {
-        this.openPicker();
-      }
-
-      event.preventDefault();
     },
   };
 
@@ -563,9 +448,8 @@ export const initializePage = function(desk) {
   };
 
   function initialize() {
-    toolConfigs.init();
     menuConfigs.init();
-    colorOption.init();
+    // colorOption.init();
 
     sizeOption = new NumericInputDropdown(document.getElementById('sizeOption'), {
       // inputValuePattern: /^\d{0,2}?px$/,
