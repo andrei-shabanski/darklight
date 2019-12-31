@@ -13,7 +13,7 @@ import { initializePage } from '../js/drawing-page';
 
 import Spinner from './Spinner';
 import Canvases from './Canvases';
-import WelcomeModalContainer from '../containers/WelcomeModalContainer';
+import WelcomeModal from '../components/WelcomeModal';
 import ToolbarContainer from '../containers/ToolbarContainer';
 
 import '../img/icons.svg';
@@ -43,7 +43,7 @@ function App({ setDrawingDesk }) {
   return (
     <>
       <Spinner message='' iconName='' />
-      <WelcomeModalContainer />
+      <WelcomeModal />
       <main className="desk">
         <ToolbarContainer />
         <Canvases />

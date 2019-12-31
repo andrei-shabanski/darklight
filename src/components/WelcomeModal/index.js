@@ -4,17 +4,9 @@ import PropTypes from 'prop-types';
 import Modal from '../Modal';
 import './modal.scss';
 
-const WelcomeModal = ({ changeStatus }) => {
-  const [counter, setCounter] = useState(0);
-
-  const onClick = () => {
-    const newCounter = counter + 1;
-    setCounter(newCounter);
-    changeStatus(`Amount clicks on modal: ${newCounter}`);
-  };
-
+const WelcomeModal = () => {
   return (
-    <Modal id="welcome" isOpen onClick={onClick}>
+    <Modal id="welcome" isOpen>
       <Modal.Body>
         <section className="getting-started">
           <h1 className="center">Welcome</h1>
@@ -60,10 +52,6 @@ const WelcomeModal = ({ changeStatus }) => {
       </Modal.Body>
     </Modal>
   );
-};
-
-WelcomeModal.propTypes = {
-  changeStatus: PropTypes.func.isRequired,
 };
 
 export default WelcomeModal;
