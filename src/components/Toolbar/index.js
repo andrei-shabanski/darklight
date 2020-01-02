@@ -15,7 +15,6 @@ import {
   TOOL_OPTIONS_MAP,
   NOT_SAVED_STATUS,
   SAVING_STATUS,
-  SAVED_STATUS,
 } from '../../constants/desk';
 import Icon from '../Icon';
 import Button from '../Button';

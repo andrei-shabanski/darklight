@@ -6,7 +6,12 @@ import {
   SET_DRAWING_DESK_CANVAS_SIZE,
   LOAD_IMAGE_REQUEST,
   LOAD_IMAGE_SUCCESS,
-  LOAD_IMAGE_FAILURE, SAVE_IMAGE_REQUEST, SAVE_IMAGE_SUCCESS, SAVE_IMAGE_FAILURE, SET_SAVE_STATUS,
+  LOAD_IMAGE_FAILURE,
+  SAVE_IMAGE_REQUEST,
+  SAVE_IMAGE_SUCCESS,
+  SAVE_IMAGE_FAILURE,
+  SET_SAVE_STATUS,
+  SET_DESK_IMAGE,
 } from '../constants/actionType';
 import { SAVED_STATUS } from '../constants/desk';
 
@@ -35,12 +40,20 @@ const DEFAULT_STATE = {
     top: 0,
   },
   saveStatus: SAVED_STATUS,
+  showWelcomeModal: true,
 };
 
 const desk = (state = DEFAULT_STATE, action) => {
   switch (action.type) {
     case SET_DRAWING_DESK:
       return { ...state, drawingDesk: action.drawingDesk };
+    case SET_DESK_IMAGE: {
+      const image = {
+        ...state.image,
+        id: action.imageId,
+      };
+      return { ...state, image };
+    }
     case SET_DESK_TOOL:
       return { ...state, activeTool: action.toolName };
 

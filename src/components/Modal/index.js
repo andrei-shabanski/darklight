@@ -4,8 +4,12 @@ import PropTypes from 'prop-types';
 import './modal.scss';
 
 const Modal = ({ children, isOpen, ...props }) => {
+  if (isOpen) {
+    props['data-open'] = true;
+  }
+
   return (
-    <div className="modal" data-open={isOpen} {...props}>
+    <div className="modal" {...props}>
       <div className="modal-content">{children}</div>
     </div>
   );

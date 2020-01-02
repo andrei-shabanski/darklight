@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import Modal from '../Modal';
 import './modal.scss';
 
-const WelcomeModal = () => {
+const WelcomeModal = ({ opened, onUploadImage }) => {
+  const fileUpload = e => {
+    const { files } = e.target;
+    if (files.length) {
+      const file = e.target.files[0];
+      onUploadImage(file);
+    }
+  };
+
   return (
-    <Modal id="welcome" isOpen>
+    <Modal id="welcome" isOpen={opened}>
       <Modal.Body>
         <section className="getting-started">
           <h1 className="center">Welcome</h1>
@@ -16,7 +24,7 @@ const WelcomeModal = () => {
           <p className="center">or drag an image to the browser</p>
           <p className="center">or choose an image from your computer</p>
           <div className="center">
-            <input id="fileBtn" className="center" type="file" accept="image/*" />
+            <input className="center" type="file" accept="image/*" onChange={fileUpload} />
           </div>
         </section>
         <section className="guide">
@@ -52,6 +60,11 @@ const WelcomeModal = () => {
       </Modal.Body>
     </Modal>
   );
+};
+
+WelcomeModal.propTypes = {
+  opened: PropTypes.bool.isRequired,
+  onUploadImage: PropTypes.func.isRequired,
 };
 
 export default WelcomeModal;

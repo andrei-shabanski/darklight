@@ -1,127 +1,7 @@
-import { globalLogger as logger } from '../utils/logging';
-import { copyToClipboard, randomString } from '../utils/other';
-import getFileBucket from '../services/buckets';
-
-const buildImagePath = imageId => `images/${imageId}`;
-
 export const initializePage = function(desk) {
-  const imageManager = {
-    imageStorage: getFileBucket(),
-    loadingImageFromUrl: false,
-
-    imageEditLinkBtn: document.getElementById('imageEditLinkBtn'),
-    imageDirectLinkBtn: document.getElementById('imageDirectLinkBtn'),
-
-    isSaving: false,
-    hasUnsavedChanges: false,
-
-    init() {},
-
-    onLoadSuccess() {
-      logger.debug('Image was loaded.');
-
-      // scaleOption.fillIn();
-
-      if (!this.loadingImageFromUrl) {
-        if (this.imageStorage) {
-          this.save();
-        }
-
-        this.createImageStorage();
-        this.save(true);
-      } else {
-        // omg. imageStorage is already created
-        this.loadingImageFromUrl = false;
-      }
-    },
-
-    onLoadFailure(error) {
-      logger.error('Image was not loaded. ', error);
-
-      if (this.loadingImageFromUrl) {
-        this.loadingImageFromUrl = false;
-      }
-    },
-
-    loadImageFromStorage(imageId) {
-      this.createImageStorage(imageId);
-      this.loadingImageFromUrl = true;
-
-      this.imageStorage
-      .read(buildImagePath(this.imageId))
-      .then(file => desk.loadImageFromFileObject(file));
-    },
-
-    setImageIdToLocation(imageId) {
-      history.pushState({ imageId }, '', imageId);
-    },
-
-    createImageStorage(imageId) {
-      if (!imageId) {
-        imageId = `${randomString()}.png`;
-        this.setImageIdToLocation(imageId);
-      }
-      this.imageId = imageId;;
-    },
-
-    save(force) {
-      force = force !== null ? force : false;
-
-      if ((!this.hasUnsavedChanges || this.isSaving) && !force) {
-        return;
-      }
-
-      const self = this;
-
-      this.hasUnsavedChanges = false;
-      this.isSaving = true;
-
-      // TODO: call dispatch() to set the saveStatus
-      // saveButton.changeState('saving');
-
-      return desk.toBlob(function(blob) {
-        self.imageStorage
-        .write(buildImagePath(self.imageId), blob)
-        .then(function(snapshot) {
-          // TODO: call dispatch() to set the saveStatus
-          // saveButton.changeState('saved');
-        })
-        .catch(function(error) {
-          // TODO: call dispatch() to set the saveStatus
-          // saveButton.changeState('not-saved');
-          self.hasUnsavedChanges = true;
-        })
-        .finally(function() {
-          self.isSaving = false;
-
-          if (self.hasUnsavedChanges) {
-            self.save();
-          }
-        });
-      });
-    },
-
-    delete() {
-      if (!this.imageStorage) {
-        return;
-      }
-
-      return this.imageStorage
-      .delete(buildImagePath(this.imageId))
-      .then(function() {
-        console.log('IMAGE WAS DELETED');
-      })
-      .catch(function(error) {
-        console.log("IMAGE WAN'T DELETED");
-      });
-    },
-  };
-
   const menuConfigs = {
     menuToggleBtn: document.getElementById('menu-toggle'),
     menuElement: document.getElementsByClassName('menu')[0],
-
-    fileBtn: document.getElementById('fileBtn'),
 
     init() {
       const self = this;
@@ -134,20 +14,6 @@ export const initializePage = function(desk) {
         },
         false
       );
-
-      this.fileBtn.addEventListener(
-        'change',
-        function(event) {
-          const fileBtn = event.target;
-
-          if (fileBtn.files.length) {
-            desk.loadImageFromFileObject(fileBtn.files[0]);
-          }
-          event.preventDefault();
-        },
-        false
-      );
-
     },
 
     toggleMenu() {
@@ -239,7 +105,6 @@ export const initializePage = function(desk) {
 
     dropImageOption.init();
     spinner.init();
-    imageManager.init();
 
     window.addEventListener(
       'keydown',
@@ -249,7 +114,7 @@ export const initializePage = function(desk) {
           desk.removeShape();
         } else if (event.keyCode === 83 && event.ctrlKey) {
           // Ctrl + S
-          imageManager.save();
+          // imageManager.save();
         } else {
           return;
         }
@@ -268,48 +133,21 @@ export const initializePage = function(desk) {
       false
     );
 
-    window.addEventListener(
-      'beforeunload',
-      function(event) {
-        if (imageManager.hasUnsavedChanges) {
-          imageManager.save();
-        }
+    // window.addEventListener(
+    //   'beforeunload',
+    //   function(event) {
+    //     if (imageManager.hasUnsavedChanges) {
+    //       imageManager.save();
+    //     }
+    //
+    //     if (imageManager.hasUnsavedChanges || imageManager.isSaving) {
+    //       event.preventDefault();
+    //       event.returnValue = '';
+    //     }
+    //   },
+    //   false
+    // );
 
-        if (imageManager.hasUnsavedChanges || imageManager.isSaving) {
-          event.preventDefault();
-          event.returnValue = '';
-        }
-      },
-      false
-    );
-
-    desk.on('image-loading', function() {
-      spinner.showLoadingMessage();
-    });
-
-    desk.on('image-loaded', function hideWelcomeScreen() {
-      welcome.modal.close();
-      desk.off('image-loaded', hideWelcomeScreen);
-    });
-    desk.on('image-loaded', function() {
-      imageManager.onLoadSuccess();
-      spinner.close();
-    });
-    desk.on('image-not-loaded', function() {
-      imageManager.onLoadFailure();
-      spinner.close();
-    });
-    desk.on('image-changed', function() {
-      imageManager.hasUnsavedChanges = true;
-      imageManager.save();
-    });
-
-    // const imageId = imageManager.parseImageIdFromLocation();
-    // if (imageId) {
-    //   imageManager.loadImageFromStorage(imageId);
-    // }
-
-    window.imageManager = imageManager;
     window.spinner = spinner;
   }
 

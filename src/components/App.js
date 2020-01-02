@@ -10,15 +10,15 @@ import {
 } from '../js/controls';
 import DrawingDesk from '../services/desk';
 import { initializePage } from '../js/drawing-page';
+import { setDrawingDesk } from '../actions/desk/options';
 
 import Spinner from './Spinner';
 import Canvases from './Canvases';
-import WelcomeModal from '../components/WelcomeModal';
+import WelcomeModalContainer from '../containers/WelcomeModalContainer';
 import ToolbarContainer from '../containers/ToolbarContainer';
 
 import '../img/icons.svg';
 import './app.scss';
-import { setDrawingDesk } from '../actions/desk/options';
 
 function App({ setDrawingDesk }) {
   useEffect(() => {
@@ -43,7 +43,7 @@ function App({ setDrawingDesk }) {
   return (
     <>
       <Spinner message='' iconName='' />
-      <WelcomeModal />
+      <WelcomeModalContainer />
       <main className="desk">
         <ToolbarContainer />
         <Canvases />

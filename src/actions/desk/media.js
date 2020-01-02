@@ -1,7 +1,7 @@
 import { saveAs } from 'file-saver';
 
 import { loadImageFromFile } from '../../utils/files';
-import { copyToClipboard, dateToString } from '../../utils/other';
+import { copyToClipboard, dateToString, randomString } from '../../utils/other';
 import getFileBucket from '../../services/buckets';
 import {
   LOAD_IMAGE_REQUEST,
@@ -10,12 +10,46 @@ import {
   DELETE_IMAGE_REQUEST,
   DELETE_IMAGE_SUCCESS,
   DELETE_IMAGE_FAILURE,
-  SAVE_IMAGE_REQUEST, SAVE_IMAGE_SUCCESS, SAVE_IMAGE_FAILURE, SET_SAVE_STATUS,
+  SAVE_IMAGE_REQUEST,
+  SAVE_IMAGE_SUCCESS,
+  SAVE_IMAGE_FAILURE,
+  SET_SAVE_STATUS,
+  UPLOAD_IMAGE_SUCCESS,
+  UPLOAD_IMAGE_FAILURE,
+  UPLOAD_IMAGE_REQUEST, SET_DESK_IMAGE,
 } from '../../constants/actionType';
-import { fillIn } from './options';
 import { NOT_SAVED_STATUS, SAVED_STATUS, SAVING_STATUS } from '../../constants/desk';
+import { fillIn, setDrawingDesk } from './options';
+import DrawingDesk from '../../services/desk';
 
 const buildImagePath = imageId => `images/${imageId}`;
+
+export function createDrawingDesk() {
+  return async dispatch => {
+    // TODO check prev drawingDesk and save changes
+    const drawingDesk = new DrawingDesk(imageCanvas, drawingCanvas);
+
+    drawingDesk.on('image-changed', () => dispatch(saveImage()));
+
+    dispatch(setDrawingDesk(drawingDesk));
+  };
+}
+
+export function setImage(imageId, image) {
+  return async (dispatch, getState) => {
+    dispatch(createDrawingDesk());
+
+    const state = getState();
+    const { drawingDesk } = state.desk;
+    drawingDesk.loadImage(image);
+    dispatch(fillIn());
+
+    dispatch({
+      type: SET_DESK_IMAGE,
+      imageId,
+    });
+  };
+}
 
 export function setSaveStatus(status) {
   return {
@@ -24,9 +58,40 @@ export function setSaveStatus(status) {
   };
 }
 
+export function uploadImage(file) {
+  return async dispatch => {
+    const storage = getFileBucket();
+
+    const imageId = `${randomString()}.png`;
+    const path = buildImagePath(imageId);
+
+    dispatch({
+      type: UPLOAD_IMAGE_REQUEST,
+      imageId,
+    });
+
+    try {
+      await storage.write(path, file);
+      dispatch({
+        type: UPLOAD_IMAGE_SUCCESS,
+        imageId,
+      });
+
+      const image = await loadImageFromFile(file);
+      dispatch(setImage(imageId, image));
+
+      window.history.pushState({ imageId }, '', imageId);
+    } catch (e) {
+      dispatch({
+        type: UPLOAD_IMAGE_FAILURE,
+        error: e.message,
+      });
+    }
+  };
+}
+
 export function loadImage(imageId) {
-  return async (dispatch, getState) => {
-    const { drawingDesk } = getState().desk;
+  return async dispatch => {
     const path = buildImagePath(imageId);
     const storage = getFileBucket();
 
@@ -38,14 +103,13 @@ export function loadImage(imageId) {
 
     try {
       const file = await storage.read(path);
-      const image = await loadImageFromFile(file);
-
-      drawingDesk.loadImage(image);
-      dispatch(fillIn());
       dispatch({
         type: LOAD_IMAGE_SUCCESS,
         imageId,
       });
+
+      const image = await loadImageFromFile(file);
+      dispatch(setImage(imageId, image));
     } catch (e) {
       dispatch({
         type: LOAD_IMAGE_FAILURE,
@@ -128,7 +192,9 @@ export function deleteImage(imageId) {
 // TODO: It's not a desk-related move this code out
 export function copyLink() {
   // TODO: generate a correct url to preview page and copy this
-  copyToClipboard(window.location.href);
+  return () => {
+    copyToClipboard(window.location.href);
+  };
 }
 
 // TODO: It's not a desk-related move this code out
