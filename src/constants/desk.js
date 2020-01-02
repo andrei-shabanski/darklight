@@ -11,6 +11,10 @@ export const COLOR_OPTION = 'color';
 export const FONT_SIZE_OPTION = 'textSize';
 export const LINE_SIZE_OPTION = 'lineSize';
 
+export const NOT_SAVED_STATUS = 'not-saved';
+export const SAVING_STATUS = 'saving';
+export const SAVED_STATUS = 'saved';
+
 export const TOOL_OPTIONS_MAP = {
   [TEXT_TOOL]: [COLOR_OPTION, FONT_SIZE_OPTION],
   [PEN_TOOL]: [COLOR_OPTION, LINE_SIZE_OPTION],

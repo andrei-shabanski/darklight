@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { fillIn, setDrawingDeskContainerSize, setScale } from '../../actions/desk';
+import { fillIn, setDrawingDeskContainerSize, setScale } from '../../actions/desk/options';
 import './canvases.scss';
 
 const Canvases = ({

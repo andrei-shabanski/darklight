@@ -18,7 +18,7 @@ import ToolbarContainer from '../containers/ToolbarContainer';
 
 import '../img/icons.svg';
 import './app.scss';
-import { setDrawingDesk } from '../actions/desk';
+import { setDrawingDesk } from '../actions/desk/options';
 
 function App({ setDrawingDesk }) {
   useEffect(() => {

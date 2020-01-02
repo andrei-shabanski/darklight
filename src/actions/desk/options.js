@@ -4,8 +4,13 @@ import {
   SET_DESK_TOOL,
   SET_DRAWING_DESK_CONTAINER_SIZE,
   SET_DRAWING_DESK_CANVAS_SIZE,
-} from '../constants/actionType';
-import { COLOR_OPTION, FONT_SIZE_OPTION, LINE_SIZE_OPTION, SCALE_OPTION } from '../constants/desk';
+} from '../../constants/actionType';
+import {
+  COLOR_OPTION,
+  FONT_SIZE_OPTION,
+  LINE_SIZE_OPTION,
+  SCALE_OPTION,
+} from '../../constants/desk';
 
 export function setDrawingDeskContainerSize(width, height) {
   return {

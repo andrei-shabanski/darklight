@@ -1,8 +1,5 @@
-import { saveAs } from 'file-saver';
-
 import { globalLogger as logger } from '../utils/logging';
-import { inherit, dateToString, copyToClipboard, randomString } from '../utils/other';
-import { NumericInputDropdown } from './controls';
+import { copyToClipboard, randomString } from '../utils/other';
 import getFileBucket from '../services/buckets';
 
 const buildImagePath = imageId => `images/${imageId}`;
@@ -12,33 +9,13 @@ export const initializePage = function(desk) {
     imageStorage: getFileBucket(),
     loadingImageFromUrl: false,
 
-    saveBtn: document.getElementById('saveBtn'),
     imageEditLinkBtn: document.getElementById('imageEditLinkBtn'),
     imageDirectLinkBtn: document.getElementById('imageDirectLinkBtn'),
 
     isSaving: false,
     hasUnsavedChanges: false,
 
-    init() {
-      const self = this;
-
-      this.imageEditLinkBtn.addEventListener(
-        'click',
-        function(event) {
-          copyToClipboard(location.href);
-          event.preventDefault();
-        },
-        false
-      );
-      this.imageDirectLinkBtn.addEventListener(
-        'focus',
-        function(event) {
-          self.imageStorage.getUrl(buildImagePath(self.imageId)).then(copyToClipboard);
-          event.preventDefault();
-        },
-        false
-      );
-    },
+    init() {},
 
     onLoadSuccess() {
       logger.debug('Image was loaded.');
@@ -71,21 +48,12 @@ export const initializePage = function(desk) {
       this.loadingImageFromUrl = true;
 
       this.imageStorage
-        .read(buildImagePath(this.imageId))
-        .then(file => desk.loadImageFromFileObject(file));
+      .read(buildImagePath(this.imageId))
+      .then(file => desk.loadImageFromFileObject(file));
     },
 
     setImageIdToLocation(imageId) {
       history.pushState({ imageId }, '', imageId);
-    },
-
-    parseImageIdFromLocation() {
-      const matchedPath = location.pathname.match(/\/(\w+\.png)/);
-      if (matchedPath) {
-        return matchedPath[1];
-      }
-
-      return null;
     },
 
     createImageStorage(imageId) {
@@ -108,34 +76,28 @@ export const initializePage = function(desk) {
       this.hasUnsavedChanges = false;
       this.isSaving = true;
 
-      saveButton.changeState('saving');
+      // TODO: call dispatch() to set the saveStatus
+      // saveButton.changeState('saving');
 
       return desk.toBlob(function(blob) {
         self.imageStorage
-          .write(buildImagePath(self.imageId), blob)
-          .then(function(snapshot) {
-            saveButton.changeState('saved');
-          })
-          .catch(function(error) {
-            saveButton.changeState('not-saved');
-            self.hasUnsavedChanges = true;
-          })
-          .finally(function() {
-            self.isSaving = false;
+        .write(buildImagePath(self.imageId), blob)
+        .then(function(snapshot) {
+          // TODO: call dispatch() to set the saveStatus
+          // saveButton.changeState('saved');
+        })
+        .catch(function(error) {
+          // TODO: call dispatch() to set the saveStatus
+          // saveButton.changeState('not-saved');
+          self.hasUnsavedChanges = true;
+        })
+        .finally(function() {
+          self.isSaving = false;
 
-            if (self.hasUnsavedChanges) {
-              self.save();
-            }
-          });
-      });
-    },
-
-    download() {
-      const now = new Date();
-      const fileName = `Image-${dateToString(now, 'dd-mm-yyyy_H-M-S')}.png`;
-
-      desk.toBlob(function(blob) {
-        saveAs(blob, fileName);
+          if (self.hasUnsavedChanges) {
+            self.save();
+          }
+        });
       });
     },
 
@@ -145,13 +107,13 @@ export const initializePage = function(desk) {
       }
 
       return this.imageStorage
-        .delete(buildImagePath(this.imageId))
-        .then(function() {
-          console.log('IMAGE WAS DELETED');
-        })
-        .catch(function(error) {
-          console.log("IMAGE WAN'T DELETED");
-        });
+      .delete(buildImagePath(this.imageId))
+      .then(function() {
+        console.log('IMAGE WAS DELETED');
+      })
+      .catch(function(error) {
+        console.log("IMAGE WAN'T DELETED");
+      });
     },
   };
 
@@ -159,9 +121,7 @@ export const initializePage = function(desk) {
     menuToggleBtn: document.getElementById('menu-toggle'),
     menuElement: document.getElementsByClassName('menu')[0],
 
-    saveBtn: document.getElementById('saveBtn'),
     fileBtn: document.getElementById('fileBtn'),
-    downloadBtn: document.getElementById('downloadBtn'),
 
     init() {
       const self = this;
@@ -170,15 +130,6 @@ export const initializePage = function(desk) {
         'click',
         function(event) {
           self.toggleMenu();
-          event.preventDefault();
-        },
-        false
-      );
-
-      this.saveBtn.addEventListener(
-        'click',
-        function(event) {
-          imageManager.save();
           event.preventDefault();
         },
         false
@@ -197,14 +148,6 @@ export const initializePage = function(desk) {
         false
       );
 
-      this.downloadBtn.addEventListener(
-        'click',
-        function(event) {
-          imageManager.download();
-          event.preventDefault();
-        },
-        false
-      );
     },
 
     toggleMenu() {
@@ -217,53 +160,6 @@ export const initializePage = function(desk) {
       }
     },
   };
-
-  var saveButton = {
-    buttonElement: null,
-    lightIndicatorElement: null,
-    lightColor: 'green',
-
-    init() {
-      this.buttonElement = document.getElementById('saveBtn');
-      this.savingStatusElement = document.getElementById('savingStatus');
-      this.lightIndicatorElement = this.buttonElement.querySelector('.light');
-    },
-
-    changeState(state) {
-      switch (state) {
-        case 'saving':
-          this.lightColor = this.lightColor === 'red' ? 'yellow' : this.lightColor;
-          this._changeText('Saving');
-          this._changeLightIndicator(this.lightColor, true);
-          break;
-        case 'saved':
-          this.lightColor = 'green';
-          this._changeText('Saved');
-          this._changeLightIndicator(this.lightColor, false);
-          break;
-        case 'not-saved':
-          this.lightColor = 'red';
-          this._changeText('Not saved');
-          this._changeLightIndicator(this.lightColor, false);
-          break;
-      }
-    },
-
-    _changeText(text) {
-      this.savingStatusElement.textContent = text;
-    },
-
-    _changeLightIndicator(color, isLighting) {
-      const classNames = ['light', `light-${color}`];
-      if (isLighting) {
-        classNames.push('lighting');
-      }
-
-      this.lightIndicatorElement.className = classNames.join(' ');
-    },
-  };
-
-  // let scaleOption;
 
   const dropImageOption = {
     dropareaHiddingTimerID: null,
@@ -341,9 +237,6 @@ export const initializePage = function(desk) {
   function initialize() {
     menuConfigs.init();
 
-    // scaleOption = new ScaleInputDropdown(document.getElementById('scaleOption'));
-
-    saveButton.init();
     dropImageOption.init();
     spinner.init();
     imageManager.init();
@@ -411,10 +304,10 @@ export const initializePage = function(desk) {
       imageManager.save();
     });
 
-    const imageId = imageManager.parseImageIdFromLocation();
-    if (imageId) {
-      imageManager.loadImageFromStorage(imageId);
-    }
+    // const imageId = imageManager.parseImageIdFromLocation();
+    // if (imageId) {
+    //   imageManager.loadImageFromStorage(imageId);
+    // }
 
     window.imageManager = imageManager;
     window.spinner = spinner;

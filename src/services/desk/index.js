@@ -337,7 +337,12 @@ export default class DrawingDesk extends Eventable {
     return this.imageCanvas.toDataURL('image/png');
   }
 
+  // TODO: replace this method with toBlobAsync
   toBlob(callback) {
     this.imageCanvas.toBlob(callback);
+  }
+
+  toBlobAsync() {
+    return new Promise(resolve => this.imageCanvas.toBlob(resolve));
   }
 }

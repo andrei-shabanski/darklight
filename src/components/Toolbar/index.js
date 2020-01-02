@@ -13,9 +13,13 @@ import {
   FONT_SIZE_OPTION,
   LINE_SIZE_OPTION,
   TOOL_OPTIONS_MAP,
+  NOT_SAVED_STATUS,
+  SAVING_STATUS,
+  SAVED_STATUS,
 } from '../../constants/desk';
 import Icon from '../Icon';
 import Button from '../Button';
+import LightIndicator from '../LightIndicator';
 
 const SCALE_VALUE_REGEXP = /^(\d{0,3})?%$/;
 const SIZE_VALUE_REGEXP = /^(\d{0,2})?px$/;
@@ -28,6 +32,8 @@ const Toolbar = props => {
     activeColor,
     activeTextSize,
     activeLineSize,
+    saveStatus,
+    imageId,
     signIn,
     signOut,
     setDeskTool,
@@ -36,6 +42,10 @@ const Toolbar = props => {
     setLineSize,
     setScale,
     fillIn,
+    saveImage,
+    copyLink,
+    copyDirectLink,
+    download,
   } = props;
 
   const colorPicker = React.createRef();
@@ -55,6 +65,27 @@ const Toolbar = props => {
   const fontSizeOptionEnabled = activeOptions.includes(FONT_SIZE_OPTION);
 
   const scalePatterns = [0.5, 1, 2];
+
+  let indicatorMessage;
+  let indicatorMode;
+  let indicatorColor;
+  switch (saveStatus) {
+    case NOT_SAVED_STATUS:
+      indicatorMessage = 'Not saved';
+      indicatorColor = 'red';
+      indicatorMode = 'shine';
+      break;
+    case SAVING_STATUS:
+      indicatorMessage = 'Saving';
+      indicatorColor = 'green';
+      indicatorMode = 'blink';
+      break;
+    default:
+      indicatorMessage = 'Saved';
+      indicatorColor = 'green';
+      indicatorMode = 'shine';
+      break;
+  }
 
   function inputMatchPattern(value, pattern, callback) {
     const matchedValue = value.match(pattern);
@@ -266,7 +297,7 @@ const Toolbar = props => {
 
         <div className="dropdown dropdown-dark dropdown-flat flex-stretch">
           <Button className="dropdown-toggle" variant="secondary" rounded="0">
-            <input type="text" value={`${activeScale * 100 | 0}%`} onChange={onScaleChanged} />
+            <input type="text" value={`${(activeScale * 100) | 0}%`} onChange={onScaleChanged} />
             <Icon name="chevron-down" size="small" className="round-180" />
           </Button>
           <div className="dropdown-menu">
@@ -305,9 +336,9 @@ const Toolbar = props => {
       </Button>
 
       <div className="menu">
-        <Button id="saveBtn" className="flex-stretch" variant="secondary" rounded="0">
-          <span className="light light-green" />
-          <span id="savingStatus">Saved</span>
+        <Button className="flex-stretch" variant="secondary" rounded="0" onClick={saveImage}>
+          <LightIndicator color={indicatorColor} mode={indicatorMode} />
+          <span>{indicatorMessage}</span>
         </Button>
 
         <div className="dropdown dropdown-dark dropdown-flat flex-stretch">
@@ -315,15 +346,15 @@ const Toolbar = props => {
             <Icon name="save" />
           </Button>
           <div className="dropdown-menu dropdown-menu--right">
-            <Button id="imageEditLinkBtn" variant="secondary" rounded="0">
+            <Button variant="secondary" rounded="0" onClick={copyLink}>
               <Icon name="link" size="small" />
               <span>Copy a link</span>
             </Button>
-            <Button id="imageDirectLinkBtn" variant="secondary" rounded="0">
+            <Button variant="secondary" rounded="0" onClick={() => copyDirectLink(imageId)}>
               <Icon name="link" size="small" />
               <span>Copy a direct link</span>
             </Button>
-            <Button id="downloadBtn" variant="secondary" rounded="0">
+            <Button variant="secondary" rounded="0" onClick={download}>
               <Icon name="download" size="small" />
               <span>Download</span>
             </Button>
@@ -369,6 +400,8 @@ Toolbar.propTypes = {
   activeColor: PropTypes.string.isRequired,
   activeTextSize: PropTypes.number.isRequired,
   activeLineSize: PropTypes.number.isRequired,
+  saveStatus: PropTypes.string.isRequired,
+  imageId: PropTypes.string,
   signIn: PropTypes.func.isRequired,
   signOut: PropTypes.func.isRequired,
   setDeskTool: PropTypes.func.isRequired,
@@ -377,10 +410,15 @@ Toolbar.propTypes = {
   setLineSize: PropTypes.func.isRequired,
   setScale: PropTypes.func.isRequired,
   fillIn: PropTypes.func.isRequired,
+  saveImage: PropTypes.func.isRequired,
+  copyLink: PropTypes.func.isRequired,
+  copyDirectLink: PropTypes.func.isRequired,
+  download: PropTypes.func.isRequired,
 };
 
 Toolbar.defaultProps = {
   activeDeskTool: null,
+  imageId: null,
 };
 
 export default Toolbar;

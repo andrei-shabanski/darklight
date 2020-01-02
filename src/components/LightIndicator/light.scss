@@ -1,0 +1,79 @@
+.light {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border: 0;
+  border-radius: 50%;
+  background-color: #323232;
+  box-shadow: inset 0 1px 0 rgba(250, 250, 250, .3);
+}
+
+.light--blinking {
+  animation-duration: .6s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.light--red {
+  background-color: #e20000;
+  box-shadow: 0 0 4px 1px #f00, inset 0 1px rgba(250, 250, 250, .5);
+
+  &.light--blinking {
+    animation-name: blinking-red;
+  }
+}
+
+.light--yellow {
+  background-color: #e2e200;
+  box-shadow: 0 0 4px 1px #ff0, inset 0 1px rgba(250, 250, 250, .5);
+
+  &.light--blinking {
+    animation-name: blinking-yellow;
+  }
+}
+
+.light--green {
+  background-color: #32e200;
+  box-shadow: 0 0 4px 1px #38ff00, inset 0 1px rgba(250, 250, 250, .5);
+
+  &.light--blinking {
+    animation-name: blinking-green;
+  }
+}
+
+@keyframes blinking-red {
+  from {
+    background-color: #e20000;
+    box-shadow: 0 0 6px 1px #f00, inset 0 1px rgba(250, 250, 250, .5);
+  }
+
+  to {
+    background-color: #323232;
+    box-shadow: inset 0 1px 0 rgba(250, 250, 250, .3);
+  }
+}
+
+@keyframes blinking-yellow {
+  from {
+    background-color: #e2e200;
+    box-shadow: 0 0 6px 1px #ff0, inset 0 1px rgba(250, 250, 250, .5);
+  }
+
+  to {
+    background-color: #323232;
+    box-shadow: inset 0 1px 0 rgba(250, 250, 250, .3);
+  }
+}
+
+@keyframes blinking-green {
+  from {
+    background-color: #32e200;
+    box-shadow: 0 0 6px 1px #38ff00, inset 0 1px rgba(250, 250, 250, .5);
+  }
+
+  to {
+    background-color: #323232;
+    box-shadow: inset 0 1px 0 rgba(250, 250, 250, .3);
+  }
+}

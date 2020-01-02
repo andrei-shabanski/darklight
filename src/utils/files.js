@@ -12,6 +12,10 @@ export function loadImageFromUrl(url) {
   });
 }
 
+export function loadImageFromFile(file) {
+  return loadImageFromUrl(URL.createObjectURL(file));
+}
+
 export function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
