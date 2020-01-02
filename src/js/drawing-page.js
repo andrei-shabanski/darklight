@@ -43,7 +43,7 @@ export const initializePage = function(desk) {
     onLoadSuccess() {
       logger.debug('Image was loaded.');
 
-      scaleOption.fillIn();
+      // scaleOption.fillIn();
 
       if (!this.loadingImageFromUrl) {
         if (this.imageStorage) {
@@ -218,113 +218,6 @@ export const initializePage = function(desk) {
     },
   };
 
-  function ScaleInputDropdown(element) {
-    const valueConfig = {
-      inputValuePattern: /^\d{0,3}?%$/,
-      inputValueSuffix: '%',
-      valueMin: 0.1,
-      valueMax: 3,
-      valueDelta: 0.1,
-      convertValue(rawValue) {
-        try {
-          const number = rawValue.slice(
-            this.inputValuePrefix.length,
-            rawValue.length - this.inputValueSuffix.length
-          );
-          return number.length > 0 ? +number / 100 : null;
-        } catch (e) {
-          return null;
-        }
-      },
-      changeValue(value) {
-        desk.setOption('scale', value);
-      },
-    };
-
-    this._fillingIn = true;
-    this._canvasesContainer = document.querySelector('.canvases');
-    this._canvases = this._canvasesContainer.querySelectorAll('canvas');
-
-    ScaleInputDropdown.super.constructor.call(this, element, valueConfig);
-
-    document
-      .getElementById('root')
-      .addEventListener('mousewheel', this._wheelWindow.bind(this), false);
-    window.addEventListener('resize', this._resizeWindow.bind(this), false);
-  }
-
-  inherit(ScaleInputDropdown, NumericInputDropdown);
-
-  ScaleInputDropdown.prototype.setValue = function(value) {
-    ScaleInputDropdown.super.setValue.call(this, value);
-
-    this._fillingIn = false;
-
-    this._zoomCanvas();
-    this._hackCanvasCentering();
-  };
-
-  ScaleInputDropdown.prototype._valueToString = function(value) {
-    value = Math.round(value * 100);
-    return ScaleInputDropdown.super._valueToString.call(this, value);
-  };
-
-  ScaleInputDropdown.prototype.fillIn = function() {
-    if (!desk.image) {
-      return;
-    }
-
-    const widthScale = this._canvasesContainer.offsetWidth / desk.image.width;
-    const heightScale = this._canvasesContainer.offsetHeight / desk.image.height;
-    const scale = Math.min(widthScale, heightScale, 1);
-
-    this.setValue(scale);
-
-    this._fillingIn = true;
-  };
-
-  ScaleInputDropdown.prototype._wheelWindow = function(event) {
-    const onCanvas = event.target.closest('canvas') !== null;
-
-    if (event.ctrlKey) {
-      event.preventDefault();
-    }
-
-    if (event.ctrlKey && onCanvas) {
-      if (event.deltaY > 0) {
-        this.decrease();
-      } else {
-        this.increase();
-      }
-    }
-  };
-
-  ScaleInputDropdown.prototype._resizeWindow = function(event) {
-    if (this._fillingIn) {
-      this.fillIn();
-    }
-  };
-
-  ScaleInputDropdown.prototype._zoomCanvas = function() {
-    const width = desk.image.width * this._currentValue;
-    this._canvases.forEach(function(canvas) {
-      canvas.style.width = `${width}px`;
-    });
-  };
-
-  ScaleInputDropdown.prototype._hackCanvasCentering = function() {
-    const canvasWidth = desk.image.width * this._currentValue;
-    const canvasHeight = desk.image.height * this._currentValue;
-
-    const left = canvasWidth >= this._canvasesContainer.offsetWidth ? 0 : null;
-    const top = canvasHeight >= this._canvasesContainer.offsetHeight ? 0 : null;
-
-    this._canvases.forEach(function(canvas) {
-      canvas.style.left = left;
-      canvas.style.top = top;
-    });
-  };
-
   var saveButton = {
     buttonElement: null,
     lightIndicatorElement: null,
@@ -370,7 +263,7 @@ export const initializePage = function(desk) {
     },
   };
 
-  let scaleOption;
+  // let scaleOption;
 
   const dropImageOption = {
     dropareaHiddingTimerID: null,
@@ -448,7 +341,7 @@ export const initializePage = function(desk) {
   function initialize() {
     menuConfigs.init();
 
-    scaleOption = new ScaleInputDropdown(document.getElementById('scaleOption'));
+    // scaleOption = new ScaleInputDropdown(document.getElementById('scaleOption'));
 
     saveButton.init();
     dropImageOption.init();

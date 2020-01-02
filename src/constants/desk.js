@@ -6,6 +6,7 @@ export const ELLIPSE_TOOL = 'ellipse';
 export const ARROW_TOOL = 'arrow';
 export const CROP_TOOL = 'crop';
 
+export const SCALE_OPTION = 'scale';
 export const COLOR_OPTION = 'color';
 export const FONT_SIZE_OPTION = 'textSize';
 export const LINE_SIZE_OPTION = 'lineSize';
