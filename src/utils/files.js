@@ -16,6 +16,20 @@ export function loadImageFromFile(file) {
   return loadImageFromUrl(URL.createObjectURL(file));
 }
 
+export function extractFileFromDataTransfer(dataTransfer, mimeTypePattern = 'image/') {
+  if (!dataTransfer.types.length || dataTransfer.types[0] !== 'Files') {
+    return;
+  }
+
+  const dataTransferItem = dataTransfer.items[0];
+  const file = dataTransferItem.getAsFile();
+  if (file && file.type.startsWith(mimeTypePattern)) {
+    return file;
+  }
+
+  return null;
+}
+
 export function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

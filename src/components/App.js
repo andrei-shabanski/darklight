@@ -1,60 +1,88 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { HotKeys } from 'react-hotkeys';
 
-import {
-  Modal,
-  Dropdown,
-  InputDropdown,
-  NumericInputDropdown,
-  ScreenBlock,
-} from '../js/controls';
-import DrawingDesk from '../services/desk';
-import { initializePage } from '../js/drawing-page';
-import { setDrawingDesk } from '../actions/desk/options';
+import { Dropdown } from '../js/controls';
 
-import Spinner from './Spinner';
+import ScreenLock from './ScreenLock';
 import Canvases from './Canvases';
-import WelcomeModalContainer from '../containers/WelcomeModalContainer';
+import DropImageContainer from '../containers/DropImageContainer';
 import ToolbarContainer from '../containers/ToolbarContainer';
+import WelcomeModalContainer from '../containers/WelcomeModalContainer';
+import { copyLink, saveImage } from '../actions/desk/media';
 
 import '../img/icons.svg';
 import './app.scss';
 
-function App({ setDrawingDesk }) {
+function App({ drawingDesk, loadingImage, savingImage, saveImage, copyLink }) {
   useEffect(() => {
-    window.Modal = Modal;
-    window.Dropdown = Dropdown;
-    window.InputDropdown = InputDropdown;
-    window.NumericInputDropdown = NumericInputDropdown;
-    window.ScreenBlock = ScreenBlock;
-
     document.querySelectorAll('.dropdown').forEach(dropdown => new Dropdown(dropdown));
 
-    document.querySelectorAll('.modal').forEach(modal => new Modal(modal));
+    // TODO: this method shows an alert to save changes. Now it doesn't work
+    function showWarningBeforeLeaving(event) {
+      if (savingImage) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    }
 
-    document.querySelectorAll('.screen-block').forEach(element => new ScreenBlock(element));
+    window.addEventListener('beforeunload', showWarningBeforeLeaving, false);
 
-    const desk = new DrawingDesk(imageCanvas, drawingCanvas);
-    initializePage(desk);
-    window.desk = desk;
-    setDrawingDesk(desk);
-  }, []);
+    return () => {
+      window.removeEventListener('beforeunload', showWarningBeforeLeaving);
+    };
+  });
+
+  const keyMap = {
+    REMOVE_SHAPE: 'ctrl+z',
+    SAVE_IMAGE: 'ctrl+s',
+    COPE_LINK: 'ctrl+c',
+  };
+
+  const keyHandlers = {
+    REMOVE_SHAPE: e => {
+      e.preventDefault();
+      if (drawingDesk) {
+        drawingDesk.removeShape();
+      }
+    },
+    SAVE_IMAGE: e => {
+      e.preventDefault();
+      if (drawingDesk) {
+        saveImage();
+      }
+    },
+    COPE_LINK: e => {
+      e.preventDefault();
+      if (drawingDesk) {
+        copyLink();
+      }
+    },
+  };
 
   return (
-    <>
-      <Spinner message='' iconName='' />
+    <HotKeys keyMap={keyMap} handlers={keyHandlers}>
+      {loadingImage ? <ScreenLock message="Loading the image" iconName="coffee" /> : null}
+      <DropImageContainer />
       <WelcomeModalContainer />
       <main className="desk">
         <ToolbarContainer />
         <Canvases />
       </main>
-    </>
+    </HotKeys>
   );
 }
 
 // TODO disconnect App from redux after moving DrawingDesk initializating
-const mapDispatchToProps = dispatch => ({
-  setDrawingDesk: desk => dispatch(setDrawingDesk(desk)),
+const mapStateToProps = state => ({
+  drawingDesk: state.desk.drawingDesk,
+  loadingImage: state.desk.image.loading,
+  savingImage: state.desk.image.saving,
 });
 
-export default connect(null, mapDispatchToProps)(App);
+const mapDispatchToProps = dispatch => ({
+  saveImage: () => dispatch(saveImage()),
+  copyLink: () => dispatch(copyLink()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
