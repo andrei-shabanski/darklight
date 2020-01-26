@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -19,8 +19,9 @@ import {
 import Icon from '../Icon';
 import Button from '../Button';
 import LightIndicator from '../LightIndicator';
+import { matchPattern } from '../../utils/regexp';
+import ScaleOptionDropdown from './ScaleOptionDropdown';
 
-const SCALE_VALUE_REGEXP = /^(\d{0,3})?%$/;
 const SIZE_VALUE_REGEXP = /^(\d{0,2})?px$/;
 
 const Toolbar = props => {
@@ -63,8 +64,6 @@ const Toolbar = props => {
   const fontSizePatterns = [10, 14, 18, 24, 36, 72];
   const fontSizeOptionEnabled = activeOptions.includes(FONT_SIZE_OPTION);
 
-  const scalePatterns = [0.5, 1, 2];
-
   let indicatorMessage;
   let indicatorMode;
   let indicatorColor;
@@ -86,26 +85,10 @@ const Toolbar = props => {
       break;
   }
 
-  function inputMatchPattern(value, pattern, callback) {
-    const matchedValue = value.match(pattern);
-    if (matchedValue) {
-      callback(matchedValue);
-    }
-  }
-
-  function onScaleChanged(event) {
-    event.preventDefault();
-
-    inputMatchPattern(event.target.value, SCALE_VALUE_REGEXP, matchedValue => {
-      const value = matchedValue[1];
-      setScale(+value / 100);
-    });
-  }
-
   function onFontSizeChanged(event) {
     event.preventDefault();
 
-    inputMatchPattern(event.target.value, SIZE_VALUE_REGEXP, matchedValue => {
+    matchPattern(event.target.value, SIZE_VALUE_REGEXP, matchedValue => {
       const value = matchedValue[1];
       setFontSize(+value);
     });
@@ -114,7 +97,7 @@ const Toolbar = props => {
   function onLineSizeChanged(event) {
     event.preventDefault();
 
-    inputMatchPattern(event.target.value, SIZE_VALUE_REGEXP, matchedValue => {
+    matchPattern(event.target.value, SIZE_VALUE_REGEXP, matchedValue => {
       const value = matchedValue[1];
       setLineSize(+value);
     });
@@ -294,40 +277,7 @@ const Toolbar = props => {
           onChange={e => setColor(e.target.value)}
         />
 
-        <div className="dropdown dropdown-dark dropdown-flat flex-stretch">
-          <Button className="dropdown-toggle" variant="secondary" rounded="0">
-            <input type="text" value={`${(activeScale * 100) | 0}%`} onChange={onScaleChanged} />
-            <Icon name="chevron-down" size="small" className="round-180" />
-          </Button>
-          <div className="dropdown-menu">
-            <div className="dropdown-group">
-              <Button
-                variant="secondary"
-                rounded="0"
-                data-dropdown-noclose
-                onClick={() => setScale(activeScale - 0.1)}
-              >
-                <Icon name="minus" />
-              </Button>
-              <Button variant="secondary" rounded="0" onClick={() => fillIn()}>
-                <Icon name="maximize" />
-              </Button>
-              <Button
-                variant="secondary"
-                rounded="0"
-                data-dropdown-noclose
-                onClick={() => setScale(activeScale + 0.1)}
-              >
-                <Icon name="plus" />
-              </Button>
-            </div>
-            {scalePatterns.map(scale => (
-              <Button key={scale} variant="secondary" rounded="0" onClick={() => setScale(scale)}>
-                {`${scale * 100}%`}
-              </Button>
-            ))}
-          </div>
-        </div>
+        <ScaleOptionDropdown scale={activeScale} onChangeScale={setScale} onFillIn={fillIn} />
       </div>
 
       <Button id="menu-toggle" className="flex-stretch" variant="secondary" rounded="0">

@@ -2,8 +2,6 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { HotKeys } from 'react-hotkeys';
 
-import { Dropdown } from '../js/controls';
-
 import ScreenLock from './ScreenLock';
 import Canvases from './Canvases';
 import DropImageContainer from '../containers/DropImageContainer';
@@ -16,8 +14,6 @@ import './app.scss';
 
 function App({ drawingDesk, loadingImage, savingImage, saveImage, copyLink }) {
   useEffect(() => {
-    document.querySelectorAll('.dropdown').forEach(dropdown => new Dropdown(dropdown));
-
     // TODO: this method shows an alert to save changes. Now it doesn't work
     function showWarningBeforeLeaving(event) {
       if (savingImage) {
