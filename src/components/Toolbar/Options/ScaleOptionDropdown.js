@@ -1,27 +1,39 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import Dropdown from '../Dropdown';
-import Button from '../Button';
-import Icon from '../Icon';
-import { matchPattern } from '../../utils/regexp';
+import Dropdown from '../../Dropdown';
+import Button from '../../Button';
+import Icon from '../../Icon';
+import { matchPattern } from '../../../utils/regexp';
 
 const SCALE_VALUE_REGEXP = /^(\d{0,3})?%$/;
 const SCALE_PATTERNS = [0.5, 1, 2];
 
-export default function ScaleOptionDropdown({ scale, onChangeScale, onFillIn }) {
-  const [opened, setOpened] = useState(false);
+function scaleToString(value) {
+  return `${(value * 100) | 0}%`;
+}
 
-  const scaleToString = value => `${(value * 100) | 0}%`;
+export default function ScaleOptionDropdown({ scale, onChange, onFillIn }) {
+  const [opened, setOpened] = useState(false);
 
   function handleScaleTexted(event) {
     event.preventDefault();
 
     matchPattern(event.target.value, SCALE_VALUE_REGEXP, matchedValue => {
       const value = matchedValue[1];
-      onChangeScale(+value / 100);
+      onChange(+value / 100);
     });
   }
+
+  const onChangeAndClose = value => {
+    setOpened(false);
+    onChange(value);
+  };
+
+  const onFillInAndClose = () => {
+    setOpened(false);
+    onFillIn();
+  };
 
   return (
     <Dropdown
@@ -45,24 +57,29 @@ export default function ScaleOptionDropdown({ scale, onChangeScale, onFillIn }) 
             variant="secondary"
             rounded="0"
             data-dropdown-noclose
-            onClick={() => onChangeScale(scale - 0.1)}
+            onClick={() => onChange(scale - 0.1)}
           >
             <Icon name="minus" />
           </Button>
-          <Button variant="secondary" rounded="0" onClick={() => onFillIn()}>
+          <Button variant="secondary" rounded="0" onClick={() => onFillInAndClose()}>
             <Icon name="maximize" />
           </Button>
           <Button
             variant="secondary"
             rounded="0"
             data-dropdown-noclose
-            onClick={() => onChangeScale(scale + 0.1)}
+            onClick={() => onChange(scale + 0.1)}
           >
             <Icon name="plus" />
           </Button>
         </div>
         {SCALE_PATTERNS.map(value => (
-          <Button key={value} variant="secondary" rounded="0" onClick={() => onChangeScale(value)}>
+          <Button
+            key={value}
+            variant="secondary"
+            rounded="0"
+            onClick={() => onChangeAndClose(value)}
+          >
             {scaleToString(value)}
           </Button>
         ))}
@@ -71,8 +88,8 @@ export default function ScaleOptionDropdown({ scale, onChangeScale, onFillIn }) 
   );
 }
 
-ScaleOptionDropdown.propsType = {
+ScaleOptionDropdown.propTypes = {
   scale: PropTypes.number.isRequired,
-  onScaleChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func.isRequired,
   onFillIn: PropTypes.func.isRequired,
 };
