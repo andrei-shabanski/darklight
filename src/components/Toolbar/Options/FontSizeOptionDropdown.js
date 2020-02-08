@@ -38,7 +38,12 @@ export default function FontSizeOptionDropdown({ fontSize, onChange }) {
       opened={opened}
       onBackgroundClick={() => setOpened(false)}
     >
-      <Dropdown.Toggle onClick={() => setOpened(!opened)}>
+      <Dropdown.Toggle
+        className="flex-stretch"
+        variant="secondary"
+        rounded="0"
+        onClick={() => setOpened(!opened)}
+      >
         <input type="text" value={fontSizeToString(fontSize)} onChange={handleFontSizeTexted} />
       </Dropdown.Toggle>
       <Dropdown.Menu>

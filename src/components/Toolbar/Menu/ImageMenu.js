@@ -16,8 +16,15 @@ export default function ImageMenu({ copyLink, copyDirectLink, download }) {
       opened={opened}
       onBackgroundClick={() => setOpened(false)}
     >
-      <Dropdown.Toggle onClick={() => setOpened(!opened)}>
-        <Icon name="save" />
+      <Dropdown.Toggle
+        arrow={false}
+        className="flex-stretch"
+        variant="secondary"
+        rounded="0"
+        animation="spin-around"
+        onClick={() => setOpened(!opened)}
+      >
+        <Icon name="gear" />
       </Dropdown.Toggle>
       <Dropdown.Menu position="right">
         <Button variant="secondary" rounded="0" onClick={copyLink}>

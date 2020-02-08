@@ -26,5 +26,5 @@ DropdownMenu.propTypes = {
 DropdownMenu.defaultProps = {
   children: null,
   className: null,
-  position: 'right',
+  position: null,
 };

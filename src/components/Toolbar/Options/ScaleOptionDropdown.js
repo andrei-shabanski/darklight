@@ -43,7 +43,12 @@ export default function ScaleOptionDropdown({ scale, onChange, onFillIn }) {
       opened={opened}
       onBackgroundClick={() => setOpened(false)}
     >
-      <Dropdown.Toggle onClick={() => setOpened(!opened)}>
+      <Dropdown.Toggle
+        className="flex-stretch"
+        variant="secondary"
+        rounded="0"
+        onClick={() => setOpened(!opened)}
+      >
         <input
           type="text"
           value={scaleToString(scale)}

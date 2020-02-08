@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
+import Avatar from '../../Avatar';
 import Button from '../../Button';
 import Dropdown from '../../Dropdown';
 
 export default function UserMenu({ user, signIn, signOut }) {
   const [opened, setOpened] = useState(false);
 
-  if (!user) {
+  if (!user || user.isAnonymous) {
     return (
-      <Button className="flex-stretch" variant="secondary" rounded="0" onClick={signIn}>
+      <Button variant="primary" onClick={signIn}>
         Sign in
       </Button>
     );
@@ -23,7 +24,9 @@ export default function UserMenu({ user, signIn, signOut }) {
       opened={opened}
       onBackgroundClick={() => setOpened(false)}
     >
-      <Dropdown.Toggle onClick={() => setOpened(!opened)}>{user.displayName}</Dropdown.Toggle>
+      <Dropdown.Toggle arrow={false} onClick={() => setOpened(!opened)}>
+        <Avatar imageUrl={user.photoURL} />
+      </Dropdown.Toggle>
       <Dropdown.Menu position="right">
         <Button variant="secondary" rounded="0">
           My pictures

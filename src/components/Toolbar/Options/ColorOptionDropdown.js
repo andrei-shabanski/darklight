@@ -28,7 +28,13 @@ export default function ColorOptionDropdown({ color, onChange }) {
         opened={opened}
         onBackgroundClick={() => setOpened(false)}
       >
-        <Dropdown.Toggle onClick={() => setOpened(!opened)}>
+        <Dropdown.Toggle
+          arrow={false}
+          className="flex-stretch"
+          variant="secondary"
+          rounded="0"
+          onClick={() => setOpened(!opened)}
+        >
           <Icon name="rectangle" style={{ fill: color, stroke: color }} />
         </Dropdown.Toggle>
         <Dropdown.Menu>

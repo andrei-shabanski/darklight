@@ -10,8 +10,8 @@ const Button = ({ children, className, variant, rounded, isActive, ...props }) =
     className,
     prefix,
     variant && `${prefix}--${variant}`,
-    rounded && `${prefix}--rounded-${rounded}`,
-    isActive && `${prefix}--active`
+    !variant && `${prefix}--unstyled`,
+    rounded && `${prefix}--rounded-${rounded}`
   );
 
   return (
